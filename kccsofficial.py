@@ -130,7 +130,20 @@ def mc():
         }
         try:
             if sys.argv[3] in mcsrvlis:
-                print(mcsrvlis[sys.argv[3]])
+                if mcsrvlis[sys.argv[3]]["status"]=="offline":
+                    players="No players!"
+                elif MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names == []:
+                    players="No players!"
+                else:
+                    players=", ".join(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names)
+                print("Server name:\t\t{0}\nServer link:\t\t{1}\nServer status:\t\t{2}\nNote:\t\t\t{3}\nLatency (Ping):\t\t{4}\nNumber of players:\t{5}\nPlayers Online:\t\t{6}\n"
+                    .format(mcsrvlis[sys.argv[3]]["name"],      #format it with the stuff from mcsrvlis and minecraft servers libraries
+                            mcsrvlis[sys.argv[3]]["link"],
+                            mcsrvlis[sys.argv[3]]["status"],
+                            mcsrvlis[sys.argv[3]]["note"],          
+                            str(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).ping()) + " ms",
+                            mcsrvlis[sys.argv[3]]["playersOnline"],
+                            players))
                 return 0
             else:
                 raise InvalidArgument("Invalid argument \"" + sys.argv[3] + "\" for the third argument.")
@@ -145,20 +158,21 @@ def mc():
                 if mcsrvlis[srv][key] in ["KCCS Community", "lopx.minehut.gg"]:
                     print("\t",end="")
             print("")
+        print()
         return 0
     elif sys.argv[2] in hlp:
         print('Args: help, server')
 
 
 # Main section.  Program officially start from here.
-print("====================KCCS OFFICIAL====================")
+print("\n====================KCCS OFFICIAL====================")
 try:
     if sys.argv[1] in mcarglist:                                                          #if user indicate minecraft
         sys.exit(mc())
     elif sys.argv[1] in hlp:                                                              #user indicate help
         sys.exit(help())
     else:
-        raise InvalidArgument
+        raise InvalidArgument("First argument \"{}\" is invalid".format(sys.argv[1]))
 except InvalidArgument as e:
     print("Error 2: Invalid Argument.  Program terminated.\nDetails:  " + str(e))
     print("To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"")
@@ -168,5 +182,5 @@ except IndexError as e:
     print("To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"")
     sys.exit(3)
 except Exception as e:
-    print("Error 1: Unknown Error.  Pragram terminated.  Details:  " + str(e))
+    print("Error 1: Unknown Error.  Program terminated.\nDetails:  " + str(e))
     sys.exit(1)
