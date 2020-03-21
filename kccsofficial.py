@@ -1,5 +1,6 @@
 from mcstatus import MinecraftServer
-import sys
+import sys, os
+from termcolor import colored, cprint
 
 # user-defined exceptions
 class Error(Exception):
@@ -13,12 +14,71 @@ class InvalidArgument(Error):
 mcarglist=["minecraft","Minecraft","MINECRAFT","mc","Mc","MC"]  #The args you type in order to indicate you wanna get minecraft info
 mcserverarglist=["srv","Srv","SRV","Server","server","SERVER"]  #The args you type in order to indicate you wanna get minecraft servers info
 hlp=["Help","help","hlp","HELP"]                                #The args you type in order to indicate you wanna get help
+#colors
+if sys.platform.lower() == "win32":
+    os.system('color')
+
+# Group of Different functions for different styles
+class style():
+    black      = lambda x="": '\033[30m' + str(x)
+    red        = lambda x="": '\033[31m' + str(x)
+    green      = lambda x="": '\033[32m' + str(x)
+    yellow     = lambda x="": '\033[33m' + str(x)
+    blue       = lambda x="": '\033[34m' + str(x)
+    magenta    = lambda x="": '\033[35m' + str(x)
+    cyan       = lambda x="": '\033[36m' + str(x)
+    white      = lambda x="": '\033[37m' + str(x)
+    underline  = lambda x="": '\033[4m' + str(x)
+    reset      = lambda x="": '\033[0m' + str(x)
+    end        = lambda x="": '\33[0m' + str(x)
+    bold       = lambda x="": '\33[1m' + str(x)
+    italic     = lambda x="": '\33[3m' + str(x)
+    url        = lambda x="": '\33[4m' + str(x)
+    blink      = lambda x="": '\33[5m' + str(x)
+    blink2     = lambda x="": '\33[6m' + str(x)
+    selected   = lambda x="": '\33[7m' + str(x)
+
+    black      = lambda x="": '\33[30m' + str(x)
+    red        = lambda x="": '\33[31m' + str(x)
+    green      = lambda x="": '\33[32m' + str(x)
+    yellow     = lambda x="": '\33[33m' + str(x)
+    blue       = lambda x="": '\33[34m' + str(x)
+    violet     = lambda x="": '\33[35m' + str(x)
+    beige      = lambda x="": '\33[36m' + str(x)
+    white      = lambda x="": '\33[37m' + str(x)
+
+    blackbg    = lambda x="": '\33[40m' + str(x)
+    redbg      = lambda x="": '\33[41m' + str(x)
+    greenbg    = lambda x="": '\33[42m' + str(x)
+    yellowbg   = lambda x="": '\33[43m' + str(x)
+    bluebg     = lambda x="": '\33[44m' + str(x)
+    violetbg   = lambda x="": '\33[45m' + str(x)
+    beigebg    = lambda x="": '\33[46m' + str(x)
+    whitebg    = lambda x="": '\33[47m' + str(x)
+
+    grey       = lambda x="": '\33[90m' + str(x)
+    red2       = lambda x="": '\33[91m' + str(x)
+    green2     = lambda x="": '\33[92m' + str(x)
+    yellow2    = lambda x="": '\33[93m' + str(x)
+    blue2      = lambda x="": '\33[94m' + str(x)
+    violet2    = lambda x="": '\33[95m' + str(x)
+    beige2     = lambda x="": '\33[96m' + str(x)
+    white2     = lambda x="": '\33[97m' + str(x)
+
+    greybg     = lambda x="": '\33[100m' + str(x)
+    redbg2     = lambda x="": '\33[101m' + str(x)
+    greenbg2   = lambda x="": '\33[102m' + str(x)
+    yellowbg2  = lambda x="": '\33[103m' + str(x)
+    bluebg2    = lambda x="": '\33[104m' + str(x)
+    violetbg2  = lambda x="": '\33[105m' + str(x)
+    beigebg2   = lambda x="": '\33[106m' + str(x)
+    whitebg2   = lambda x="": '\33[107m' + str(x)
 
 
 # functions
 def help():
-    print('To show help, run "kccsofficial [args] help"\nTo show minecraft info, run "kccsofficial minecraft [args]"')
-
+    print(style.grey('To show help, run ' + style.italic("kccsofficial [args] help") + style.reset()) + style.grey('\nTo show minecraft info, run ' + style.italic("kccsofficial minecraft [args]") + "." + style.reset()))
+    return 0
 
 
 def chkmcsrvstatus():
@@ -129,19 +189,38 @@ def mc():
                     }
         }
         try:
+            try:
+                playerls=MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names
+            except OSError as e:
+                playerls=[str(e)]
+            except KeyError as e:
+                raise InvalidArgument("Invalid server id: " + str(e))
             if sys.argv[3] in mcsrvlis:
                 if mcsrvlis[sys.argv[3]]["status"]=="offline":
                     players="No players!"
-                elif MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names == []:
+                elif playerls == []:
                     players="No players!"
                 else:
-                    players=", ".join(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names)
-                print("Server name:\t\t{0}\nServer link:\t\t{1}\nServer status:\t\t{2}\nNote:\t\t\t{3}\nLatency (Ping):\t\t{4}\nNumber of players:\t{5}\nPlayers Online:\t\t{6}\n"
+                    try:
+                        players=", ".join(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).query().players.names)
+                    except OSError as e:
+                        players=str(e)
+                try:
+                    ping=str(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).ping()) + " ms"
+                except OSError as e:
+                    ping=str(e)
+                print((style.yellow("Server name:\t\t")         + style.green("{0}\n") 
+                        + style.yellow("Server link:\t\t")      + style.green("{1}\n") 
+                        + style.yellow("Server status:\t\t")    + style.green("{2}\n") 
+                        + style.yellow("Note:\t\t\t")           + style.green("{3}\n") 
+                        + style.yellow("Latency (Ping):\t\t")   + style.green("{4}\n") 
+                        + style.yellow("Number of players:\t")  + style.green("{5}\n") 
+                        + style.yellow("Players Online:\t\t")   + style.green("{6}\n") + style.reset())
                     .format(mcsrvlis[sys.argv[3]]["name"],      #format it with the stuff from mcsrvlis and minecraft servers libraries
                             mcsrvlis[sys.argv[3]]["link"],
                             mcsrvlis[sys.argv[3]]["status"],
                             mcsrvlis[sys.argv[3]]["note"],          
-                            str(MinecraftServer(mcsrvlis[sys.argv[3]]["link"]).ping()) + " ms",
+                            ping,
                             mcsrvlis[sys.argv[3]]["playersOnline"],
                             players))
                 return 0
@@ -149,7 +228,7 @@ def mc():
                 raise InvalidArgument("Invalid argument \"" + sys.argv[3] + "\" for the third argument.")
         except IndexError:
             pass
-        print("Name\t\t\t\tLink\t\t\t\tStatus")
+        print(style.black(style.greenbg2("Name                            Link                            Status")) + style.reset() + style.blue2())
         for srv in mcsrvlis:                        #print the stuff in the outer dict
             for key in mcsrvlis[srv]:               #print the value from the key with a for-loop in in the inter dict
                 if key in ["playersOnline","note"]:
@@ -157,30 +236,36 @@ def mc():
                 print(str(mcsrvlis[srv][key]) + "\t\t", end="")
                 if mcsrvlis[srv][key] in ["KCCS Community", "lopx.minehut.gg"]:
                     print("\t",end="")
-            print("")
-        print()
+            print()
+        print(style.reset())
         return 0
     elif sys.argv[2] in hlp:
-        print('Args: help, server')
+        print(style.grey('Args: ' + style.italic('help, server')) + style.reset())
+
+
+
 
 
 # Main section.  Program officially start from here.
-print("\n====================KCCS OFFICIAL====================")
+print(style.blue("\n=============================KCCS OFFICIAL=============================") + style.reset())
 try:
     if sys.argv[1] in mcarglist:                                                          #if user indicate minecraft
         sys.exit(mc())
     elif sys.argv[1] in hlp:                                                              #user indicate help
         sys.exit(help())
     else:
-        raise InvalidArgument("First argument \"{}\" is invalid".format(sys.argv[1]))
+        raise InvalidArgument(("First argument " + style.underline("\"{0}\"") + style.end() + style.red2(" is invalid")).format(sys.argv[1]))
 except InvalidArgument as e:
-    print("Error 2: Invalid Argument.  Program terminated.\nDetails:  " + str(e))
-    print("To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"")
+    print(style.red("Error 2: Invalid Argument.  Program terminated.\n") + style.end() + style.red2("Details:  " + str(e)) + style.end())
+    print(style.italic(style.grey("To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"") + style.reset()))
     sys.exit(2)
 except IndexError as e:
-    print("Error 3: IndexError.  Did you input any arguments?\nDetails:  " + str(e))
-    print("To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"")
+    print(style.red("Error 3: IndexError.  " + style.underline("Did you input any arguments?")) + style.reset())
+    print(style.grey("To get the usage, include the ") + style.bold("\"help\"") + style.reset() + style.grey(" arguments, i.e. ") + style.bold("\"kccsofficial help\"") + style.reset())
     sys.exit(3)
 except Exception as e:
-    print("Error 1: Unknown Error.  Program terminated.\nDetails:  " + str(e))
+    if e in ["timed out","Server did not respond with any information!"]:
+        print(style.red2("Error 4: Runtime Error.  Program terminated.\n" + style.red() + "Details:  " + str(e)) + style.reset())
+    else:
+        print(style.red(style.bold(style.blink("Error 1: Unknown Error.  Program terminated.\nDetails:  " + str(e)))) + style.reset())
     sys.exit(1)
