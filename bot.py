@@ -54,6 +54,7 @@ async def test(ctx):
 async def mc(ctx,*,args=""):
     logger.info(ctx.message.author.name + " has issued command /mc " + args)
     print("{} has issued command /mc {}.".format(ctx.message.author.name,args))
+    rtrn = 0
     try:
         if args=="":
             raise discord.ext.commands.errors.MissingRequiredArgument("")

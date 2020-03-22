@@ -2,7 +2,6 @@ from mcstatus import MinecraftServer
 import discord
 
 # constant variables!!!
-mcarglist=["minecraft","Minecraft","MINECRAFT","mc","Mc","MC"]  #The args you type in order to indicate you wanna get minecraft info
 mcserverarglist=["srv","Srv","SRV","Server","server","SERVER"]  #The args you type in order to indicate you wanna get minecraft servers info
 hlp=["Help","help","hlp","HELP"]                                #The args you type in order to indicate you wanna get help
 
