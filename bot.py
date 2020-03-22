@@ -9,7 +9,8 @@ from consolemod import *
 import botmc
 from logcfg import logger
 from discord.utils import get
-import valstore
+
+
 
 #console log
 logger.info("Program started.")
@@ -55,8 +56,11 @@ async def on_ready():
 
 @bot.command(name='test', help="Respond with test messages!")
 async def test(ctx):
+    loltest = ["!urban MEE6","Am I a joke to you?","!8ball Siriu-smart?","What? Are you a developer?{}".format(ctx.message.author.mention),
+    "Didn't expect anyone would use this command, but there it is!","No test.","Ping Pong!","No.","?????","Siriusly, What did you expect?",
+    "Stop.","!8ball are you stupid?","Vincidiot"]
     logger.info(ctx.message.author.name + "has issued command /test")
-    response = random.choice(valstore.loltest)
+    response = random.choice(loltest)
     logger.info("Result / response: " + response)
     msg = await ctx.send(response)
     await msg.add_reaction('👍')
@@ -111,7 +115,9 @@ async def mc(ctx,*,args=""):
 @bot.command(name='cough',help="Simulate cough. :)")
 async def cough(ctx):
     logger.info(ctx.message.author.name + "has issued command /cough")
-    response = random.choice(valstore.lolcough)
+    lolcough = ["What? You being infected coronavirus?",str(bot.get_emoji(684291327818596362)),"Please don't:\nSneeze on me;\nCough on me;\nTalk to me,\nNo oh oh!","🤢",
+    "Run, run, until it's done, done, until the sun comes up in the morn'."]
+    response = random.choice(lolcough)
     logger.info("Result / response: " + response)
     msg = await ctx.send(response)
     await msg.add_reaction('👀')
