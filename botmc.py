@@ -54,7 +54,8 @@ def mc(embed,argv):
     args = argv.split(" ")
     if args[0] in hlp:
         rtrn = 'Args: help, server\n'
-        return rtrn
+        embed = discord.Embed(title="help",description=rtrn)
+        return embed
     elif args[0] in mcserverarglist:
         try:
             if args[1]:
@@ -180,3 +181,5 @@ def mc(embed,argv):
         rtrn += "\n"
         embed = discord.Embed(title="Minecraft Servers", description=rtrn)
         return embed
+    else:
+        raise InvalidArgument("1st Arg '{}' is invalid!".format(argv[0]))
