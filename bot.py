@@ -53,23 +53,21 @@ async def test(ctx):
 @bot.command(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel")
 async def mc(ctx,*,args=""):
     logger.info(ctx.message.author.name + " has issued command /mc " + args)
+    print("{} has issued command /mc {}.".format(ctx.message.author.name,args))
     try:
+        if args=="":
+            raise discord.ext.commands.errors.MissingRequiredArgument("")
         embed = discord.Embed(title="Minecraft KCCS Official",description="Loading...")
         msg = await ctx.send(embed=embed)
         embed = botmc.mc(embed,str(args))
-        rtc = 0
-        logger.info("Exit code: {}".format(str(rtc)))
-        print("{} has issued command /mc {}, responded with exit code 0.".format(ctx.message.author.name,args))
-        embed.set_footer(text="Exit code: " + str(rtc))
-        await msg.edit(embed=embed)
-        return 0
+
     except botmc.InvalidArgument as e:
         rtrn = "Error 2: Invalid Argument.  Program terminated.\n""Details:  " + str(e) + "\n"
-        rtrn += "To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"\n"
+        rtrn += "To get the usage, include the \"help\" arguments, i.e. `/mc help`\n"
         rtc = 2
-    except IndexError as e:
-        rtrn = "Error 3: IndexError.  Did you input any arguments?\n"
-        rtrn += "To get the usage, include the \"help\" arguments, i.e. \"kccsofficial help\"\n"
+    except discord.ext.commands.errors.MissingRequiredArgument as e:
+        rtrn = "Error 3: MissingRequiredArgument.  Did you input any arguments?\n"
+        rtrn += "To get the usage, include the \"help\" arguments, i.e. `/mc help`\n"
         rtc = 3
     except Exception as e:
         if e in ["timed out","Server did not respond with any information!"]:
@@ -79,7 +77,10 @@ async def mc(ctx,*,args=""):
             rtrn = "Error 1: Unknown Error.  Program terminated.\nDetails:  " + str(e) + "\n"
             rtc = 1
     if rtc != 0:
-        logger.warn("Exit code: " + str(rtc))
+        if rtc == 1:
+            logger.error("Error exit code: " + str(rtc))
+        else:
+            logger.warn("Exit code: " + str(rtc))
     else:
         logger.info("Exit code: " + str(rtc))
     embed = discord.Embed(title="ERROR",description=str(rtrn))
