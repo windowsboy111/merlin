@@ -9,7 +9,14 @@ from consolemod import *
 import botmc
 from logcfg import logger
 from discord.utils import get
+import threading
+import datetime
+import time
 
+
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()
 
 
 #console log
@@ -22,8 +29,11 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 # init
 bot = commands.Bot(command_prefix='/')
-
+runno = 1
 logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
+
+
+
 
 
 
@@ -47,66 +57,8 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
-    logger.debug("Bot is now ready!")
+    logger.info("Bot is now ready!")
     print(style.cyan(f'\33[2J{bot.user.name} has connected to Discord!') + style.reset())
-    return
-
-
-
-
-@bot.command(name='test', help="Respond with test messages!")
-async def test(ctx):
-    loltest = ["!urban MEE6","Am I a joke to you?","!8ball Siriu-smart?","What? Are you a developer?{}".format(ctx.message.author.mention),
-    "Didn't expect anyone would use this command, but there it is!","No test.","Ping Pong!","No.","?????","Siriusly, What did you expect?",
-    "Stop.","!8ball are you stupid?","Vincidiot"]
-    logger.info(ctx.message.author.name + "has issued command /test")
-    response = random.choice(loltest)
-    logger.info("Result / response: " + response)
-    msg = await ctx.send(response)
-    await msg.add_reaction('👍')
-    return
-
-
-@bot.command(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel",pass_content=True)
-async def mc(ctx,*,args=""):
-    logger.info(ctx.message.author.name + " has issued command /mc " + args)
-    print("{} has issued command /mc {}.".format(ctx.message.author.name,args))
-    rtrn = 0
-    msg = await ctx.send("Spinnin' around...")
-    await msg.add_reaction(bot.get_emoji(687495401661661324))
-    rtc=0
-    try:
-        if args=="":
-            raise discord.ext.commands.errors.MissingRequiredArgument("")
-        embed = discord.Embed(title="Minecraft KCCS Official",description="uh......")
-        await msg.edit(embed=embed)
-        embed = botmc.mc(embed,args)
-    except botmc.InvalidArgument as e:
-        rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
-        rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
-        rtc = 2
-    except discord.ext.commands.errors.MissingRequiredArgument as e:
-        rtrn = "Panic 3: MissingRequiredArgument.  Plz send args!!!\nDetails:  {}\n".format(str(e))
-        rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
-        rtc = 3
-    except Exception as e:
-        if e in ["timed out","Server did not respond with any information!"]:
-            rtrn = "Panic 4: Runclock Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
-            rtc = 4
-        else:
-            rtrn = "Panic 1: Unknown Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
-            rtc = 1
-    if rtc != 0:
-        embed = discord.Embed(title="ERROR",description=str(rtrn))
-        if rtc == 1:
-            logger.error("Panic kthxbai code: " + str(rtc))
-        else:
-            logger.warn("kthxbai code: " + str(rtc))
-    else:
-        logger.info("Exit code: " + str(rtc))
-    embed.set_footer(text="kthxbai code: {}.".format(rtc))
-    await msg.edit(embed=embed)
-    await msg.remove_reaction(bot.get_emoji(687495401661661324),bot.user)
     return
 
 
@@ -127,6 +79,121 @@ async def cough(ctx):
 
 
 
+@bot.command(name='test', help="Respond with test messages!")
+async def test(ctx):
+    loltest = ["!urban MEE6","Am I a joke to you?","!8ball Siriu-smart?","What? Are you a developer?{}".format(ctx.message.author.mention),
+    "Didn't expect anyone would use this command, but there it is!","No test.","Ping Pong!","No.","?????","Siriusly, What did you expect?",
+    "Stop.","!8ball are you stupid?","Vincidiot"]
+    logger.info(ctx.message.author.name + "has issued command /test")
+    response = random.choice(loltest)
+    logger.info("Result / response: " + response)
+    msg = await ctx.send(response)
+    await msg.add_reaction('👍')
+    return
+
+
+
+
+class threadMC (threading.Thread):
+   def __init__(self, threadID, name, ctx,embed,args):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.args = args
+        self.ctx = ctx
+        self.embed = embed
+        if __name__ == "__main__":
+            import multiprocessing
+            multiprocessing.freeze_support()
+   def run(self):
+        if __name__ == "__main__":
+            import multiprocessing
+            multiprocessing.freeze_support()
+        logger.info("Starting " + self.name)
+        procMC(self.ctx,self.args)
+        logger.info("Exiting " + self.name)
+@bot.command(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel",pass_content=True)
+async def mc(ctx,*,args=""):
+    global runno,embed
+    runno += 1
+    if __name__ == "__main__":
+        import multiprocessing
+        multiprocessing.freeze_support()
+    starttime = datetime.datetime.now()
+    embed = discord.Embed(title="Minecraft KCCS Official",description="uh......")
+    msg = await ctx.send("Spinnin' around...")
+    ebd = await ctx.send(embed=embed)
+    try:
+        fetchMC = threadMC(runno,"FetchMC_{}".format(str(runno)),ctx,embed,args)
+        fetchMC.start()
+    except RuntimeError:
+        pass
+    logger.info(ctx.message.author.name + " has issued command /mc " + args)
+    print("{} has issued command /mc {}.".format(ctx.message.author.name,args))
+    await msg.add_reaction(bot.get_emoji(687495401661661324))
+    fetchMC.join()
+    await msg.remove_reaction(bot.get_emoji(687495401661661324),bot.user)
+    endtime = datetime.datetime.now()
+    timeElapsed = endtime - starttime
+    await msg.edit(content='Time elapsed: {} ms'.format(str(int(timeElapsed.total_seconds() * 1000))))
+    await ebd.edit(embed=embed)
+    if threading.active_count == 4:
+        runno = -1
+    return
+def procMC(ctx,args):
+    if __name__ == "__main__":
+        import multiprocessing
+        multiprocessing.freeze_support()
+    global embed
+    logger.info("procMC started as a new thread.")
+    rtc=0
+    try:
+        if args=="":
+            raise discord.ext.commands.errors.MissingRequiredArgument(ctx.command)
+        logger.info("Attempting to call botmc.mc()")
+        embed = botmc.mc(embed,args)
+    except botmc.InvalidArgument as e:
+        rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
+        rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
+        rtc = 2
+        time.sleep(0.5)
+    except discord.ext.commands.errors.MissingRequiredArgument as e:
+        rtrn = "Panic 3: MissingRequiredArgument.  Plz send args!!!\nDetails:  {}\n".format(str(e))
+        rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
+        rtc = 3
+        time.sleep(0.5)
+    except Exception as e:
+        if e in ["timed out","Server did not respond with any information!"]:
+            rtrn = "Panic 4: Runclock Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtc = 4
+        else:
+            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtc = 1
+        time.sleep(0.5)
+    if rtc != 0:
+        embed = discord.Embed(title="ERROR",description=str(rtrn))
+        if rtc == 1:
+            logger.error("Exit code: " + str(rtc))
+        else:
+            logger.warn("Exit code: " + str(rtc))
+    else:
+        logger.info("Exit code: " + str(rtc))
+    embed.set_footer(text="kthxbai code: {}.".format(rtc))
+
+
+
+
+
+
+
+
+
 console = cursor()
 console.cls()
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()
 bot.run(TOKEN)
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()
