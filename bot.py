@@ -13,28 +13,17 @@ import threading
 import datetime
 import time
 
-
-if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.freeze_support()
-
-
 #console log
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
-
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 # init
 bot = commands.Bot(command_prefix='/')
-runno = 1
+runno = -1
 logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
-
-
-
-
 
 
 
@@ -45,14 +34,10 @@ async def listen(message):
     print(style.green(f"{user}: {message.content}") + style.reset())
 
 
-
-
 @bot.on_message
 async def on_message(message):
     if message.author == bot.user.name:
         return
-
-
 
 
 @bot.event
@@ -74,10 +59,6 @@ async def cough(ctx):
     msg = await ctx.send(response)
     await msg.add_reaction('👀')
     return
-
-
-
-
 
 @bot.command(name='test', help="Respond with test messages!")
 async def test(ctx):
@@ -102,23 +83,15 @@ class threadMC (threading.Thread):
         self.args = args
         self.ctx = ctx
         self.embed = embed
-        if __name__ == "__main__":
-            import multiprocessing
-            multiprocessing.freeze_support()
    def run(self):
-        if __name__ == "__main__":
-            import multiprocessing
-            multiprocessing.freeze_support()
         logger.info("Starting " + self.name)
         procMC(self.ctx,self.args)
         logger.info("Exiting " + self.name)
 @bot.command(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel",pass_content=True)
 async def mc(ctx,*,args=""):
     global runno,embed
+    enduser = ctx.message.author.name
     runno += 1
-    if __name__ == "__main__":
-        import multiprocessing
-        multiprocessing.freeze_support()
     starttime = datetime.datetime.now()
     embed = discord.Embed(title="Minecraft KCCS Official",description="uh......")
     msg = await ctx.send("Spinnin' around...")
@@ -126,24 +99,22 @@ async def mc(ctx,*,args=""):
     try:
         fetchMC = threadMC(runno,"FetchMC_{}".format(str(runno)),ctx,embed,args)
         fetchMC.start()
+        logger.info(enduser + " has issued command /mc " + args)
+        print("{} has issued command /mc {}".format(enduser,args))
+        await msg.add_reaction(bot.get_emoji(687495401661661324))
+        fetchMC.join()
+        await msg.remove_reaction(bot.get_emoji(687495401661661324),bot.user)
+        endtime = datetime.datetime.now()
+        timeElapsed = endtime - starttime
+        await msg.edit(content='Time elapsed: {} ms'.format(str(int(timeElapsed.total_seconds() * 1000))))
+        await ebd.edit(embed=embed)
+        time.sleep(0.5)
+        if threading.active_count == 4:
+            runno = -1
     except RuntimeError:
         pass
-    logger.info(ctx.message.author.name + " has issued command /mc " + args)
-    print("{} has issued command /mc {}.".format(ctx.message.author.name,args))
-    await msg.add_reaction(bot.get_emoji(687495401661661324))
-    fetchMC.join()
-    await msg.remove_reaction(bot.get_emoji(687495401661661324),bot.user)
-    endtime = datetime.datetime.now()
-    timeElapsed = endtime - starttime
-    await msg.edit(content='Time elapsed: {} ms'.format(str(int(timeElapsed.total_seconds() * 1000))))
-    await ebd.edit(embed=embed)
-    if threading.active_count == 4:
-        runno = -1
     return
 def procMC(ctx,args):
-    if __name__ == "__main__":
-        import multiprocessing
-        multiprocessing.freeze_support()
     global embed
     logger.info("procMC started as a new thread.")
     rtc=0
@@ -162,14 +133,12 @@ def procMC(ctx,args):
         rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
         rtc = 3
         time.sleep(0.5)
+    except botmc.OfflineServer as e:
+        rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
+        rtc = 4
     except Exception as e:
-        if e in ["timed out","Server did not respond with any information!"]:
-            rtrn = "Panic 4: Runclock Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
-            rtc = 4
-        else:
-            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
-            rtc = 1
-        time.sleep(0.5)
+        rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+        rtc = 1
     if rtc != 0:
         embed = discord.Embed(title="ERROR",description=str(rtrn))
         if rtc == 1:
@@ -185,15 +154,6 @@ def procMC(ctx,args):
 
 
 
-
-
-
 console = cursor()
 console.cls()
-if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.freeze_support()
 bot.run(TOKEN)
-if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.freeze_support()

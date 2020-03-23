@@ -13,42 +13,50 @@ class Error(Exception):
 class InvalidArgument(Error):
     """Argument passed from the command line is invalid"""
     pass
+class OfflineServer(Error):
+    """The specified minecraft server has been detected as offline"""
+    pass
 
 def chkmcsrvstatus():
     logger.info("Started chkmcsrvstatus(), try-excepting if servers are online...")
     try:
-        temp = MinecraftServer.lookup("kccscomm.minehut.gg:25565")
+        temp = MinecraftServer.lookup("kccscomm.minehut.gg:25565").status()
         statuskccscomm = "online"
     except OSError:
         statuskccscomm = "offline"
     try:
-        temp = MinecraftServer.lookup("lopxl.aternos.me")
+        temp = MinecraftServer.lookup("lopxl.aternos.me").status()
         statuslopxl = "online"
     except OSError:
         statuslopxl = "offline"
     try:
-        temp = MinecraftServer.lookup("lopx.minehut.gg")
+        temp = MinecraftServer.lookup("lopx.minehut.gg").status()
         statuslopx = "online"
     except OSError:
         statuslopx = "offline"
     try:
-        temp = MinecraftServer.lookup("116kccs.aternos.me")
+        temp = MinecraftServer.lookup("116kccs.aternos.me").status()
         status116 = "online"
     except OSError:
         status116 = "offline"
     try:
-        temp = MinecraftServer.lookup("sb4kccs.aternos.me")
+        temp = MinecraftServer.lookup("sb4kccs.aternos.me").status()
         statussb4 = "online"
     except OSError:
         statussb4 = "offline"
     try:
-        temp = MinecraftServer.lookup("smpkccs.aternos.me")
+        temp = MinecraftServer.lookup("smpkccs.aternos.me").status()
         statussmp = "online"
     except OSError:
         statussmp = "offline"
-        temp += ""
+        
     logger.info("Attempting to return dict from chkmcsrvstatus()...")
     return {"statuskccscomm":statuskccscomm,"statuslopxl": statuslopxl,"statuslopx":statuslopx,"status116": status116,"statussb4": statussb4,"statussmp": statussmp}
+
+
+
+
+
 def mc(embed,argv):
     logger.info("Started botmc.mc()")
     global hlp
@@ -89,7 +97,7 @@ def mc(embed,argv):
                     note = "Ruined :("
                 elif args[1] == "smpkccs":
                     link = "smpkccs.aternos.me"
-                    name = "No Cheat Survival Multiplayer"
+                    name = "Survival Multiplayer KCCS"
                     note = "NO CHEATING"
                 elif args[1] == "hypixel":
                     link = "mc.hypixel.net"
@@ -102,10 +110,7 @@ def mc(embed,argv):
                 elif args[1] == "pvpwars":
                     link = "pvpwars.net"
                     name = "PvpWars"
-                    try:
-                        note = MinecraftServer(link).query().motd
-                    except OSError as e:
-                        note = str(e)
+                    note = "Null"
                 else:
                     logger.info("Not a defined server, will treat 2nd argument as a server link and name.")
                     link = args[1]
@@ -114,31 +119,45 @@ def mc(embed,argv):
                         note = MinecraftServer(link).query().motd
                     except OSError as e:
                         note = str(e)
-                        logger.warn('Getting error "{}" while trying to get the motd sf server, error ignored.')
+                        logger.warn('Getting error "{}" while trying to get the motd sf server, error ignored.'.format(str(e)))
+                        logger.info('Query() might not be supported for this server.  Edit server.properties to enable this feature.')
                 try:
-                    tmp=MinecraftServer(args[1]).query()
+                    tmp=MinecraftServer.lookup(link).status()
+                    logger.info(tmp.players)
                     status="online"
-                    players=tmp.players.online
-                    playerls=tmp.players.names
+                    players=str(tmp.players.online) + "/" + str(tmp.players.max)
+                    ping=tmp.latency
                 except OSError as e:
-                    logger.warn('Getting errer "{}" while trying to detect if server is online, treat server as an offline server, error ignored.')
-                    status="offline"
-                    players=0
-                    playerls=["none"]
+                    status='offline'
+                    logger.warn('Getting error "{}" while trying to detect if server is online, treat server as an offline server.'.format(str(e)))
+                    raise OfflineServer("Server {} (link {}) has been detected as offline.".format(name,link))
                 try:
-                    ping=str(MinecraftServer(link).ping()) + " ms"
+                    if tmp.players.sample:
+                        playerls = ', '.join(p.name for p in tmp.players.sample)
+                    else:
+                        playerls = 'Unknown'
                 except OSError as e:
-                    ping=str(e)
+                    playerls=[str(e)]
                     if status == "online":
-                        logger.warn('Getting error "{}" while trying to get ping even server is online, error ignored.')
+                        logger.warn('Getting error "{}" while trying to get ping even server is online, error ignored.'.format(str(e)))
+                if tmp.description:
+                    dscrp = tmp.description
+                else:
+                    dscrp = "No description / Unknown"
+                if tmp.version.name:
+                    ver = tmp.version.name
+                else:
+                    ver = "Unknown"
                 embed = discord.Embed(title="Minecraft KCCS Official",description="")
-                embed.add_field(name = "Server name: ", value=name, inline=True)
-                embed.add_field(name = "Server link: ", value=link, inline=True)
-                embed.add_field(name = "Server status: ", value=status, inline=True)
-                embed.add_field(name = "Note: ", value=note, inline=True)
-                embed.add_field(name = "Latency (Ping): ", value=ping, inline=True)
-                embed.add_field(name = "Number of players: ", value=players, inline=True)
-                embed.add_field(name = "Players Online: ", value=", ".join(playerls), inline=True)
+                embed.add_field(name = "Server name: ",         value=name,         inline=True)
+                embed.add_field(name = "Server link: ",         value=link,         inline=True)
+                embed.add_field(name = "Server status: ",       value=status,       inline=True)
+                embed.add_field(name = "Server version: ",      value=ver,          inline=True)
+                embed.add_field(name = "Note: ",                value=note,         inline=True)
+                embed.add_field(name = "Latency (Ping): ",      value=ping,         inline=True)
+                embed.add_field(name = "Number of players: ",   value=players,      inline=True)
+                embed.add_field(name = "Players Online: ",      value=playerls,     inline=True)
+                embed.add_field(name = "Description: ",         value=dscrp,        inline=True)
                 logger.info('Attempting to return obj "embed" from srv <id/link>')
                 return embed
             else:
@@ -148,42 +167,43 @@ def mc(embed,argv):
         logger.info("Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()")
         mcsrvstatus = chkmcsrvstatus()
         logger.info('Creating dict "mcsrvlis" based on the dict returned from chkmcsrvstatus()')
-        mcsrvlis = {"kccscomm": {
-                        "name":             "KCCS Community",
-                        "link":             "kccscomm.minehut.gg",
-                        "status":           mcsrvstatus["statuskccscomm"],
-                        "note":             "Recommened"
-                    },
-                    "lopxl":{
-                        "name":             "Lopixel on Aternos",
-                        "link":             "lopxl.aternos.me",
-                        "status":           mcsrvstatus["statuslopxl"],
-                        "note":             "Inactive"
-                    },
-                    "lopx":{
-                        "name":             "Lopixel on Minehut",
-                        "link":             "lopx.minehut.gg",
-                        "status":           mcsrvstatus["statuslopx"],
-                        "note":             "Ignored"
-                    },
-                    "116kccs":{
-                        "name":             "1.16 server for KCCS",
-                        "link":             "116kccs.aternos.me",
-                        "status":           mcsrvstatus["status116"],
-                        "note":             "Active"
-                    },
-                    "sb4kccs":{
-                        "name":             "Skyblock for KCCS",
-                        "link":             "sb4kccs.aternos.me",
-                        "status":           mcsrvstatus["statussb4"],
-                        "note":             "Ruined"
-                    },
-                    "smpkccs":{
-                        "name":             "Survival Multiplayer",
-                        "link":             "smpkccs.aternos.me",
-                        "status":           mcsrvstatus["statussmp"],
-                        "note":             "Active, NO CHEATING"
-                    }
+        mcsrvlis = {
+            "kccscomm": {
+                "name":     "KCCS Community",
+                "link":     "kccscomm.minehut.gg",
+                "status":   mcsrvstatus["statuskccscomm"],
+                "note":     "Recommened"
+            },
+            "lopxl":{
+                "name":     "Lopixel on Aternos",
+                "link":     "lopxl.aternos.me",
+                "status":   mcsrvstatus["statuslopxl"],
+                "note":     "Inactive"
+            },
+            "lopx":{
+                "name":     "Lopixel on Minehut",
+                "link":     "lopx.minehut.gg",
+                "status":   mcsrvstatus["statuslopx"],
+                "note":     "Ignored"
+            },
+            "116kccs":{
+                "name":     "1.16 server for KCCS",
+                "link":     "116kccs.aternos.me",
+                "status":   mcsrvstatus["status116"],
+                "note":     "Active"
+            },
+            "sb4kccs":{
+                "name":     "Skyblock for KCCS",
+                "link":     "sb4kccs.aternos.me",
+                "status":   mcsrvstatus["statussb4"],
+                "note":     "Ruined"
+            },
+            "smpkccs":{
+                "name":     "Survival Multiplayer",
+                "link":     "smpkccs.aternos.me",
+                "status":   mcsrvstatus["statussmp"],
+                "note":     "Active, NO CHEATING"
+            }
         }
         logger.info('Formatting the dict so that it will be a little bit human-readable')
         rtrn += "Name\t\t\t\tLink\t\t\t\tStatus\n"
