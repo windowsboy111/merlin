@@ -1,0 +1,28 @@
+{
+  "name": "kccs-official",
+  "version": "0.8.4",
+  "description": "the kccs official discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "bot.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windowsboy111/KCCS-official.git"
+  },
+  "keywords": [
+    "kccs",
+    "kccs-official",
+    "kccs",
+    "official"
+  ],
+  "author": "windowsboy111",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/windowsboy111/KCCS-official/issues"
+  },
+  "homepage": "https://github.com/windowsboy111/KCCS-official#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

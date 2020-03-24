@@ -123,7 +123,6 @@ def mc(embed,argv):
                         logger.info('Query() might not be supported for this server.  Edit server.properties to enable this feature.')
                 try:
                     tmp=MinecraftServer.lookup(link).status()
-                    logger.info(tmp.players)
                     status="online"
                     players=str(tmp.players.online) + "/" + str(tmp.players.max)
                     ping=tmp.latency
