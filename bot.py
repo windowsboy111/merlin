@@ -6,7 +6,7 @@ from discord.ext.commands import has_permissions,MissingPermissions
 from consolemod import *
 from logcfg import logger
 from discord.utils import get
-import threading,datetime,time,botmc,discord,os,random,asyncio,json
+import threading,datetime,time,botmc,discord,os,random,asyncio,json,quickpoll
 from concurrent.futures import ThreadPoolExecutor
 
 #console log
@@ -18,49 +18,10 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 # init
 bot = commands.Bot(command_prefix = '/')
-runno = -1
+runno = 0
 logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
 embed=discord.Embed()
 
-
-with open('G:/my drive/coding/python/kccs-official/reports.json', encoding='utf-8') as f:
-  try:
-    report = json.load(f)
-  except ValueError:
-    report = {}
-    report['users'] = []  
-@bot.command(pass_context = True)
-@has_permissions(manage_roles=True, ban_members=True)
-async def warn(ctx,user:discord.User,*reason:str):
-    if not reason:
-        await ctx.say("Please provide a reason")
-        return
-    reason = ' '.join(reason)
-    for current_user in report['users']:
-        if current_user['name'] == user.name:
-            current_user['reasons'].append(reason)
-            break
-        else:
-            report['users'].append({
-                'name':user.name,
-                'reasons': [reason,]
-            })
-    with open('reports.json','w+') as f:
-        json.dump(report,f)
-    await ctx.say(f"{user.mention} has been warned by {ctx.message.author.mention} with reason: {reason}")
-@bot.command(pass_context = True)
-async def warnings(ctx,user:discord.User):
-  for current_user in report['users']:
-    if user.name == current_user['name']:
-      await ctx.say(f"{user.name} has been reported {len(current_user['reasons'])} times : {','.join(current_user['reasons'])}")
-      break
-  else:
-    await ctx.say(f"{user.name} has never been reported")  
-@warn.error
-async def kick_error(error, ctx):
-  if isinstance(error, MissingPermissions):
-      text = "Sorry {}, you do not have permissions to do that!".format(ctx.message.author)
-      await ctx.send_message(ctx.message.channel, text)
 
 
 @bot.listen
@@ -106,7 +67,7 @@ async def test(ctx):
     await msg.add_reaction('👍')
     return
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')
 async def ping(ctx):
     await ctx.send(embed=discord.Embed(title="Pong!", description='The latency is {} ms.'.format(bot.latency*1000), color=0x3333ff))
 
@@ -120,7 +81,15 @@ async def stupid(ctx,*,args='that'):
     logger.info(ctx.message.author.name + 'has issued command /stupid')
     await ctx.send(random.choice([f'{args} is so so stupid!',f"I can't believe how stupid {args} is!",f"Seriously, {args}'s the stupidest thing I've ever heard!",f"STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID {args}!",f"I can't believe {args}'s even a thing."]))
 
-
+@bot.command(name='whatis',help='Tells you what the input is. /whatis minecraft')
+async def whatis(ctx,*,args=""):
+    logger.info(ctx.message.author.name + f'has issued command /whatis {args}')
+    if args=="":
+        await ctx.send("Bruh, where's the argument???")
+        return
+    await ctx.send(random.choice([f"{args} is generally {args}.",f"Technically, {args} is {args}!",f"To know what {args} is, please run `!urban {args}`",
+    f"Well, not in a nutshell, {args} as {args} is {args} in {args} on {args} at {args} from {args} to {args}...It's just...{args}!!!!!",
+    f"You are so dumb that you even don't know what {args} is!"]))
 
 
 
@@ -207,45 +176,18 @@ def procMC(ctx,args):
 async def vote(ctx):
     if ctx.invoked_subcommand is None:
         await ctx.send(f"2 bed idk wat u r toking 'bout, but wut?")
-
 @vote.command(name='create',help='Create a vote: /vote create <name> <choices>')
-async def create(ctx,name,*,args):
-    try:
-        async with ctx.typing():
-            args = args.split(",")
-            import votes
-            ebd = discord.Embed(title=f'Poll: {name}\n',color=0xaaff00,description=ctx.author.mention)
-            ebd.set_author(name=ctx.author.name,url=f'https://cdn.discordapp.com/{ctx.author.id}',icon_url=ctx.author.avatar_url)
-            regional_indicator = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']
-            for choice in args:
-                ebd.add_field(name=regional_indicator[args.index(choice)],value=choice)
-            msg = await ctx.send(embed=ebd)
-            for choice in args:
-                await msg.add_reaction(regional_indicator[args.index(choice)])
-        f = open('votes.py','a')
-        f.writelines("\nvotes['{name}'] = {{\n'choices': {args}, 'author': {author}, 'msg': {msg}}}".format(name=name,args=args,author=ctx.author,msg=msg))
-        f.close()
-    except discord.ext.commands.errors.MissingRequiredArgument as e:
-        await ctx.send(f'ERA: MissingRequiredArgument: {e}.\n2 bed idk wat u r tokin \'bout, but wut?')
+async def create(ctx,name,*options: str):
+    logger.info(f"{ctx.message.author.name} has issued command /vote create {name} " + str(options))
+    poll = quickpoll.QuickPoll(bot)
+    await poll.quickpoll(poll,ctx,name,options)
+    logger.info(f'finished request /vote create {name} {str(options)} from {ctx.author.name}.')
+    return
 @vote.command(name='end',help='End a vote: /vote end <name>')
-async def end(ctx,*,n):
-        async with ctx.typing():
-            import votes
-            data = votes.votes['"' + str(n) + '"']
-            choices = data['choices']
-            author = data['author']
-            msg = data['msg']
-            ebd = discord.Embed(title=n,description='Poll ended',color=0x00ffbb)
-            ebd.set_author(name=author.name,url=author.url,icon_url=author.avatar_url)
-            regional_indicator = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']
-            for choice in choices:
-                ebd.add_field(name=regional_indicator[choices.index(choice)],value=get(msg.reactions, emoji=regional_indicator[choices[choice]]).count - 1)
-            await msg.delete()
-            await ctx.send(embed=ebd)
-        f = open('votes.py','a')
-        f.write("\nvotes.del('{}')".format(n))
-        f.close()
-        return
+async def end(ctx,*,id):
+    poll = quickpoll.QuickPoll(bot)
+    await poll.tally(poll,ctx,id)
+    return
 
         
         

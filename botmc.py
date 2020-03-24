@@ -147,7 +147,7 @@ def mc(embed,argv):
                     ver = tmp.version.name
                 else:
                     ver = "Unknown"
-                embed = discord.Embed(title="Minecraft KCCS Official",description="")
+                embed = discord.Embed(title="Minecraft KCCS Official",description="Here's da info",color=0x00b9ff)
                 embed.add_field(name = "Server name: ",         value=name,         inline=True)
                 embed.add_field(name = "Server link: ",         value=link,         inline=True)
                 embed.add_field(name = "Server status: ",       value=status,       inline=True)
@@ -213,7 +213,7 @@ def mc(embed,argv):
                     rtrn += "\t"
             rtrn += "\n"
         rtrn += "\n"
-        embed = discord.Embed(title="Minecraft Servers", description=rtrn)
+        embed = discord.Embed(title="Minecraft Servers", description=rtrn,color=0x0000ff)
         logger.info('Attempting to return obj "embed" from srv')
         return embed
     else:
