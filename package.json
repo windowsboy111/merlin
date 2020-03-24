@@ -22,7 +22,4 @@
     "url": "https://github.com/windowsboy111/KCCS-official/issues"
   },
   "homepage": "https://github.com/windowsboy111/KCCS-official#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  }
 }
