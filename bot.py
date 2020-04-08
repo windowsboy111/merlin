@@ -6,22 +6,23 @@ from discord.ext.commands import has_permissions,MissingPermissions
 from consolemod import *
 from logcfg import logger
 from discord.utils import get
-import threading,datetime,time,botmc,discord,os,random,asyncio,json,quickpoll
+import threading,datetime,time,botmc,discord,os,random,asyncio,json
 from concurrent.futures import ThreadPoolExecutor
-
 #console log
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-
 # init
-bot = commands.Bot(command_prefix = '/')
+bot = commands.Bot(
+    command_prefix = '/',
+    description="The bot for KCCS Official",
+    case_insensitive=True)
 runno = 0
-logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
+lastmsg = []
+cogs = ['fun','utilities','debug','man']
 embed=discord.Embed()
-
+logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
 
 
 @bot.listen
@@ -29,68 +30,67 @@ async def listen(message):
     user = discord.utils.get(message.guild.members, id=message.author.id)
     logger.info("{user}: {message.content}")
     print(style.green(f"{user}: {message.content}") + style.reset())
-
-
 @bot.on_message
 async def on_message(message):
+    global lastmsg
     if message.author == bot.user.name or message.author.bot:
         return
+    # if message.server is None and message.startswith('$/'):
+    #     logger.info('Received a dm message from ' + message.author.name + 'that starts with $/, it is being treated as a command.')
+    #     print(f'dm command from {message.author.name}: {message.content}')
+    #     await bot.process_commands(message)
 
+    if message.startswith('/'):
+        logger.info(f'{message.author.name} has issued command: {message.content}')
+        print(f'{message.author.name} has issued command: {message.content}')
 
+    if 'siriustupid' in message.content.lower():
+        logger.info(f'Detected "siriustupid" in a message from {message.author.name}')
+        print(f'Detected "siriustupid" in a message from {message.author.name}')
+        await message.channel.send('Sirius is so so stupid!', tts=True)
+    elif 'vincidiot' in message.content.lower():
+        logger.info(f'Detected "vincidiot" in a message from {message.author.name}')
+        print(f'Detected "vincidiot" in a message from {message.author.name}')
+        await message.channel.send('Vinci is an idiot!', tts=True)
+    elif 'benz' in message.content.lower():
+        logger.info(f'Detected "benz" in a message from {message.author.name}')
+        print(f'Detected "benz" in a message from {message.author.name}')
+        await message.channel.send('Stupid Benz is a sucker', tts=True)
+    elif 'what?' == message.content.lower():
+        logger.info(f'Detected "what?" in a message from {message.author.name}')
+        print(f'Detected "what?" in a message from {message.author.name}')
+        await message.channel.send('Nothing.')
+    if not lastmsg:
+        lastmsg=[message.content.lower(),message.author,1,False]
+    elif lastmsg[2] == 2 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
+        logger.info(f'Detected the same message has been sent from {message.author.name} for 3 times!')
+        print(f'Detected the same message has been sent from {message.author.name} for five times!')
+        await message.channel.send(f'OK BOOMER {message.author.mention}')
+    elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
+        lastmsg[2]+=1
+        if lastmsg[2] == 2:
+            lastmsg[3]=True
+    else:
+        lastmsg=[message.content.lower(),message.author,1,False]
 @bot.event
 async def on_ready():
-    logger.info("Bot is now ready!")
-    print(style.cyan(f'\33[2J{bot.user.name} has connected to Discord!') + style.reset())
+    print(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id}'))
+    for cog in cogs:
+        bot.load_extension('cogs.' + cog)
     return
-
-
-@bot.command(name='cough',help="Simulate cough. :)")
-async def cough(ctx):
-    logger.info(ctx.message.author.name + "has issued command /cough")
-    lolcough = ["What? You being infected coronavirus?",str(bot.get_emoji(684291327818596362)),"Please don't:\nSneeze on me;\nCough on me;\nTalk to me,\nNo oh oh!","🤢",
-    "Run, run, until it's done, done, until the sun comes up in the morn'."]
-    response = random.choice(lolcough)
-    logger.info("Result / response: " + response)
-    msg = await ctx.send(response)
-    await msg.add_reaction('👀')
-    return
-
-@bot.command(name='test', help="Respond with test messages!")
-async def test(ctx):
-    loltest = ["!urban MEE6","Am I a joke to you?","!8ball Siriu-smart?","What? Are you a developer?{}".format(ctx.message.author.mention),
-    "Didn't expect anyone would use this command, but there it is!","No test.","Ping Pong!","No.","?????","Siriusly, What did you expect?",
-    "Stop.","!8ball are you stupid?","Vincidiot"]
-    logger.info(ctx.message.author.name + "has issued command /test")
-    response = random.choice(loltest)
-    logger.info("Result / response: " + response)
-    msg = await ctx.send(response)
-    await msg.add_reaction('👍')
-    return
-
-@bot.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')
-async def ping(ctx):
-    await ctx.send(embed=discord.Embed(title="Pong!", description='The latency is {} ms.'.format(bot.latency*1000), color=0x3333ff))
-
-@bot.command(name='emojis',help='Print all emojis')
-async def emojis(ctx):
-    for emoji in ctx.guild.emojis:
-        await ctx.send(str(bot.get_emoji(emoji.id)) + str(emoji.id) + f" {emoji.name}")
-
-@bot.command(name='stupid',help='Shout at stupid things')
-async def stupid(ctx,*,args='that'):
-    logger.info(ctx.message.author.name + 'has issued command /stupid')
-    await ctx.send(random.choice([f'{args} is so so stupid!',f"I can't believe how stupid {args} is!",f"Seriously, {args}'s the stupidest thing I've ever heard!",f"STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID {args}!",f"I can't believe {args}'s even a thing."]))
-
-@bot.command(name='whatis',help='Tells you what the input is. /whatis minecraft')
-async def whatis(ctx,*,args=""):
-    logger.info(ctx.message.author.name + f'has issued command /whatis {args}')
-    if args=="":
-        await ctx.send("Bruh, where's the argument???")
-        return
-    await ctx.send(random.choice([f"{args} is generally {args}.",f"Technically, {args} is {args}!",f"To know what {args} is, please run `!urban {args}`",
-    f"Well, not in a nutshell, {args} as {args} is {args} in {args} on {args} at {args} from {args} to {args}...It's just...{args}!!!!!",
-    f"You are so dumb that you even don't know what {args} is!"]))
-
+@bot.event
+async def on_member_join(member):
+    logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
+    await member.create_dm()
+    await member.dm_channel.send(f'Hi {member.name}, welcome to KCCS Official Discord server!  I am the KCCS Official bot, lemme guide you through:\n'
+    'Before the 10 minutes pass, READ THE RULES.\nThis is an English discord server after all, only English is allowed unless you are in a voice channel.\n'
+    'To assign a identity role, run the following command in the server: `/role assign [e.g. 1a]`.\nIf you are not in KCCS, run `/role assign friends` instead.\n')
+    ment = member.mention
+    embed = discord.Embed(title=f"Welcome {ment}!",color=0xFFBB00)
+    embed.set_author(name=member,icon_url=member.avatar_url)
+    embed.set_footer(text=f"User id: {member.id}")
+    await bot.get_channel(664091944082997278).send()
+    print(f"{member} has joined the server.")
 
 
 class threadMC (threading.Thread):
@@ -170,34 +170,6 @@ def procMC(ctx,args):
 
 
 
-
-
-@bot.group(pass_context=True)
-async def vote(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send(f"2 bed idk wat u r toking 'bout, but wut?")
-@vote.command(name='create',help='Create a vote: /vote create <name> <choices>')
-async def create(ctx,name,*options: str):
-    logger.info(f"{ctx.message.author.name} has issued command /vote create {name} " + str(options))
-    poll = quickpoll.QuickPoll(bot)
-    await poll.quickpoll(poll,ctx,name,options)
-    logger.info(f'finished request /vote create {name} {str(options)} from {ctx.author.name}.')
-    return
-@vote.command(name='end',help='End a vote: /vote end <name>')
-async def end(ctx,*,id):
-    poll = quickpoll.QuickPoll(bot)
-    await poll.tally(poll,ctx,id)
-    return
-
-        
-        
-        
-        
-
-
-
-
-
 console = cursor()
 console.cls()
-bot.run(TOKEN)
+bot.run(TOKEN,bot=True,reconnect=True)

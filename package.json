@@ -1,6 +1,6 @@
 {
   "name": "@windowsboy111/kccs-official",
-  "version": "0.8.4",
+  "version": "1.0.0",
   "description": "the kccs official discord bot",
   "main": "index.js",
   "scripts": {
