@@ -124,12 +124,12 @@ class manage(commands.Cog):
                 print(f'Role {rolename} deleted successfully. (Requested by {ctx.message.author})')
                 logger.info(f'Role {rolename} deleted successfully. (Requested by {ctx.message.author})')
             except discord.Forbidden as e:
-                await ctx.send( f'Failed to delete role {rolename} because the requester {ctx.message.author.mention} has missing permissions.  Administrative privileges are required.\n'
-                                f'Error message: {e}')
-                print(          f'Failed to delete role {rolename} because the requester {ctx.message.author} has missing permissions.  Administrative privileges are required.\n'
-                                f'Error message: {e}')
-                logger.warn(    f'Failed to delete role {rolename} because the requester {ctx.message.author} has missing permissions.  Administrative privileges are required.\n'
-                                f'Error message: {e}')
+                await ctx.send( f'Failed to delete role {rolename} because the requester {ctx.message.author.mention} '
+                                f'has missing permissions.  Administrative privileges are required.\nError message: {e}')
+                print(          f'Failed to delete role {rolename} because the requester {ctx.message.author} '
+                                f'has missing permissions.  Administrative privileges are required.\nError message: {e}')
+                logger.warn(    f'Failed to delete role {rolename} because the requester {ctx.message.author} '
+                                f'has missing permissions.  Administrative privileges are required.\nError message: {e}')
             except Exception as e:
                 await ctx.send( f'Failed to create role {rolename} (requested by {ctx.message.author.mention}).\nError message: {e}')
                 print(          f'Failed to create role {rolename} (requested by {ctx.message.author}).\nError message: {e}')
@@ -140,6 +140,27 @@ class manage(commands.Cog):
             logger.info(    f'Failed to get the role.  Probably role {rolename} is not a thing.  Did {ctx.message.author} got it right?')
         await ctx.message.delete()
         return
+
+
+    @commands.command(name='nickname',help='Change the nickname')
+    async def nickname(self,ctx, newNick='', member: discord.Member=None):
+        async with ctx.typing():
+            member = member or ctx.message.author
+        if ['Seniors','Administrators'] not in ctx.message.author.roles and member != ctx.message.author:
+            await ctx.send('Seniors or Administrators privileges are required.')
+            return
+        if newNick=='':
+            await ctx.send('Nickname cannot be blank.')
+            return
+        try:
+            await ctx.message.guild.get_member(member.id).edit(nick=newNick)
+            await ctx.send(f'Operation completed successfully.')
+            return
+        except Exception as e:
+            await ctx.send( f'An error occurred while trying to assign {member.mention} a new nickname (requested by {ctx.message.author.mention})\nError message: {e}')
+            print(          f'An error occurred while trying to assign {member} a new nickname (requested by {ctx.message.author})\nError message: {e}')
+            logger.warn(    f'An error occurred while trying to assign {member} a new nickname (requested by {ctx.message.author})\nError message: {e}')
+            return
 
 
 

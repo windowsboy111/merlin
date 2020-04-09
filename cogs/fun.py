@@ -1,6 +1,9 @@
 from discord.ext import commands
+import discord
 from logcfg import logger
 import random
+lolpwd = 'G:/My Drive/notebook/docs + videos/music/lol/'
+
 class fun(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
@@ -30,12 +33,10 @@ class fun(commands.Cog):
 
     @commands.command(name='stupid',help='Shout at stupid things')
     async def stupid(self,ctx,*,args='that'):
-        logger.info(ctx.message.author.name + 'has issued command /stupid')
         await ctx.send(random.choice([f'{args} is so so stupid!',f"I can't believe how stupid {args} is!",f"Seriously, {args}'s the stupidest thing I've ever heard!",f"STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID {args}!",f"I can't believe {args}'s even a thing."]))
 
     @commands.command(name='whatis',help='Tells you what the input is. /whatis minecraft')
     async def whatis(self,ctx,*,args=""):
-        logger.info(ctx.message.author.name + f'has issued command /whatis {args}')
         if args=="":
             await ctx.send("Bruh, where's the argument???")
             return
@@ -45,12 +46,35 @@ class fun(commands.Cog):
 
     @commands.command(name='boomer',help="/boomer [person]",aliases=['boom','okboomer'])
     async def boomer(self,ctx,*,person=""):
-        logger.info(ctx.message.author.name + 'has issued command /boomer ' + str(person))
         if person == "":
             person = ctx.message.author
             await ctx.send(f'OK BOOMER {person.mention}')
             return
         await ctx.send(f'OK BOOMER {person}')
+    
+    @commands.group(name='send',help='/send [sub-commands]',aliases=['sent','say'])
+    async def send(self,ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send(f"2 bed idk wat u r toking 'bout, but wut?")
+            return
+    @send.command(name='no',help='/send no, will give you file related to "no"',aliases=['nope','nah','np'])
+    async def no(self,ctx,*,args=''):
+        async with ctx.typing():
+            global lolpwd
+            rtrn = random.choice([
+                discord.File(f"{lolpwd}Mumbo Jumbo - No No No.mp3"),
+                discord.File(f"{lolpwd}Keralis and Xisuma - No No No.mp3")])
+            await ctx.send(file=rtrn)
+    @send.command(name='fool',help='/send stupid, will give you file related to "stupid"',aliases=['stupid','foolish','stupidity'])
+    async def fool(self,ctx,*,args=''):
+        global lolpwd
+        async with ctx.typing():
+            await ctx.send(file=discord.File(f"{lolpwd}Mumbo Jumbo - Stupid.mp3"))
+    @send.command(name='discord',help='/send discord, will give you file related to "discord"',aliases=['disc','dc'])
+    async def discord(self,ctx,*,args=""):
+        global lolpwd
+        async with ctx.typing():
+            await ctx.send(file=discord.File(f"{lolpwd}Discord_3WIP.ogg"))
 
 
 
