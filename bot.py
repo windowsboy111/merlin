@@ -1,11 +1,13 @@
 # bot.py
+import os
+os.chdir('G:\\My drive\\coding\\py\\KCCS-Official\\')
 from dotenv import load_dotenv
 from mcstatus import MinecraftServer
 from discord.ext import commands
 from consolemod import *
 from logcfg import logger
 from discord.utils import get
-import time,botmc,discord,os,random
+import time,botmc,discord,random
 #console log
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
@@ -154,7 +156,7 @@ async def kill(ctx,member:discord.Member=None):
     return
 @mc.command(name='crash')
 async def crash(ctx,*,args=None):
-    f=open("G:/My Drive/coding/python/KCCS-official/samples/mc_crash.txt", "r",encoding='utf-8')
+    f=open("samples/mc_crash.txt", "r",encoding='utf-8')
     await ctx.send(f.read())
 
 #*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_

@@ -1,7 +1,7 @@
 from mcstatus import MinecraftServer
 import discord
 from logcfg import logger
-from table import table
+from table import modernTable
 
 # constant variables!!!
 mcserverarglist=["srv","Srv","SRV","Server","server","SERVER"]  #The args you type in order to indicate you wanna get minecraft servers info
@@ -162,13 +162,13 @@ def mcsrv(embed,args):
     logger.info("Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()")
     mcsrvstatus = chkmcsrvstatus()
     logger.info('returned.  Formatting...')
-    t = table()
-    t.add_column('IP')
-    t.add_column('Name')
-    t.add_column('Status')
+    t = modernTable()
+    t.new_column('ID')
+    t.new_column('Name')
+    t.new_column('Status')
     t.insert('kccscomm.minehut.gg', 'KCCScomm', mcsrvstatus['statuskccscomm'])
     t.insert('lopxl.aternos.me',    'Lopxl',    mcsrvstatus['statuslopxl'])
-    t.insert('lopx.aternos.me',     'Lopx',     mcsrvstatus['statuslopx'])
+    t.insert('lopx.minehut.me',     'Lopx',     mcsrvstatus['statuslopx'])
     t.insert('116kccs.aternos.me',  '116kccs',  mcsrvstatus['status116'])
     t.insert('sb4kccs.aternos.me',  'sb4kccs',  mcsrvstatus['statussb4'])
     t.insert('smpkccs.aternos.me',  'smpkccs',  mcsrvstatus['statussmp'])
