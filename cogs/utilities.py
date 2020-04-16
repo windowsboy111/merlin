@@ -168,21 +168,17 @@ class utils(commands.Cog):
     async def show(self,ctx,table=None):
         msg = await ctx.send('Writing script...')
         if not table:
-            msg.edit(content='PLEASE SEEK HELP `/help table show`')
+            await msg.edit(content='PLEASE SEEK HELP `/help table show`')
             return
         try:
             if not os.path.exists(f'samples\\table_{table}.py'):
                 await msg.edit(content='Operashun terminated.  Table has not been created yet.')
                 return
             scr = f'\treturn {table}.get()\n'
-            f = open(f'samples\\table_{table}.py','a')
-            f.write(scr)
-            await msg.edit(content='Reopening file in read mode...')
-            f.close()
             f = open(f'samples\\table_{table}.py','r')
             await msg.edit(content='Executing script...')
             _locals = locals()
-            exec(f.read(),globals(),_locals)
+            exec(f.read() + scr,globals(),_locals)
             ans = _locals['gettable']()
             await ctx.send('```css\n' + ans + '```   ')
             f.close()

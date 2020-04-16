@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 from logcfg import logger
 import random
-lolpwd = 'G:/My Drive/notebook/docs + videos/music/lol/'
+lolpwd = 'samples/'
 
 class fun(commands.Cog):
     def __init__(self,bot):
@@ -52,12 +52,12 @@ class fun(commands.Cog):
             return
         await ctx.send(f'OK BOOMER {person}')
     
-    @commands.group(name='send',help='/send [sub-commands]',aliases=['sent','say'])
-    async def send(self,ctx):
+    @commands.group(name='media',help='/send [sub-commands]',aliases=['sent'])
+    async def media(self,ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send(f"2 bed idk wat u r toking 'bout, but wut?")
             return
-    @send.command(name='no',help='/send no, will give you file related to "no"',aliases=['nope','nah','np'])
+    @media.command(name='no',help='/send no, will give you file related to "no"',aliases=['nope','nah','np'])
     async def no(self,ctx,*,args=''):
         async with ctx.typing():
             global lolpwd
@@ -65,16 +65,30 @@ class fun(commands.Cog):
                 discord.File(f"{lolpwd}Mumbo Jumbo - No No No.mp3"),
                 discord.File(f"{lolpwd}Keralis and Xisuma - No No No.mp3")])
             await ctx.send(file=rtrn)
-    @send.command(name='fool',help='/send stupid, will give you file related to "stupid"',aliases=['stupid','foolish','stupidity'])
+    @media.command(name='fool',help='/send stupid, will give you file related to "stupid"',aliases=['stupid','foolish','stupidity'])
     async def fool(self,ctx,*,args=''):
         global lolpwd
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Mumbo Jumbo - Stupid.mp3"))
-    @send.command(name='discord',help='/send discord, will give you file related to "discord"',aliases=['disc','dc'])
+    @media.command(name='discord',help='/send discord, will give you file related to "discord"',aliases=['disc','dc'])
     async def discord(self,ctx,*,args=""):
         global lolpwd
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Discord_3WIP.ogg"))
+    @commands.command(name='say',help='the bot is talking!')
+    async def say(self,ctx,*,args=""):
+        if args=='':
+            return
+        await ctx.send(args,tts=True)
+        await ctx.message.delete()
+        return
+    @commands.command(name='send',help='The bot is sending messages!')
+    async def send(self,ctx,*,args=""):
+        if args=="":
+            return
+        await ctx.send(args)
+        await ctx.message.delete()
+        return
 
 
 

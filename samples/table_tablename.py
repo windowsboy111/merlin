@@ -6,5 +6,3 @@ def gettable():
 	colID2.rename("this too")
 	tablename.insert("a","b")
 	tablename.insert("1","2")
-	return tablename.get()
-	return tablename.get()
