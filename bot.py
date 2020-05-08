@@ -1,4 +1,5 @@
 # bot.py
+mode = 0 # 0: normal; 1: debug; 2: fixing
 import os
 os.chdir('G:\\My drive\\coding\\py\\KCCS-Official\\')
 from dotenv import load_dotenv
