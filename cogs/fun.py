@@ -7,10 +7,39 @@ lolpwd = 'samples/'
 class fun(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
-
+    
+    @commands.command(name='emoji',help='get emoji')
+    async def emoji(self,ctx,*,arg):
+        mode = 'send'
+        id = 0
+        arg = arg.lower()
+        if ' ' in arg:
+            arg2 = arg.split(' ')[1]
+            arg = arg.split(' ')[0]
+            mode = 'react'
+        if arg == 'upvote':
+            ans = '<:1upvote:673487502438563870>'
+        elif arg == 'downvote':
+            ans = '<:1downvote:673487554389082113>'
+        elif arg == 'vistaok':
+            ans = '<:VistaOK:630699272907784192>'
+        elif arg == 'vistaerror':
+            ans = '<:VistaError:451842864608182282>'
+        else:
+            await ctx.send('Emoji not found :(')
+            return
+        if mode == 'send':
+            await ctx.send(ans)
+            return
+        else:
+            if 'discordapp.com/channels/' in arg2:
+                msg = await ctx.message.channel.fetch_message(int(arg2.split('/')[-1]))    
+            else:
+                msg = await ctx.message.channel.fetch_message(int(arg2))
+            msg.add_reaction(ans)
+            return
     @commands.command(name='cough',help="Simulate cough. :)")
     async def cough(self,ctx):
-        logger.info(ctx.message.author.name + "has issued command /cough")
         lolcough = ["What? You being infected coronavirus?",str(self.bot.get_emoji(684291327818596362)),"Please don't:\nSneeze on me;\nCough on me;\nTalk to me,\nNo oh oh!","🤢",
         "Run, run, until it's done, done, until the sun comes up in the morn'."]
         response = random.choice(lolcough)
@@ -52,12 +81,12 @@ class fun(commands.Cog):
             return
         await ctx.send(f'OK BOOMER {person}')
     
-    @commands.group(name='media',help='/send [sub-commands]',aliases=['sent'])
+    @commands.group(name='media',help='/media [sub-commands]',aliases=['sent'])
     async def media(self,ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send(f"2 bed idk wat u r toking 'bout, but wut?")
             return
-    @media.command(name='no',help='/send no, will give you file related to "no"',aliases=['nope','nah','np'])
+    @media.command(name='no',help='/media no, will give you file related to "no"',aliases=['nope','nah','np'])
     async def no(self,ctx,*,args=''):
         async with ctx.typing():
             global lolpwd
@@ -65,16 +94,21 @@ class fun(commands.Cog):
                 discord.File(f"{lolpwd}Mumbo Jumbo - No No No.mp3"),
                 discord.File(f"{lolpwd}Keralis and Xisuma - No No No.mp3")])
             await ctx.send(file=rtrn)
-    @media.command(name='fool',help='/send stupid, will give you file related to "stupid"',aliases=['stupid','foolish','stupidity'])
+    @media.command(name='fool',help='/media stupid, will give you file related to "stupid"',aliases=['stupid','foolish','stupidity'])
     async def fool(self,ctx,*,args=''):
         global lolpwd
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Mumbo Jumbo - Stupid.mp3"))
-    @media.command(name='discord',help='/send discord, will give you file related to "discord"',aliases=['disc','dc'])
+    @media.command(name='discord',help='/media discord, will give you file related to "discord"',aliases=['disc','dc'])
     async def discord(self,ctx,*,args=""):
         global lolpwd
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Discord_3WIP.ogg"))
+    @media.command(name='afk',help='/media afk, will give you file related to "afk"',aliases=['mumboafk'])
+    async def afk(self,ctx,*,args=""):
+        global lolpwd
+        async with ctx.typing():
+            await ctx.send(file=discord.File(f"{lolpwd}Grian - Mumbo AFK.mp3"))
     @commands.command(name='say',help='the bot is talking!')
     async def say(self,ctx,*,args=""):
         if args=='':

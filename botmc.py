@@ -109,16 +109,25 @@ def mcsrv(embed,args):
                 link = "pvpwars.net"
                 name = "PvpWars"
                 note = "Null"
+            elif args == "crab":
+                link = "crabricorn.serv.gs"
+                name = "Crabricorn"
+                note = "Paper HK survival server"
+            elif args == "crabricorn":
+                link = "crabricorn.serv.gs"
+                name = "Crabricorn"
+                note = "Paper HK survival server"
             else:
                 logger.info("Not a defined server, will treat 2nd argument as a server link and name.")
                 link = args
                 name = args
-                try:
-                    note = MinecraftServer(link).query().motd
-                except OSError as e:
-                    note = str(e)
-                    logger.warn('Getting error "{}" while trying to get the motd sf server, error ignored.'.format(str(e)))
-                    logger.info('Query() might not be supported for this server.  Edit server.properties to enable this feature.')
+                note = "unknown server :/"
+                # try:
+                #     note = MinecraftServer(link).query().motd
+                # except OSError as e:
+                #     note = str(e)
+                #     logger.warn('Getting error "{}" while trying to get the motd sf server, error ignored.'.format(str(e)))
+                #     logger.info('Query() might not be supported for this server.  Edit server.properties to enable this feature.')
             try:
                 tmp=MinecraftServer.lookup(link).status()
                 status="online"
