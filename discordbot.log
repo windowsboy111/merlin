@@ -1,12 +1,9 @@
-[2020-06-20 05:14:06,769]INFO - discord: Program started.
-[2020-06-20 05:14:06,836]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-06-20 05:14:06,838]INFO - discord.client: logging in using static token
-[2020-06-20 05:14:07,125]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-06-20 05:14:07,128]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-06-20 05:14:07,248]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-nh6v",{"micros":56557,"calls":["discord-sessions-prd-1-60",{"micros":44720,"calls":["start_session",{"micros":36386,"calls":["api-prd-main-z9cr",{"micros":33861,"calls":["get_user",{"micros":2537},"add_authorized_ip",{"micros":1570},"get_guilds",{"micros":3215},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":4788,"calls":[]}]}]}] (Session ID: a209fae029ec6dc802b9e3ab64722267).
-[2020-06-20 05:18:37,088]INFO - discord: Cathay3520 has issued command: /send ha
-[2020-06-20 05:38:27,808]INFO - discord: windowsboy111 has issued command: /poll mk "karma system after 100 ppl" yes no
-[2020-06-20 05:58:50,847]INFO - discord: windowsboy111 has issued command: /poll end 723773745130504203
-[2020-06-20 06:31:11,312]INFO - discord: windowsboy111 has issued command: /warn <@664644679232520233> stupid make nodejs Merlin a loop
-[2020-06-20 06:31:21,016]INFO - discord: windowsboy111 has issued command: /sudo su
-[2020-06-20 06:31:31,372]INFO - discord: windowsboy111 has issued command: /warn <@664644679232520233> made loop nodejs Merlin
+[2020-06-27 09:51:13,820]INFO - discord: Program started.
+[2020-06-27 09:51:13,828]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-06-27 09:51:13,828]INFO - discord.client: logging in using static token
+[2020-06-27 09:51:14,814]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-06-27 09:51:14,816]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-06-27 09:51:15,174]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-1bg1",{"micros":143516,"calls":["discord-sessions-prd-1-45",{"micros":128135,"calls":["start_session",{"micros":116712,"calls":["api-prd-main-42sb",{"micros":111768,"calls":["get_user",{"micros":7989},"add_authorized_ip",{"micros":10730},"get_guilds",{"micros":8759},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 6911884d0ca6100cf7c89f5aa1a28aca).
+[2020-06-27 09:52:14,264]INFO - discord.client: Cleaning up tasks.
+[2020-06-27 09:52:14,264]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-06-27 09:52:17,146]INFO - discord.client: Closing the event loop.

@@ -1,7 +1,7 @@
 from mcstatus import MinecraftServer
 import discord
 from logcfg import logger
-from table import modernTable
+from pyTableMaker import modernTable
 
 # constant variables!!!
 mcserverarglist=["srv","Srv","SRV","Server","server","SERVER"]  #The args you type in order to indicate you wanna get minecraft servers info

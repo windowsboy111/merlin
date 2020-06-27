@@ -1,13 +1,12 @@
+#!/bin/python3
 # bot.py
-import os
-# os.chdir('G:\\My drive\\coding\\py\\KCCS-Official\\')
-
+import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg
+import contextlib
 from discord.ext import commands
 from time import sleep
-from consolemod import *
+from consolemod import * # pylint: disable=unused-wildcard-import
 from logcfg import logger
 from discord.utils import get
-import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing
 from io import StringIO, TextIOWrapper, BytesIO
 _globals = globals()
 _locals = locals()
@@ -19,6 +18,7 @@ logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
+
 # init
 bot = commands.Bot(
     command_prefix = '/',
@@ -29,7 +29,6 @@ bot = commands.Bot(
 runno = 0
 lastmsg = []
 shell = dict()
-shell['sh_out'] = ''
 shell['py_out'] = ''
 stop = False
 statusLs = ['windowsboy111 coding...','vincintelligent searching for ***nhub videos','Useless_Alone._.007 playing with file systems','cat, win, vin, sir!']
@@ -38,13 +37,7 @@ embed=discord.Embed()
 
 def py_shell(message,trash,_globals,_locals):
     global shell
-    # if message.content.lower() == "reset-env":
-    #     def_g = open('samples/def_globals.txt','r').read()
-    #     def_l = open('samples/def_locals.txt','r').read()
-        
-    #     shell['py_out'] = "Successfully reseted the python shell environment.\n>>>"
-    #     return
-    if '.fork()' in message.content.lower() or 'import os' in message.content.lower():
+    if '.fork()' in message.content.lower():
         shell['py_out'] = 'Enough fork bomb.\n>>>'
         return
     else:
@@ -53,28 +46,30 @@ def py_shell(message,trash,_globals,_locals):
             msg = msg[5:-3]
         if '```' in msg:
             msg = msg[3:-3]
-        os.system('clear')
         # setup the environment
-        old_stdout = sys.stdout
-        sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+        @contextlib.contextmanager
+        def stdoutIO(stdout=None):
+            old = sys.stdout
+            if stdout is None:
+                stdout = StringIO()
+            sys.stdout = stdout
+            yield stdout
+            sys.stdout = old
+        out = ''
         try:
-            exec(msg,_globals,_locals)
+            with stdoutIO() as s:
+                exec(msg,_globals,_locals)
+            out = s.getvalue()
         except Exception as e:
-            shell['py_out'] = '```\n' + str(e) + '\n>>>```'
-            return
-        print(end='',flush=True)
-        sys.stdout.seek(0)      # jump to the start
-        out = sys.stdout.read() # read output
-        # restore stdout
-        sys.stdout.close()
-        sys.stdout = old_stdout
+            out = str(e)
         shell['py_out'] = '```\n' + out + '\n>>>```'
         if len(shell['py_out']) > 1998:
             f = open("samples/pyoutput.txt","w")
             f.write(shell['py_out'])
             f.close()
         return
-def load_py(message,shell,_globals,_locals):
+
+def load_py(message:discord.Message,shell:dict,_globals,_locals):
     global stop
     t = threading.Thread(target=py_shell,args=[message,shell,_globals,_locals])
     t.start()
@@ -83,11 +78,11 @@ def load_py(message,shell,_globals,_locals):
             return
 
 logger.debug("Loaded dotenv, discord_token, bot prefix, custom exceptions, and \"constant\" variables / some global variables.")
-def check(person,reason,mod,_globals,_locals):
+def check(person:discord.Member,reason:str,mod,_globals,_locals):
     result = ''
     if f'u{person.id}' not in _globals and f'u{person.id}' not in _locals:
         result += f"u{person.id} = {{'count': 0, 'reasons': [],'moderator': []}}\n"
-    result += f"u{person.id}['reasons'].append(\"{reason}\")\n"
+    result += "u{id}['reasons'].append(\"{r}\")\n".format(r=reason.replace('"','\\"'),id=person.id)
     result += f"u{person.id}['count'] += 1\n"
     result += f"u{person.id}['moderator'].append('{mod}')\n"
     return result
@@ -113,17 +108,16 @@ async def warn(message,person:discord.Member=None,*,reason:str='Not specified'):
     await msg.edit(content=f'{message.author.mention} warned {person.mention}.\nReason: {reason}.')
 ######################################################################################################################################################################################
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     global lastmsg,shell,_globals,_locals,stop
+    if await easteregg.easter(message):
+        return
     if message.author.bot and not message.content.startswith('/warn '):
         return
-    if message.content.startswith('/warn '):
-        if message.author.id == bot.user.id:
-            memberid = message.content.split(' ')[1][2:]
-            memberid = memberid[:-1]
-            member = bot.get_user(int(memberid))
-            await warn(message,person=member,reason="spamming")
-            await message.delete()
+    if message.content.startswith('/warn ') and message.author == bot.user:
+        ctx = await bot.get_context(message)
+        await warn(ctx.message,lastmsg[1],reason='spamming')
+        await message.delete()
     # if message.author.name == 'Vincintelligent' and message.content.startswith('/'):
     #     await message.channel.send('No.')
     #     return
@@ -135,7 +129,7 @@ async def on_message(message):
             stop = True
             p.join()
             await message.author.create_dm()
-            for i in range(3):
+            for i in range(3): # pylint: disable=unused-variable
                 await message.author.dm_channel.send('No more fork bombs')
             shell['py_out'] = "Enough fork bomb."
             
@@ -147,34 +141,26 @@ async def on_message(message):
         shell['py_out'] = ''
         stop=False
         return
-    # if message.server is None and message.startswith('$/'):
-    #     logger.info('Received a dm message from ' + message.author.name + 'that starts with $/, it is being treated as a command.')
-    #     print(f'dm command from {message.author.name}: {message.content}')
-    #     await bot.process_commands(message)
     if message.content.startswith('/'):
         logger.info(f'{message.author.name} has issued command: {message.content}')
         print(f'{message.author.name} has issued command: {message.content}')
-#  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
-    # if 'siriustupid' in message.content.lower():
-    #     logger.info(f'Detected "siriustupid" in a message from {message.author.name}')
-    #     print(f'Detected "siriustupid" in a message from {message.author.name}')
-    #     await message.channel.send('Sirius is so so stupid!', tts=True)
-    # elif 'vincidiot' in message.content.lower():
-    #     logger.info(f'Detected "vincidiot" in a message from {message.author.name}')
-    #     print(f'Detected "vincidiot" in a message from {message.author.name}')
-    #     await message.channel.send('Vinci is an idiot!', tts=True)
-    # elif 'benz' in message.content.lower():
-    #     logger.info(f'Detected "benz" in a message from {message.author.name}')
-    #     print(f'Detected "benz" in a message from {message.author.name}')
-    #     await message.channel.send('Stupid Benz is a sucker', tts=True)
-    # elif 'what?' == message.content.lower():
-    #     logger.info(f'Detected "what?" in a message from {message.author.name}')
-    #     print(f'Detected "what?" in a message from {message.author.name}')
-    #     await message.channel.send('Nothing.')
     if 'invite me' in message.content.lower():
         logger.info('Sending invite link...')
         print('Sending invite link...')
         await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK')
+    if (message.author.bot): return
+    if lastmsg == []:
+        lastmsg = [message.content.lower(),message.author,1,False]
+    elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
+        lastmsg[2]+=1
+        await message.delete()
+        await message.channel.send('/warn ' + message.author.mention + ' spamming')
+    elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
+        lastmsg[2]+=1
+        if lastmsg[2] == 4:
+            lastmsg[3]=True
+    else:
+        lastmsg=[message.content.lower(),message.author,1,False]
     await bot.process_commands(message)
 @bot.event
 async def on_ready():
@@ -193,7 +179,7 @@ async def on_ready():
 async def on_member_join(member):
     logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
     await member.create_dm()
-    await member.dm_channel.send(f'Hi {member.name}, welcome to KCCS Official Discord server!\nBy using the guild, you accept the rules.\nPlease answer the following questions:\nAre you a KCCS student?')
+    await member.dm_channel.send(f'Hi {member.name}, welcome to KCCS Official Discord server!\nBy using the guild, you accept the rules.')
     print(f"{member} has joined the server.")
 
 #######################################################################################################################################################################################
