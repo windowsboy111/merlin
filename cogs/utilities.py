@@ -1,7 +1,7 @@
 from discord.ext import commands
 from logcfg import logger
 from quickpoll import QuickPoll as qp
-import discord,os,table
+import discord,os,pyTableMaker
 verbose=True
 async def output(message,msg:discord.Message=None,ctx=None,dcmsg=True):
     print(message)
@@ -34,16 +34,6 @@ class utils(commands.Cog):
         msg = await ctx.send('Once apon a time, there was a poll, that YOU SHOULDN\'T SEE DIS MESSAGE! OR ELSE DISCORD IS LAGGY!')
         poll = qp(self.bot)
         await poll.quickpoll(poll,msg=msg,ctx=ctx,question=name,options=options)
-        await msg.edit(content='')
-        return
-    @vote.command(name='end',help='End a vote: /vote end <id>')
-    async def end(self,ctx,*,id=0,id2=0):
-        msg = await ctx.send('deleting `system32`...')
-        if id==0:
-            await msg.edit('bruh i need da poll id')
-            return
-        poll = qp(self.bot)
-        await poll.tally(poll,msg=msg,ctx=ctx,id=id)
         await msg.edit(content='')
         return
     @vote.command(name='check',help='Check polls that has not ended')
@@ -83,6 +73,19 @@ class utils(commands.Cog):
             embed.add_field(name=result2[l], value=r)
             l += 1
         await msg.edit(content='Results: ' + str(len(result2)),embed=embed)
+    @vote.command(name='end',help='End a vote: /vote end <id>')
+    async def end(self,ctx,*,id=0):
+        if id == 'all':
+            ctx = await self.bot.get_context(ctx.message)
+            self.check(ctx)
+        msg = await ctx.send('deleting `system32`...')
+        if id==0:
+            await msg.edit('bruh i need da poll id')
+            return
+        poll = qp(self.bot)
+        await poll.tally(poll,msg=msg,ctx=ctx,id=id)
+        await msg.edit(content='')
+        return
 
 
     @commands.group(pass_context=True,help='create, show, edit tables.',name='table')
