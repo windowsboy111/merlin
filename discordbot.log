@@ -1,9 +1,16 @@
-[2020-06-27 09:51:13,820]INFO - discord: Program started.
-[2020-06-27 09:51:13,828]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-06-27 09:51:13,828]INFO - discord.client: logging in using static token
-[2020-06-27 09:51:14,814]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-06-27 09:51:14,816]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-06-27 09:51:15,174]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-1bg1",{"micros":143516,"calls":["discord-sessions-prd-1-45",{"micros":128135,"calls":["start_session",{"micros":116712,"calls":["api-prd-main-42sb",{"micros":111768,"calls":["get_user",{"micros":7989},"add_authorized_ip",{"micros":10730},"get_guilds",{"micros":8759},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 6911884d0ca6100cf7c89f5aa1a28aca).
-[2020-06-27 09:52:14,264]INFO - discord.client: Cleaning up tasks.
-[2020-06-27 09:52:14,264]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-06-27 09:52:17,146]INFO - discord.client: Closing the event loop.
+[2020-07-02 20:39:09,870]INFO - discord: Program started.
+[2020-07-02 20:39:09,878]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-02 20:39:09,879]INFO - discord.client: logging in using static token
+[2020-07-02 20:39:10,888]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-02 20:39:10,891]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-02 20:39:11,199]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-wv1j",{"micros":79651,"calls":["discord-sessions-prd-1-60",{"micros":72148,"calls":["start_session",{"micros":69598,"calls":["api-prd-main-6j9m",{"micros":61943,"calls":["get_user",{"micros":8965},"add_authorized_ip",{"micros":3031},"get_guilds",{"micros":5671},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 7be07c1dffa0ad9a45354baa69638b41).
+[2020-07-02 20:39:47,896]INFO - discord: windowsboy111 has issued command: /mc addsrv mc.hypixel.net "Hypixel Network" "Bedwars / Skywars"
+[2020-07-02 20:40:06,622]INFO - discord: windowsboy111 has issued command: /mc srv Hypixel Network
+[2020-07-02 20:40:07,311]INFO - discord: Attempting to call botmc.mcsrv()
+[2020-07-02 20:40:07,311]INFO - discord: Started botmc.mc()
+[2020-07-02 20:40:07,311]INFO - discord: 2nd argument detected, searching for same srv_id for override...
+[2020-07-02 20:40:08,346]INFO - discord: Attempting to return obj "embed" from srv <id/link>
+[2020-07-02 20:40:08,347]INFO - discord: Exit code: 0
+[2020-07-02 20:41:52,198]INFO - discord.client: Cleaning up tasks.
+[2020-07-02 20:41:52,198]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-07-02 20:41:52,992]INFO - discord.client: Closing the event loop.

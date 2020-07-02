@@ -1,11 +1,10 @@
 from mcstatus import MinecraftServer
-import discord
+import discord,csv
 from logcfg import logger
 from pyTableMaker import modernTable
 
 # constant variables!!!
-mcserverarglist=["srv","Srv","SRV","Server","server","SERVER"]  #The args you type in order to indicate you wanna get minecraft servers info
-hlp=["Help","help","hlp","HELP"]                                #The args you type in order to indicate you wanna get help
+mcserverarglist=["srv","server"]  #The args you type in order to indicate you wanna get minecraft servers info
 
 # user-defined exceptions
 class Error(Exception):
@@ -55,7 +54,7 @@ def chkmcsrvstatus():
         status2b2s = "online"
     except OSError:
         status2b2s = "offline"
-        
+
     temp = None or temp
     logger.info("Attempting to return dict from chkmcsrvstatus()...")
     return {"statuskccscomm":statuskccscomm,"statuslopxl": statuslopxl,"statuslopx":statuslopx,"status116": status116,"statussb4": statussb4,"statussmp": statussmp, "status2b2s": status2b2s}
@@ -66,68 +65,26 @@ def chkmcsrvstatus():
 
 def mcsrv(embed,args):
     logger.info("Started botmc.mc()")
-    global hlp
     rtrn = ""
     global mcserverarglist  #chk srv arg
     global tmp
     try:
         if args:
             logger.info("2nd argument detected, searching for same srv_id for override...")
-            if args == "kccscomm":
-                link = "kccscomm.minehut.gg"
-                name = "KCCS Community Survival Server"
-                note = "Recommened Survival Server"
-            elif args == "lopx":
-                link = "lopx.minehut.gg"
-                name = "Lopixel on Minehut"
-                note = "Help build the minigames server!"
-            elif args == "lopxl":
-                link = "lopxl.aternos.me"
-                name = "Lopixel on Aternos"
-                note = "Help build the minigames server!"
-            elif args == "116kccs":
-                link = "116kccs.aternos.me"
-                name = "1.16 Survival Server for KCCS"
-                note = "Snapshot version "
-            elif args == "sb4kccs":
-                link = "sb4kccs.aternos.me"
-                name = "Skyblock for KCCS"
-                note = "Ruined :("
-            elif args == "smpkccs":
-                link = "smpkccs.aternos.me"
-                name = "Survival Multiplayer KCCS"
-                note = "NO CHEATING"
-            elif args == "hypixel":
-                link = "mc.hypixel.net"
-                name = "Hypixel Network"
-                note = "Best Minecraft Server Ever!"
-            elif args == "earthmc":
-                link = "earthmc.net"
-                name = "EarthMC"
-                note = "A towny server"
-            elif args == "pvpwars":
-                link = "pvpwars.net"
-                name = "PvpWars"
-                note = "Null"
-            elif args == "crab":
-                link = "crabricorn.serv.gs"
-                name = "Crabricorn"
-                note = "Paper HK survival server"
-            elif args == "crabricorn":
-                link = "crabricorn.serv.gs"
-                name = "Crabricorn"
-                note = "Paper HK survival server"
-            else:
+            link = name = note = ''
+            with open('samples/mcsrvs.csv', mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file,fieldnames=['link','name','note'])
+                for row in csv_reader:
+                    if row['name'] == args or row['link'] == args:
+                        link = row['link']
+                        name = row['name']
+                        note = row['note']
+                        break
+            if link == '':
                 logger.info("Not a defined server, will treat 2nd argument as a server link and name.")
                 link = args
                 name = args
                 note = "unknown server :/"
-                # try:
-                #     note = MinecraftServer(link).query().motd
-                # except OSError as e:
-                #     note = str(e)
-                #     logger.warn('Getting error "{}" while trying to get the motd sf server, error ignored.'.format(str(e)))
-                #     logger.info('Query() might not be supported for this server.  Edit server.properties to enable this feature.')
             try:
                 tmp=MinecraftServer.lookup(link).status()
                 status="online"
