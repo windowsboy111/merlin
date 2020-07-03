@@ -37,30 +37,36 @@ class utils(commands.Cog):
         await msg.edit(content='')
         return
     @vote.command(name='check',help='Check polls that has not ended')
-    async def check(self,ctx,*,num=500):
+    async def check(self,ctx,*,num='0'):
+        if num == '0':
+            await ctx.send('How many to check?')
+            return
         result = ''
         result2 = list()
+        id = list()
         msg = await ctx.send('You have forgotten something...')
-        messages = await ctx.message.channel.history(limit=num).flatten()
+        messages = None
+        if not num:
+            messages = await ctx.message.channel.history(limit=0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).flatten()
+        else:
+            messages = await ctx.message.channel.history(limit=num).flatten()
         for message in messages:
             if message.author != ctx.message.guild.me:
                 continue
             if not message.embeds:
                 continue
-            if 'Results: ' in message.content:
-                continue
             embed = message.embeds[0]
-            if 'Results of the poll for ' in embed.title:
-                continue
             try:
                 if 'Poll ID: ' not in embed.footer.text:
                     continue
             except:
                 continue
+            if embed.title.startswith('Results of the poll for "'): continue
             if embed.description != 'Poll ended':
                 link = f'[{message.created_at}]({message.jump_url})\n'
                 result += link
                 result2.append(embed.title)
+                id.append(message.id)
         if result == '':
             await msg.edit(content='No unended polls detected.')
             return
@@ -73,18 +79,35 @@ class utils(commands.Cog):
             embed.add_field(name=result2[l], value=r)
             l += 1
         await msg.edit(content='Results: ' + str(len(result2)),embed=embed)
-    @vote.command(name='end',help='End a vote: /vote end <id>')
-    async def end(self,ctx,*,id=0):
+        return id
+    @vote.command(name='end',help='End a vote or poll')
+    async def end(self,ctx,*,id='0'):
         if id == 'all':
             ctx = await self.bot.get_context(ctx.message)
-            self.check(ctx)
+            ids = await self.check(num=None,ctx=ctx)
+            for msgid in ids:
+                channel = ctx.message.channel
+                try:
+                    ctx = await self.bot.get_context(await channel.fetch_message(msgid))
+                    await self.end(ctx=ctx,id=msgid)
+                except discord.NotFound:
+                    continue
+            return
         msg = await ctx.send('deleting `system32`...')
-        if id==0:
+        if id=='0':
             await msg.edit('bruh i need da poll id')
             return
         poll = qp(self.bot)
+        try:
+            id = int(id)
+        except:
+            await msg.edit('Sorry, but id has to be integer.')
+            return
         await poll.tally(poll,msg=msg,ctx=ctx,id=id)
-        await msg.edit(content='')
+        try:
+            await msg.edit(content='')
+        except:
+            pass
         return
 
 
