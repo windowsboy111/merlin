@@ -2,6 +2,15 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- allowing users to end all polls in a channel with `/poll end all` (buggy)
+### Changed
+- compressed the code for a bit without losing readability and performance
+- QuickPoll now have special return code representing different errors
+### Removed
+- ability for not specifying the amount of messages to read for `/poll check`
+### Fixed
+- preventing the bot from deleting every messages starting with `/` (which is the prefix)
 
 ## [2.1-a1]
 ### Added

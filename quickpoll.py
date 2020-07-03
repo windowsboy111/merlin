@@ -16,7 +16,7 @@ class QuickPoll:
         if len(options) > 26:
             await msg.edit(content='You cannot make a poll for more than 10 things!')
             return
-        
+
         if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
             reactions = ['✅', '❌']
         elif len(options) <= 10:
@@ -45,13 +45,15 @@ class QuickPoll:
 
     @commands.command(pass_context=True)
     async def tally(self, ctx, msg, id):
-        poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, id)
+        try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, id)
+        except: return 1
         if not poll_message.embeds:
             await msg.edit(content='No embeds have been found')
-            return
+            return 2
         embed = poll_message.embeds[0]
-        if poll_message.author != ctx.message.guild.me:
-            return
+        if poll_message.author != ctx.message.guild.me: return 2
+        try: t = embed.description.split('\n')
+        except: return 1
         unformatted_options = [x.strip() for x in embed.description.split('\n')]
         opt_dict = {x[:2]: x[3:] for x in unformatted_options} if unformatted_options[0][0] == '1' \
             else {x[:1]: x[2:] for x in unformatted_options}
@@ -77,7 +79,6 @@ class QuickPoll:
             output.set_footer(text='Poll ID: {}'.format(id))
         await msg.edit(embed=output)
         edited = discord.Embed(title=embed.title,description='Poll ended',color=0xFFC300)
-        edited.add_field
         edited.set_footer(text=f"Result id: {msg.id}")
         await poll_message.edit(embed=edited)
 

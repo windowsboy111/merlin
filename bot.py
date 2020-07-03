@@ -6,7 +6,7 @@ logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-
+TOKEN = 'NjkwODM5MDk5NjQ4NjM4OTc3.Xu9uJA.Dbx3VZ91fAHiyL6WXY8xeD_esM8'
 # init
 bot = commands.Bot(
     command_prefix = '/',
@@ -44,9 +44,13 @@ async def on_message(message: discord.Message):
     if message.content.startswith('/'):
         logger.info(f'{message.author.name} has issued command: {message.content}')
         print(f'{message.author.name} has issued command: {message.content}')
-        await bot.process_commands(message)
-        await message.delete()
-        return
+        try:        await bot.process_commands(message)
+        except Exception as e:
+            await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
+            print(str(e))
+        try:        await message.delete()
+        except:     pass
+        finally:    return
     if 'invite me' in message.content.lower():
         await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
     if (message.author.bot): return
