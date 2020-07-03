@@ -1,16 +1,18 @@
-[2020-07-02 20:39:09,870]INFO - discord: Program started.
-[2020-07-02 20:39:09,878]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-02 20:39:09,879]INFO - discord.client: logging in using static token
-[2020-07-02 20:39:10,888]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-02 20:39:10,891]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-02 20:39:11,199]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-wv1j",{"micros":79651,"calls":["discord-sessions-prd-1-60",{"micros":72148,"calls":["start_session",{"micros":69598,"calls":["api-prd-main-6j9m",{"micros":61943,"calls":["get_user",{"micros":8965},"add_authorized_ip",{"micros":3031},"get_guilds",{"micros":5671},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 7be07c1dffa0ad9a45354baa69638b41).
-[2020-07-02 20:39:47,896]INFO - discord: windowsboy111 has issued command: /mc addsrv mc.hypixel.net "Hypixel Network" "Bedwars / Skywars"
-[2020-07-02 20:40:06,622]INFO - discord: windowsboy111 has issued command: /mc srv Hypixel Network
-[2020-07-02 20:40:07,311]INFO - discord: Attempting to call botmc.mcsrv()
-[2020-07-02 20:40:07,311]INFO - discord: Started botmc.mc()
-[2020-07-02 20:40:07,311]INFO - discord: 2nd argument detected, searching for same srv_id for override...
-[2020-07-02 20:40:08,346]INFO - discord: Attempting to return obj "embed" from srv <id/link>
-[2020-07-02 20:40:08,347]INFO - discord: Exit code: 0
-[2020-07-02 20:41:52,198]INFO - discord.client: Cleaning up tasks.
-[2020-07-02 20:41:52,198]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-02 20:41:52,992]INFO - discord.client: Closing the event loop.
+[2020-07-03 17:06:52,250]INFO - discord: Program started.
+[2020-07-03 17:06:52,260]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-03 17:06:52,261]INFO - discord.client: logging in using static token
+[2020-07-03 17:06:53,411]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-03 17:06:53,414]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-03 17:06:53,702]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7d3k",{"micros":69883,"calls":["discord-sessions-prd-1-26",{"micros":67034,"calls":["start_session",{"micros":57869,"calls":["api-prd-main-6vh9",{"micros":55530,"calls":["get_user",{"micros":2895},"add_authorized_ip",{"micros":2163},"get_guilds",{"micros":3185},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":33,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 9a08175cc107bb4f64dcaf5ff6b29c12).
+[2020-07-03 17:07:00,263]INFO - discord: windowsboy111 has issued command: /poll end all
+[2020-07-03 17:07:09,612]INFO - discord: windowsboy111 has issued command: /ping
+[2020-07-03 17:07:12,274]INFO - discord: Stupid Benz has issued command: /ping
+[2020-07-03 17:07:20,550]INFO - discord: Stupid Benz has issued command: /ping
+[2020-07-03 17:07:30,995]INFO - discord: Stupid Benz has issued command: /poll check
+[2020-07-03 17:07:42,246]INFO - discord: Stupid Benz has issued command: /giphy
+[2020-07-03 17:10:27,218]INFO - discord: windowsboy111 has issued command: /poll check
+[2020-07-03 17:10:32,990]INFO - discord: windowsboy111 has issued command: /poll check 999999
+[2020-07-03 17:11:15,781]INFO - discord: Stupid Benz has issued command: /ping
+[2020-07-03 17:17:26,906]INFO - discord.client: Cleaning up tasks.
+[2020-07-03 17:17:26,906]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-07-03 17:17:27,017]INFO - discord.client: Closing the event loop.
