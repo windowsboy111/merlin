@@ -10,6 +10,7 @@
 ### Removed
 - ability for not specifying the amount of messages to read for `/poll check`
 ### Fixed
+- check polls might compare str with int
 - preventing the bot from deleting every messages starting with `/` (which is the prefix)
 
 ## [2.1-a1]

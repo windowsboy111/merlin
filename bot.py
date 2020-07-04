@@ -13,9 +13,11 @@ bot = commands.Bot(
     owner_id=653086042752286730,
     case_insensitive=True
 )
-
+bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
+TOKEN = 'NjkwODM5MDk5NjQ4NjM4OTc3.Xv77Nw.dG6dBL1Vako7imcJ7fk-DA5vb0M'
 # ---
+
 @bot.event
 async def on_message(message: discord.Message):
     global lastmsg,shell,_globals,_locals,stop
@@ -168,6 +170,19 @@ async def kill(ctx,*,member=None):
 async def crash(ctx,*,args=None):
     f=open("samples/mc_crash.txt", "r",encoding='utf-8')
     await ctx.send(f.read())
+
+
+@bot.command(name='help', help='Shows this message')
+async def help(ctx,*,args=None):
+    all_cmds = bot.commands
+    e = discord.Embed(title='Command list',description='wd: <GLOBAL>')
+    count = 1
+    for cmd in all_cmds:
+        e.add_field(name=cmd.name,value=cmd.description)
+        count += 1
+    # result += '```\nType a command name in 30 seconds to get info about the command. [awaiting...]'
+    msg = await ctx.send(embed=e)
+    rt = await bot.wait_for('message', check=lambda message: message.author == ctx.author and message.content in all_cmds)
 
 
 ######### background

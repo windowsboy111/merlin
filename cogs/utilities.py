@@ -49,7 +49,7 @@ class utils(commands.Cog):
         if not num:
             messages = await ctx.message.channel.history(limit=0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).flatten()
         else:
-            messages = await ctx.message.channel.history(limit=num).flatten()
+            messages = await ctx.message.channel.history(limit=int(num)).flatten()
         for message in messages:
             if message.author != ctx.message.guild.me:
                 continue

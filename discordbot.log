@@ -1,18 +1,9 @@
-[2020-07-03 17:06:52,250]INFO - discord: Program started.
-[2020-07-03 17:06:52,260]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-03 17:06:52,261]INFO - discord.client: logging in using static token
-[2020-07-03 17:06:53,411]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-03 17:06:53,414]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-03 17:06:53,702]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7d3k",{"micros":69883,"calls":["discord-sessions-prd-1-26",{"micros":67034,"calls":["start_session",{"micros":57869,"calls":["api-prd-main-6vh9",{"micros":55530,"calls":["get_user",{"micros":2895},"add_authorized_ip",{"micros":2163},"get_guilds",{"micros":3185},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":33,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 9a08175cc107bb4f64dcaf5ff6b29c12).
-[2020-07-03 17:07:00,263]INFO - discord: windowsboy111 has issued command: /poll end all
-[2020-07-03 17:07:09,612]INFO - discord: windowsboy111 has issued command: /ping
-[2020-07-03 17:07:12,274]INFO - discord: Stupid Benz has issued command: /ping
-[2020-07-03 17:07:20,550]INFO - discord: Stupid Benz has issued command: /ping
-[2020-07-03 17:07:30,995]INFO - discord: Stupid Benz has issued command: /poll check
-[2020-07-03 17:07:42,246]INFO - discord: Stupid Benz has issued command: /giphy
-[2020-07-03 17:10:27,218]INFO - discord: windowsboy111 has issued command: /poll check
-[2020-07-03 17:10:32,990]INFO - discord: windowsboy111 has issued command: /poll check 999999
-[2020-07-03 17:11:15,781]INFO - discord: Stupid Benz has issued command: /ping
-[2020-07-03 17:17:26,906]INFO - discord.client: Cleaning up tasks.
-[2020-07-03 17:17:26,906]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-03 17:17:27,017]INFO - discord.client: Closing the event loop.
+[2020-07-04 21:47:53,677]INFO - discord: Program started.
+[2020-07-04 21:47:53,684]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-04 21:47:53,685]INFO - discord.client: logging in using static token
+[2020-07-04 21:47:54,629]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-04 21:47:54,631]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-04 21:47:54,895]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-kjkc",{"micros":49435,"calls":["discord-sessions-prd-1-58",{"micros":43460,"calls":["start_session",{"micros":37918,"calls":["api-prd-main-tfvd",{"micros":29849,"calls":["get_user",{"micros":2854},"add_authorized_ip",{"micros":1410},"get_guilds",{"micros":2173},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: f71d363847dd183e2605497220a67aa3).
+[2020-07-04 21:47:55,859]INFO - discord.client: Cleaning up tasks.
+[2020-07-04 21:47:55,860]INFO - discord.client: Cleaning up after 7 tasks.
+[2020-07-04 21:47:55,961]INFO - discord.client: Closing the event loop.
