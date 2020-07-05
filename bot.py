@@ -43,7 +43,7 @@ async def on_message(message: discord.Message):
         shell['py_out'] = ''
         stop=False
         return
-    if message.content.startswith('/'):
+    if message.content.startswith('/') and message.content.split(' ')[0].lower() in ['/'+cmd.name for cmd in bot.commands]:
         logger.info(f'{message.author.name} has issued command: {message.content}')
         print(f'{message.author.name} has issued command: {message.content}')
         try:
@@ -178,17 +178,19 @@ async def help(ctx,*,args=None):
     if args:
         command = None
         for cmd in bot.commands:
-            if cmd.name == args:
+            if cmd.name == args and not cmd.hidden:
                 command = cmd
                 break
         if not command:
             return ctx.send('Command not found, please try again.')
-        e = discord.Embed(title=f'Command `/{command.name}`',description=command.description or "<no description>")
+        e = discord.Embed(title=f'Command `/{' '.join(command.parents) + ' ' + command.name if command.parents else command.name}`',description=command.description or "<no description>")
         e.add_field(name='Objective',   value=command.help)
         e.add_field(name='Usage',       value=command.usage)
-        e.add_field(name='Cog',         value=command.cog_name)
+        e.add_field(name='Cog',         value=command.cog.qualified_name)
+        if command.invoked_subcommand:
+            e.add_field(name='Sub-Commands',value=', '.join(command.invoked_subcommand))
         msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-        names = [cmd.name for cmd in bot.commands]
+        names = [(cmd.name if not cmd.hidden) for cmd in bot.commands]
         cogs = bot.cogs
         def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
         try:
@@ -205,7 +207,7 @@ async def help(ctx,*,args=None):
         e.add_field(name=cmd.name,value=cmd.help or "<no help>")
         count += 1
     msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-    names = [cmd.name for cmd in bot.commands]
+    names = [(cmd.name if not cmd.hidden) for cmd in bot.commands]
     cogs = bot.cogs
     def check(m):
         return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)

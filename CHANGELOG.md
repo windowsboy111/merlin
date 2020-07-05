@@ -2,6 +2,10 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- can now hide commands in `/help`
+### Fixed
+- preventing the bot from deleting every messages starting with the prefix (the one in [2.1-a2] does not work)
 
 ## [2.1-a2] - 2020-07-05
 ### Added
@@ -19,7 +23,7 @@
 - the `/table` command
 ### Fixed
 - check polls might compare str with int
-- preventing the bot from deleting every messages starting with `/` (which is the prefix)
+- ~~preventing the bot from deleting every messages starting with `/` (which is the prefix)~~
 - bot might read its own error messages in the python debugging channel
 
 ## [2.1-a1] - 2020-07-02
