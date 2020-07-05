@@ -9,7 +9,6 @@ logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-TOKEN = 'NjkwODM5MDk5NjQ4NjM4OTc3.XwCJYQ.itCE8lanR3Lu7VrSWpml8W_AyUM'
 # init
 bot = commands.Bot(
     command_prefix = '/',
