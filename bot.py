@@ -31,10 +31,8 @@ async def on_message(message: discord.Message):
         if p.is_alive():
             stop = True
             p.join()
-            for i in range(3): # pylint: disable=unused-variable
-                await message.author.send('No more fork bombs')
+            for i in range(3):  await message.author.send('No more fork bombs')
             shell['py_out'] = "Enough fork bomb."
-
         if len(shell['py_out']) > 1998:
             await message.channel.send(file=discord.File(open("samples/pyoutput.txt","r"),"output.txt"))
             stop=False
@@ -43,18 +41,28 @@ async def on_message(message: discord.Message):
         shell['py_out'] = ''
         stop=False
         return
-    if message.content.startswith('/') and message.content.split(' ')[0].lower() in ['/'+cmd.name for cmd in bot.commands]:
-        logger.info(f'{message.author.name} has issued command: {message.content}')
-        print(f'{message.author.name} has issued command: {message.content}')
-        try:
-            await bot.process_commands(message)
-            try:    await message.delete()
-            except: pass
-            finally:return
-        except discord.ext.commands.errors.CommandNotFound: return
-        except Exception as e:
-            await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
-            print(str(e))
+    if message.content.startswith('/'):
+        isCmd = False
+        for cmd in bot.commands:
+            if message.content.lower().split(' ')[0] == '/'+cmd.name:
+                isCmd=True
+                break
+            for alias in cmd.aliases:
+                if message.content.lower().split(' ')[0] == '/'+alias:
+                    isCmd=True
+                    break
+        if isCmd:
+            logger.info(f'{message.author.name} has issued command: {message.content}')
+            print(f'{message.author.name} has issued command: {message.content}')
+            try:
+                await bot.process_commands(message)
+                try:    await message.delete()
+                except: pass
+                finally:return
+            except discord.ext.commands.errors.CommandNotFound: return
+            except Exception as e:
+                await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
+                print(str(e))
     if 'invite me' in message.content.lower():  await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
     if (message.author.bot): return
     if lastmsg == []:   lastmsg = [message.content.lower(),message.author,1,False]
@@ -67,6 +75,7 @@ async def on_message(message: discord.Message):
         lastmsg[2]+=1
         if lastmsg[2] == 4: lastmsg[3]=True
     else:   lastmsg=[message.content.lower(),message.author,1,False]
+
 @bot.event
 async def on_ready():
     activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
@@ -78,8 +87,8 @@ async def on_ready():
     global o_locals
     o_globals = globals()
     o_locals = locals()
-
     return
+
 @bot.event
 async def on_member_join(member):
     logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
@@ -181,8 +190,7 @@ async def help(ctx,*,args=None):
             if cmd.name == args and not cmd.hidden:
                 command = cmd
                 break
-        if not command:
-            return ctx.send('Command not found, please try again.')
+        if not command: return ctx.send('Command not found, please try again.')
         e = discord.Embed(title=f'Command `/{' '.join(command.parents) + ' ' + command.name if command.parents else command.name}`',description=command.description or "<no description>")
         e.add_field(name='Objective',   value=command.help)
         e.add_field(name='Usage',       value=command.usage)
@@ -190,7 +198,7 @@ async def help(ctx,*,args=None):
         if command.invoked_subcommand:
             e.add_field(name='Sub-Commands',value=', '.join(command.invoked_subcommand))
         msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-        names = [(cmd.name if not cmd.hidden) for cmd in bot.commands]
+        names = [cmd.name if not cmd.hidden else None for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
         cogs = bot.cogs
         def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
         try:
@@ -207,7 +215,7 @@ async def help(ctx,*,args=None):
         e.add_field(name=cmd.name,value=cmd.help or "<no help>")
         count += 1
     msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-    names = [(cmd.name if not cmd.hidden) for cmd in bot.commands]
+    names = [cmd.name if not cmd.hidden for cmd in bot.commands]
     cogs = bot.cogs
     def check(m):
         return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
