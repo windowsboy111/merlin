@@ -1,9 +1,11 @@
-[2020-07-04 21:47:53,677]INFO - discord: Program started.
-[2020-07-04 21:47:53,684]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-04 21:47:53,685]INFO - discord.client: logging in using static token
-[2020-07-04 21:47:54,629]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-04 21:47:54,631]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-04 21:47:54,895]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-kjkc",{"micros":49435,"calls":["discord-sessions-prd-1-58",{"micros":43460,"calls":["start_session",{"micros":37918,"calls":["api-prd-main-tfvd",{"micros":29849,"calls":["get_user",{"micros":2854},"add_authorized_ip",{"micros":1410},"get_guilds",{"micros":2173},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: f71d363847dd183e2605497220a67aa3).
-[2020-07-04 21:47:55,859]INFO - discord.client: Cleaning up tasks.
-[2020-07-04 21:47:55,860]INFO - discord.client: Cleaning up after 7 tasks.
-[2020-07-04 21:47:55,961]INFO - discord.client: Closing the event loop.
+[2020-07-05 10:52:00,387]INFO - discord: Program started.
+[2020-07-05 10:52:00,395]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-05 10:52:00,396]INFO - discord.client: logging in using static token
+[2020-07-05 10:52:01,308]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-05 10:52:01,311]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-05 10:52:01,591]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-vc29",{"micros":59994,"calls":["discord-sessions-prd-1-43",{"micros":58565,"calls":["start_session",{"micros":46501,"calls":["api-prd-main-pf4p",{"micros":43308,"calls":["get_user",{"micros":4853},"add_authorized_ip",{"micros":1628},"get_guilds",{"micros":2052},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":9,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 262c8fc6b5e97614e5e7b746f81ad87a).
+[2020-07-05 10:52:03,884]INFO - discord: windowsboy111 has issued command: /help
+[2020-07-05 11:08:19,646]INFO - discord: windowsboy111 has issued command: /sandbox is going to be on the beta release stage
+[2020-07-05 11:18:09,378]INFO - discord.client: Cleaning up tasks.
+[2020-07-05 11:18:09,379]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-07-05 11:18:09,511]INFO - discord.client: Closing the event loop.

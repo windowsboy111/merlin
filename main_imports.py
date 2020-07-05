@@ -1,4 +1,4 @@
-import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv
+import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv,traceback
 from discord.ext import commands
 from time import sleep
 from consolemod import * # pylint: disable=unused-wildcard-import
@@ -44,8 +44,8 @@ def py_shell(message,trash,_globals,_locals):
             with stdoutIO() as s:
                 exec(msg,_globals,_locals)
             out = s.getvalue()
-        except Exception as e:
-            out = str(e)
+        except Exception:
+            out = traceback.format_exc()
         shell['py_out'] = '```\n' + out + '\n>>>```'
         if len(shell['py_out']) > 1998:
             f = open("samples/pyoutput.txt","w")
@@ -59,31 +59,3 @@ def load_py(message:discord.Message,shell:dict,_globals,_locals):
     while t.is_alive():
         if stop:
             return
-def check(person:discord.Member,reason:str,mod,_globals,_locals):
-    result = ''
-    if f'u{person.id}' not in _globals and f'u{person.id}' not in _locals:
-        result += f"u{person.id} = {{'count': 0, 'reasons': [],'moderator': []}}\n"
-    result += "u{id}['reasons'].append(\"{r}\")\n".format(r=reason.replace('"','\\"'),id=person.id)
-    result += f"u{person.id}['count'] += 1\n"
-    result += f"u{person.id}['moderator'].append('{mod}')\n"
-    return result
-async def warn(message,person:discord.Member=None,*,reason:str='Not specified'):
-    msg = await message.channel.send('Reading warnList and writing history to globals')
-    rf = open('samples/warnList','r')
-    await msg.edit(content='Writing and running script...')
-    _globals = globals()
-    _locals = locals()
-    exec(rf.read(),_globals,_locals)
-    result = check(person,reason,message.author.name,_globals,_locals)
-    await msg.edit(content='Writing changes...')
-    wf = open('samples/warnList','a')
-    wf.write(result + '\n')
-    rf.close()
-    wf.close()
-    f = open('samples/warnList','r')
-    rs = '\n'.join([i for i in f.read().split('\n') if len(i) > 0])
-    f.close()
-    f = open('samples/warnList','w')
-    f.write(rs + '\n')
-    f.close()
-    await msg.edit(content=f'{message.author.mention} warned {person.mention}.\nReason: {reason}.')

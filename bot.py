@@ -1,11 +1,15 @@
 #!/bin/python3
 # bot.py
 from main_imports import *
+_globals = globals()
+_locals = locals()
+
 #console log
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = 'NjkwODM5MDk5NjQ4NjM4OTc3.XwCJYQ.itCE8lanR3Lu7VrSWpml8W_AyUM'
 # init
 bot = commands.Bot(
     command_prefix = '/',
@@ -15,15 +19,13 @@ bot = commands.Bot(
 )
 bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
-TOKEN = 'NjkwODM5MDk5NjQ4NjM4OTc3.Xv77Nw.dG6dBL1Vako7imcJ7fk-DA5vb0M'
 # ---
 
 @bot.event
 async def on_message(message: discord.Message):
     global lastmsg,shell,_globals,_locals,stop
-    if await easteregg.easter(message):
-        return
-    if type(message.channel) != discord.DMChannel and message.channel.name == 'python':
+    if await easteregg.easter(message): return
+    if type(message.channel) != discord.DMChannel and message.channel.name == 'python' and message.author != bot.user:
         p = threading.Thread(target=load_py,args=[message,shell,_globals,_locals])
         p.start()
         p.join(5)
@@ -45,29 +47,27 @@ async def on_message(message: discord.Message):
     if message.content.startswith('/'):
         logger.info(f'{message.author.name} has issued command: {message.content}')
         print(f'{message.author.name} has issued command: {message.content}')
-        try:        await bot.process_commands(message)
+        try:
+            await bot.process_commands(message)
+            try:    await message.delete()
+            except: pass
+            finally:return
+        except discord.ext.commands.errors.CommandNotFound: return
         except Exception as e:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(str(e))
-        try:        await message.delete()
-        except:     pass
-        finally:    return
-    if 'invite me' in message.content.lower():
-        await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
+    if 'invite me' in message.content.lower():  await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
     if (message.author.bot): return
-    if lastmsg == []:
-        lastmsg = [message.content.lower(),message.author,1,False]
+    if lastmsg == []:   lastmsg = [message.content.lower(),message.author,1,False]
     elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
         lastmsg[2]+=1
         await message.delete()
         ctx = await bot.get_context(message)
-        await warn(ctx.message,lastmsg[1],reason='spamming')
+        await ctx.invoke(bot.get_command('warn'),person=lastmsg[1],reason='spamming')
     elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
         lastmsg[2]+=1
-        if lastmsg[2] == 4:
-            lastmsg[3]=True
-    else:
-        lastmsg=[message.content.lower(),message.author,1,False]
+        if lastmsg[2] == 4: lastmsg[3]=True
+    else:   lastmsg=[message.content.lower(),message.author,1,False]
 @bot.event
 async def on_ready():
     activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
@@ -174,15 +174,57 @@ async def crash(ctx,*,args=None):
 
 @bot.command(name='help', help='Shows this message')
 async def help(ctx,*,args=None):
+    try: await ctx.message.delete()
+    except: pass
+    if args:
+        command = None
+        for cmd in bot.commands:
+            if cmd.name == args:
+                command = cmd
+                break
+        if not command:
+            return ctx.send('Command not found, please try again.')
+        e = discord.Embed(title=f'Command `/{command.name}`',description=command.description or "<no description>")
+        e.add_field(name='Objective',   value=command.help)
+        e.add_field(name='Usage',       value=command.usage)
+        e.add_field(name='Cog',         value=command.cog_name)
+        msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
+        names = [cmd.name for cmd in bot.commands]
+        cogs = bot.cogs
+        def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
+        try:
+            rt = await bot.wait_for('message', check=check, timeout=30)
+            if rt:
+                return await ctx.invoke(bot.get_command('help'), args=rt.content)
+            return
+        except asyncio.exceptions.TimeoutError: return
+
     all_cmds = bot.commands
     e = discord.Embed(title='Command list',description='wd: <GLOBAL>')
     count = 1
     for cmd in all_cmds:
-        e.add_field(name=cmd.name,value=cmd.description)
+        e.add_field(name=cmd.name,value=cmd.help or "<no help>")
         count += 1
-    # result += '```\nType a command name in 30 seconds to get info about the command. [awaiting...]'
-    msg = await ctx.send(embed=e)
-    rt = await bot.wait_for('message', check=lambda message: message.author == ctx.author and message.content in all_cmds)
+    msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
+    names = [cmd.name for cmd in bot.commands]
+    cogs = bot.cogs
+    def check(m):
+        return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
+    try:
+        rt = await bot.wait_for('message', check=check, timeout=30)
+        if rt:
+            return await ctx.invoke(bot.get_command('help'), args=rt.content)
+        return
+    except asyncio.exceptions.TimeoutError: return
+
+
+@bot.command(name='eval',help='it is eval')
+@commands.is_owner()
+async def _eval(ctx, *, code='"bruh wat to eval"'):
+    try:
+        await ctx.send(eval(code))
+    except Exception:
+        await ctx.send('uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
 
 
 ######### background
