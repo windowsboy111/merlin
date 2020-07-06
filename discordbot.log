@@ -1,9 +1,7 @@
-[2020-07-06 21:14:16,189]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-06 21:14:16,190]INFO - discord: Program started.
-[2020-07-06 21:14:16,194]INFO - discord.client: logging in using static token
-[2020-07-06 21:14:17,234]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-06 21:14:17,237]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-06 21:14:17,946]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7d3k",{"micros":54160,"calls":["discord-sessions-prd-1-69",{"micros":50924,"calls":["start_session",{"micros":43693,"calls":["api-prd-main-0svb",{"micros":40746,"calls":["get_user",{"micros":4481},"add_authorized_ip",{"micros":1556},"get_guilds",{"micros":2118},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: b98282cee050c33d19eac8d7bea567f8).
-[2020-07-06 21:16:07,979]INFO - discord.client: Cleaning up tasks.
-[2020-07-06 21:16:07,980]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-06 21:16:08,299]INFO - discord.client: Closing the event loop.
+[2020-07-06 21:29:28,616]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-06 21:29:28,616]INFO - discord: Program started.
+[2020-07-06 21:29:28,620]INFO - discord.client: logging in using static token
+[2020-07-06 21:29:29,506]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-06 21:29:29,509]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-06 21:29:29,783]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-r4hr",{"micros":50247,"calls":["discord-sessions-prd-1-20",{"micros":48032,"calls":["start_session",{"micros":38195,"calls":["api-prd-main-0p6b",{"micros":35001,"calls":["get_user",{"micros":3230},"add_authorized_ip",{"micros":1827},"get_guilds",{"micros":1820},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":35,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: bbf64e045212b0ba669df789663e9ee1).
+[2020-07-06 21:29:37,094]INFO - discord: windowsboy111 has issued command: /help

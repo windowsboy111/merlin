@@ -5,6 +5,7 @@
 ### Added
 - can now hide commands in `/help`
 - added logging console
+- debug / fix mode
 ### Fixed
 - preventing the bot from deleting every messages starting with the prefix (the one in [2.1-a2] does not work)
 

@@ -8,13 +8,14 @@ _locals = locals()
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv      ＃ token is stored inside ".env"
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 # init
 bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
+MODE = os.getenv('MODE')
 # ---
 
 @bot.event
@@ -50,7 +51,7 @@ async def on_message(message: discord.Message):
                     break
         if isCmd:
             msgtoSend = f'{message.author.name} has issued command: {message.content}'
-            logger.log(msgtoSend)
+            logger.info(msgtoSend)
             print(msgtoSend)
             await log(message.channel.mention + ' ' + msgtoSend)
             try:
@@ -78,8 +79,15 @@ async def on_message(message: discord.Message):
 @bot.event
 async def on_ready():
     print(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id}'))
-    activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
-    await bot.change_presence(status=discord.Status.online, activity=activity)
+    if not MODE or MODE=='NORMAL':
+        activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
+        await bot.change_presence(status=discord.Status.online, activity=activity)
+    elif MODE=='DEBUG':
+        await bot.change_presense(status=discord.Status.idle)
+        await log('RUNNING IN **DEBUG** MODE!')
+    elif MODE=='FIX':
+        await bot.change_presence(status=discord.Status.dnd)
+        await log('*RUNNING IN EMERGENCY **FIX** MODE!')
     await log(f'logged in')
     for cog in cogs:
         bot.load_extension('cogs.' + cog)
@@ -192,8 +200,8 @@ async def help(ctx,*,args=None):
         e.add_field(name='Objective',   value=command.help)
         e.add_field(name='Usage',       value=command.usage)
         e.add_field(name='Cog',         value="No cog" if not command.cog else command.cog.qualified_name)
-        if command.invoked_subcommand:
-            e.add_field(name='Sub-Commands',value=', '.join(command.invoked_subcommand))
+        if command.commands:
+            e.add_field(name='Sub-Commands',value=', '.join([cmd.name for cmd in command.commands]))
         msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
         names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
         cogs = bot.cogs
@@ -235,14 +243,15 @@ async def _eval(ctx, *, code='"bruh wat to eval"'):
 
 ######### background
 async def status():
-    await bot.wait_until_ready()
-    while True:
-        try:
-            activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
-            await bot.change_presence(status=discord.Status.online, activity=activity)
-            await asyncio.sleep(30)
-        except:
-            pass
+    if MODE='NORMAL':
+        await bot.wait_until_ready()
+        while True:
+            try:
+                activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
+                await bot.change_presence(status=discord.Status.online, activity=activity)
+                await asyncio.sleep(30)
+            except:
+                pass
 bot.loop.create_task(status())
 
 #*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_
