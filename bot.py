@@ -8,14 +8,11 @@ _locals = locals()
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
 
+from dotenv import load_dotenv
+load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+
 # init
-bot = commands.Bot(
-    command_prefix = '/',
-    description="The bot for KCCS Official",
-    owner_id=653086042752286730,
-    case_insensitive=True
-)
 bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
 # ---
@@ -41,7 +38,7 @@ async def on_message(message: discord.Message):
         shell['py_out'] = ''
         stop=False
         return
-    if message.content.startswith('/'):
+    if message.content.startswith('/') and message.author != bot.user:
         isCmd = False
         for cmd in bot.commands:
             if message.content.lower().split(' ')[0] == '/'+cmd.name:
@@ -52,8 +49,10 @@ async def on_message(message: discord.Message):
                     isCmd=True
                     break
         if isCmd:
-            logger.info(f'{message.author.name} has issued command: {message.content}')
-            print(f'{message.author.name} has issued command: {message.content}')
+            msgtoSend = f'{message.author.name} has issued command: {message.content}'
+            logger.log(msgtoSend)
+            print(msgtoSend)
+            await log(message.channel.mention + ' ' + msgtoSend)
             try:
                 await bot.process_commands(message)
                 try:    await message.delete()
@@ -78,15 +77,13 @@ async def on_message(message: discord.Message):
 
 @bot.event
 async def on_ready():
+    print(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id}'))
     activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
     await bot.change_presence(status=discord.Status.online, activity=activity)
-    print(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id}'))
+    await log(f'logged in')
     for cog in cogs:
         bot.load_extension('cogs.' + cog)
-    global o_globals
-    global o_locals
-    o_globals = globals()
-    o_locals = locals()
+    await log('loaded extensions / cogs')
     return
 
 @bot.event
@@ -191,14 +188,14 @@ async def help(ctx,*,args=None):
                 command = cmd
                 break
         if not command: return ctx.send('Command not found, please try again.')
-        e = discord.Embed(title=f'Command `/{' '.join(command.parents) + ' ' + command.name if command.parents else command.name}`',description=command.description or "<no description>")
+        e = discord.Embed(title=f'Command `/' + ((' '.join(command.parents) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
         e.add_field(name='Objective',   value=command.help)
         e.add_field(name='Usage',       value=command.usage)
-        e.add_field(name='Cog',         value=command.cog.qualified_name)
+        e.add_field(name='Cog',         value="No cog" if not command.cog else command.cog.qualified_name)
         if command.invoked_subcommand:
             e.add_field(name='Sub-Commands',value=', '.join(command.invoked_subcommand))
         msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-        names = [cmd.name if not cmd.hidden else None for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
+        names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
         cogs = bot.cogs
         def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
         try:
@@ -215,7 +212,7 @@ async def help(ctx,*,args=None):
         e.add_field(name=cmd.name,value=cmd.help or "<no help>")
         count += 1
     msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-    names = [cmd.name if not cmd.hidden for cmd in bot.commands]
+    names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands]
     cogs = bot.cogs
     def check(m):
         return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)

@@ -1,4 +1,4 @@
-import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv,traceback
+import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv,traceback,datetime
 from discord.ext import commands
 from time import sleep
 from consolemod import * # pylint: disable=unused-wildcard-import
@@ -59,3 +59,15 @@ def load_py(message:discord.Message,shell:dict,_globals,_locals):
     while t.is_alive():
         if stop:
             return
+
+
+bot = commands.Bot(
+    command_prefix = '/',
+    description="The bot for KCCS Official",
+    owner_id=653086042752286730,
+    case_insensitive=True
+)
+
+async def log(message:str):
+    logchannel = bot.get_channel(729482523519877170)
+    await logchannel.send(f"[{datetime.datetime.now()}] {message}")
