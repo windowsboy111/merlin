@@ -1,3 +1,4 @@
+
 import discord
 from discord.ext import commands
 
@@ -81,7 +82,3 @@ class QuickPoll:
         edited = discord.Embed(title=embed.title,description='Poll ended',color=0xFFC300)
         edited.set_footer(text=f"Result id: {msg.id}")
         await poll_message.edit(embed=edited)
-
-
-def setup(bot):
-    bot.add_cog(QuickPoll(bot))

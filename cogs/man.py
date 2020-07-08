@@ -14,7 +14,7 @@ class manage(commands.Cog):
         self.bot = bot
     @commands.group(name='role',aliases=['roles'],help='Get your role rolling automatically.  Possible sub-commands: assign, remove, create, delete')
     async def role(self,ctx):
-        if isSudoers(ctx):
+        if is_sudoers(ctx.author):
             await ctx.send('g3t r3kt, u r not admin!!')
             await ctx.message.delete()
             return
@@ -130,25 +130,28 @@ class manage(commands.Cog):
         return result
     @commands.command(name='warn',help='Warn a person: /warn @person reason',aliases=['warning'])
     async def warn(self,ctx,person:discord.Member=None,*,reason:str='Not specified'):
-        if not person:
-            await ctx.send('No member has been specified.')
-            return
-        rf = open('samples/warnList','r')
-        _globals = globals()
-        _locals = locals()
-        exec(rf.read(),_globals,_locals)
-        result = self.check(person,reason,ctx.message.author.name,_globals,_locals)
-        wf = open('samples/warnList','a')
-        wf.write(result + '\n')
-        rf.close()
-        wf.close()
-        f = open('samples/warnList','r')
-        rs = '\n'.join([i for i in f.read().split('\n') if len(i) > 0])
-        f.close()
-        f = open('samples/warnList','w')
-        f.write(rs + '\n')
-        f.close()
-        await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
+        try:
+            if not person:
+                await ctx.send('No member has been specified.')
+                return
+            rf = open('samples/warnList','r')
+            _globals = globals()
+            _locals = locals()
+            exec(rf.read(),_globals,_locals)
+            result = self.check(person,reason,ctx.message.author.name,_globals,_locals)
+            wf = open('samples/warnList','a')
+            wf.write(result + '\n')
+            rf.close()
+            wf.close()
+            f = open('samples/warnList','r')
+            rs = '\n'.join([i for i in f.read().split('\n') if len(i) > 0])
+            f.close()
+            f = open('samples/warnList','w')
+            f.write(rs + '\n')
+            f.close()
+            await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
+        except Exception as e:
+            return print(e)
     @commands.command(name='rmwn',help='Remove a warning: /rmwn @person warnNumber')
     async def rmwn(self,ctx,person:discord.Member=None,*,num:int=0):
         if not person:

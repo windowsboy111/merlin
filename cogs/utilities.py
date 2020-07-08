@@ -95,7 +95,7 @@ class utils(commands.Cog):
             return
         msg = await ctx.send('deleting `system32`...')
         if id=='0':
-            await msg.edit('bruh i need da poll id')
+            await msg.edit(content='bruh i need da poll id')
             return
         poll = qp(self.bot)
         try:

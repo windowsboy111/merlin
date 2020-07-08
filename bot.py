@@ -3,19 +3,19 @@
 from main_imports import *
 _globals = globals()
 _locals = locals()
-
+from dotenv import load_dotenv
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+#token is stored inside ".env"
 #console log
 logger.info("Program started.")
 logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
-
-from dotenv import load_dotenv      ＃ token is stored inside ".env"
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
 
 # init
 bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
 MODE = os.getenv('MODE')
+print(MODE)
 # ---
 
 @bot.event
@@ -83,7 +83,7 @@ async def on_ready():
         activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
         await bot.change_presence(status=discord.Status.online, activity=activity)
     elif MODE=='DEBUG':
-        await bot.change_presense(status=discord.Status.idle)
+        await bot.change_presence(status=discord.Status.idle)
         await log('RUNNING IN **DEBUG** MODE!')
     elif MODE=='FIX':
         await bot.change_presence(status=discord.Status.dnd)
@@ -100,7 +100,7 @@ async def on_member_join(member):
     await member.send(f'Hi {member.name}, welcome to KCCS Official Discord server!\nBy using the guild, you accept the rules.')
     print(f"{member} has joined the server.")
 
-#######################################################################################################################################################################################
+#####################################################################################################################################################################################
 
 @bot.group(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel",pass_context=True,aliases=['minecraft'])
 async def mc(ctx):
@@ -195,13 +195,15 @@ async def help(ctx,*,args=None):
             if cmd.name == args and not cmd.hidden:
                 command = cmd
                 break
-        if not command: return ctx.send('Command not found, please try again.')
+        if not command: return await ctx.send('Command not found, please try again.')
         e = discord.Embed(title=f'Command `/' + ((' '.join(command.parents) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
         e.add_field(name='Objective',   value=command.help)
         e.add_field(name='Usage',       value=command.usage)
         e.add_field(name='Cog',         value="No cog" if not command.cog else command.cog.qualified_name)
-        if command.commands:
-            e.add_field(name='Sub-Commands',value=', '.join([cmd.name for cmd in command.commands]))
+        try:
+            if command.commands:
+                e.add_field(name='Sub-Commands',value=', '.join([cmd.name for cmd in command.commands]))
+        except: pass
         msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
         names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
         cogs = bot.cogs
@@ -243,16 +245,73 @@ async def _eval(ctx, *, code='"bruh wat to eval"'):
 
 ######### background
 async def status():
-    if MODE='NORMAL':
         await bot.wait_until_ready()
         while True:
             try:
-                activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
-                await bot.change_presence(status=discord.Status.online, activity=activity)
+                if not MODE or MODE=='NORMAL':
+                    activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
+                    await bot.change_presence(status=discord.Status.online, activity=activity)
+                elif MODE=='DEBUG':
+                    await bot.change_presence(status=discord.Status.idle)
+                    await log('RUNNING IN **DEBUG** MODE!')
+                elif MODE=='FIX':
+                    await bot.change_presence(status=discord.Status.dnd)
+                    await log('*RUNNING IN EMERGENCY **FIX** MODE!')
                 await asyncio.sleep(30)
             except:
                 pass
+
+
 bot.loop.create_task(status())
+
+@bot.event
+async def on_command_error(ctx, error):
+    """The event triggered when an error is raised while invoking a command.
+    Parameters
+    ------------
+    ctx: commands.Context
+        The context used for command invocation.
+    error: commands.CommandError
+        The Exception raised.
+    """
+
+    # This prevents any commands with local handlers being handled here in on_command_error.
+    if hasattr(ctx.command, 'on_error'):
+        return await log(ctx.content + 'caused an error: ' + traceback.format_exc())
+
+    # This prevents any cogs with an overwritten cog_command_error being handled here.
+    cog = ctx.cog
+    if cog:
+        if cog._get_overridden_method(cog.cog_command_error) is not None:
+            return
+
+    ignored = (commands.CommandNotFound, )
+
+    # Allows us to check for original exceptions raised and sent to CommandInvokeError.
+    # If nothing is found. We keep the exception passed to on_command_error.
+    error = getattr(error, 'original', error)
+
+    # Anything in ignored will return and prevent anything happening.
+    if isinstance(error, ignored):
+        return
+
+    if isinstance(error, commands.DisabledCommand):
+        await ctx.send(f'{ctx.command} has been disabled.')
+
+    elif isinstance(error, commands.NoPrivateMessage):
+        try:
+            await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+        except discord.HTTPException:
+            pass
+
+    # For this error example we check to see where it came from...
+    elif isinstance(error, commands.BadArgument):
+        if ctx.command.qualified_name == 'tag list':  # Check if the command being invoked is 'tag list'
+            await ctx.send('I could not find that member. Please try again.')
+
+    else:
+        # All other Errors not returned come here. And we can just print the default TraceBack.
+        await log('Ignoring exception in command {}:'.format(str(ctx.command)) + '\n\n```' + str(traceback.format_exc()) + '\n```')
 
 #*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_
 bot.run(TOKEN,bot=True,reconnect=True)
