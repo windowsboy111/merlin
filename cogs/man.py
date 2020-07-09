@@ -129,8 +129,8 @@ class man(commands.Cog):
         connection = sqlite3.connect("samples/warnings.db")
         cursor = connection.cursor()
         rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id)), ).fetchall()
-        if rows==[] or not rows[0][0]:  cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (                        str(person.id), reason, str(ctx.message.author.id), datetime.now()))
-        else:                           cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (str(rows[0][0] + 1),    str(person.id), reason, str(ctx.message.author.id),  datetime.now()))
+        if rows==[] or not rows[0][0]:  cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (                        str(person.id), reason.replace('\\','\\\\').replace('"','\\"'), str(ctx.message.author.id), datetime.now()))
+        else:                           cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (str(rows[0][0] + 1),    str(person.id), reason.replace('\\','\\\\').replace('"','\\"'), str(ctx.message.author.id),  datetime.now()))
         close_connection(connection)
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.')
         await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.',guild=ctx.message.channel.guild)
@@ -150,7 +150,7 @@ class man(commands.Cog):
         member = member or ctx.message.author
         connection = sqlite3.connect("samples/warnings.db")
         cursor = connection.cursor()
-        rows = cursor.execute("SELECT ID,Moderator,Reason FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
+        rows = cursor.execute("SELECT ID,Moderator,Reason,WarnedDate FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
         if rows==[]:    return await ctx.send(f"Member {member.mention} does not have any warnings.")
         if raw=='raw':
             t = table.onelineTable()
@@ -160,7 +160,7 @@ class man(commands.Cog):
             col_date = t.new_column('Date')
             loopCount = 1
             for warning in rows:
-                t.insert(str(warning[0]),warning[2],self.bot.fetch_user(warning[1]))
+                t.insert(str(warning[0]),warning[2],self.bot.fetch_user(warning[1]),warning[3])
                 loopCount += 1
             embed = discord.Embed(title="Warnings", description='```css\n'+t.get()+'\n```',color=0x00FFBB)
             embed.set_author(name=member,icon_url=ctx.message.author.avatar_url)
