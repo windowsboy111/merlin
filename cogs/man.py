@@ -1,10 +1,10 @@
 from discord.ext import commands
 from discord.utils import get
-from logcfg import logger
-from fileman import *
+from ext.logcfg import logger
 from datetime import datetime
 import discord,os,pyTableMaker,random,sqlite3
-from ext.dbctrl import close_connection
+from ext.dbctrl import close_connection, close_cursor
+from ext.imports_share import log
 
 def is_sudoers(member):
     if get(member.guild.roles,name="Moderators") not in member.roles and get(member.guild.roles,name='Administrators') not in member.roles:
@@ -128,12 +128,17 @@ class man(commands.Cog):
             return
         connection = sqlite3.connect("samples/warnings.db")
         cursor = connection.cursor()
-        rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id)), ).fetchall()
+        rc = cursor.rowcount
+        rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id), )).fetchall()
+        cursor.execute('COMMIT;')
         if rows==[] or not rows[0][0]:  cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (                        str(person.id), reason.replace('\\','\\\\').replace('"','\\"'), str(ctx.message.author.id), datetime.now()))
-        else:                           cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (str(rows[0][0] + 1),    str(person.id), reason.replace('\\','\\\\').replace('"','\\"'), str(ctx.message.author.id),  datetime.now()))
-        close_connection(connection)
-        await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.')
-        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.',guild=ctx.message.channel.guild)
+        else:                           cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (str(rows[0][0] + 1),    str(person.id), reason.replace('\\','\\\\').replace('"','\\"'), str(ctx.message.author.id), datetime.now()))
+        if rc == cursor.rowcount:
+            await ctx.send('Failed to warn that bad guy. Unexpected catched error happened (no modification has been made to the db, which is unintended...)')
+        else:
+            await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
+            await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.',guild=ctx.message.channel.guild)
+        cursor.execute("COMMIT;")
     @commands.command(name='rmwn',help='Remove a warning: /rmwn @person warnNumber')
     async def rmwn(self,ctx,person:discord.Member=None,*,num:int=0):
         if not person:
@@ -143,6 +148,8 @@ class man(commands.Cog):
         cursor = connection.cursor()
         if num==0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id)))
         else:       cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+        cursor.execute("COMMIT;")
+        close_cursor(cursor)
         close_connection(connection)
         return await ctx.send('Okay!')
     @commands.command(name='chkwrn',aliases=['checkwarn','checkwarns','checkwarnings','ckwn',"chkwn"],help='Show warnings of member: /chkwrn @person [raw]')
@@ -151,16 +158,20 @@ class man(commands.Cog):
         connection = sqlite3.connect("samples/warnings.db")
         cursor = connection.cursor()
         rows = cursor.execute("SELECT ID,Moderator,Reason,WarnedDate FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
-        if rows==[]:    return await ctx.send(f"Member {member.mention} does not have any warnings.")
+        if rows==[]:
+            close_cursor(cursor)
+            close_connection(connection)
+            return await ctx.send(f"Member {member.mention} does not have any warnings.")
         if raw=='raw':
-            t = table.onelineTable()
+            t = pyTableMaker.onelineTable()
             col_no = t.new_column('Warn No.')
             col_reason = t.new_column('Reason')
             col_mod = t.new_column('Moderator')
             col_date = t.new_column('Date')
             loopCount = 1
             for warning in rows:
-                t.insert(str(warning[0]),warning[2],self.bot.fetch_user(warning[1]),warning[3])
+                user = await self.bot.fetch_user(warning[1])
+                t.insert(loopCount,warning[2],user.display_name,warning[3])
                 loopCount += 1
             embed = discord.Embed(title="Warnings", description='```css\n'+t.get()+'\n```',color=0x00FFBB)
             embed.set_author(name=member,icon_url=ctx.message.author.avatar_url)
@@ -170,9 +181,11 @@ class man(commands.Cog):
             embed.set_author(name=member,icon_url=member.avatar_url)
             loopCount = 1
             for warning in rows:
-                embed.add_field(name=self.bot.fetch_user(warning[1]).mention,value=str(warning[0])+'. '+warning[2],inline=True)
+                user = await self.bot.fetch_user(warning[1])
+                embed.add_field(name=user.display_name,value=str(loopCount)+'. '+warning[2],inline=True)
                 loopCount += 1
             await ctx.send(embed=embed)
+        close_cursor(cursor)
         return close_connection(connection)
     @commands.command(name='kick',help='/kick @someone [reason]',aliases=['sb','softban','k'])
     async def kick(self,ctx,member:discord.Member=None,reason:str='Not specified'):
@@ -190,11 +203,8 @@ class man(commands.Cog):
     async def ban(self,ctx,member:discord.Member=None,reason:str='Not specified'):
         global id
         try:
-            if not member:
-                await ctx.send('Please specify a member.')
-                return
-            dm = await member.create_dm()
-            await dm.send(f'You have been banned.\nReason: {reason}')
+            if not member:  return await ctx.send('Please specify a member.')
+            await member.send(f'You have been banned.\nReason: {reason}')
             await member.ban()
             id = member.id
             await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice(['https://imgur.com/V4TVpbC','https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581','https://tenor.com/view/cat-red-hammer-bongo-cat-bang-hammer-gif-15733820']))
@@ -213,6 +223,7 @@ class man(commands.Cog):
         try:
             user = await self.bot.fetch_user(userID)
             await ctx.guild.unban(user)
+            await ctx.send("Fine. There you go.")
         except:
             await ctx.send('Failed to unban the user.')
         return

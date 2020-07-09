@@ -1,6 +1,6 @@
 from mcstatus import MinecraftServer
 import discord,csv
-from logcfg import logger
+from ext.logcfg import logger
 from pyTableMaker import modernTable
 
 # constant variables!!!

@@ -2,15 +2,24 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1-b]
 ### Added
 - can now hide commands in `/help`
 - logging console
 - debug / fix mode
-- ability to unload, reload and load commands
+- ability to unload, reload and load commands (owner only)
 - new warning system that replace the old one and have less security issues
 - command error handler
+- `.gitignore`
+### Changed
+- rearranged the repo fs
+### Removed
+- not working `/emojis` command
+- `easteregg.py` will no longer presents in the repo
 ### Fixed
 - preventing the bot from deleting every messages starting with the prefix (the one in [2.1-a2] does not work)
+- Duplicated logging what users have issued (especially in the fun cog)
 
 ## [2.1-a2] - 2020-07-05
 ### Added
@@ -55,7 +64,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-a2...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b...HEAD
+[2.1-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-a2...2.1-b
 [2.1-a2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-a1...2.1-a2
 [2.1-a1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1a...2.1-a1
 [2.1-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.0.0...2.1a

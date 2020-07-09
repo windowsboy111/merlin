@@ -1,13 +1,12 @@
 from discord.ext import commands
 import discord
-from logcfg import logger
 import random
 lolpwd = 'samples/'
 
-class fun(commands.Cog):
+class Fun(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
-    
+
     @commands.command(name='emoji',help='get emoji')
     async def emoji(self,ctx,*,arg):
         mode = 'send'
@@ -33,7 +32,7 @@ class fun(commands.Cog):
             return
         else:
             if 'discordapp.com/channels/' in arg2:
-                msg = await ctx.message.channel.fetch_message(int(arg2.split('/')[-1]))    
+                msg = await ctx.message.channel.fetch_message(int(arg2.split('/')[-1]))
             else:
                 msg = await ctx.message.channel.fetch_message(int(arg2))
             msg.add_reaction(ans)
@@ -43,7 +42,6 @@ class fun(commands.Cog):
         lolcough = ["What? You being infected coronavirus?",str(self.bot.get_emoji(684291327818596362)),"Please don't:\nSneeze on me;\nCough on me;\nTalk to me,\nNo oh oh!","🤢",
         "Run, run, until it's done, done, until the sun comes up in the morn'."]
         response = random.choice(lolcough)
-        logger.info("Result / response: " + response)
         msg = await ctx.send(response)
         await msg.add_reaction('👀')
         return
@@ -53,9 +51,7 @@ class fun(commands.Cog):
         loltest = ["!urban MEE6","Am I a joke to you?","!8ball Siriu-smart?","What? Are you a developer?{}".format(ctx.message.author.mention),
         "Didn't expect anyone would use this command, but there it is!","No test.","Ping Pong!","No.","?????","Siriusly, What did you expect?",
         "Stop.","!8ball are you stupid?","Vincidiot"]
-        logger.info(ctx.message.author.name + "has issued command /test")
         response = random.choice(loltest)
-        logger.info("Result / response: " + response)
         msg = await ctx.send(response)
         await msg.add_reaction('👍')
         return
@@ -80,7 +76,7 @@ class fun(commands.Cog):
             await ctx.send(f'OK BOOMER {person.mention}')
             return
         await ctx.send(f'OK BOOMER {person}')
-    
+
     @commands.group(name='media',help='/media [sub-commands]',aliases=['sent'])
     async def media(self,ctx):
         if ctx.invoked_subcommand is None:
@@ -127,6 +123,6 @@ class fun(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(fun(bot))
+    bot.add_cog(Fun(bot))
     # Adds the Fun commands to the bot
     # Note: The "setup" function has to be there in every cog file

@@ -1,14 +1,10 @@
-import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv,traceback,datetime
+import time,botmc,discord,random,asyncio,threading,contextlib,sys,os,easteregg,csv,traceback,datetime
 from discord.ext import commands
 from time import sleep
 from ext.consolemod import * # pylint: disable=unused-wildcard-import
-from logcfg import logger
+from ext.logcfg import logger
 from discord.utils import get
-from io import StringIO, TextIOWrapper, BytesIO
-_globals = globals()
-_locals = locals()
-o_globals = globals()
-o_locals = locals()
+from io import StringIO
 rt = ''
 runno = 0
 lastmsg = []
@@ -16,7 +12,10 @@ shell = dict()
 shell['py_out'] = ''
 stop = False
 statusLs = ['windowsboy111 coding...','vincintelligent searching for ***nhub videos','Useless_Alone._.007 playing with file systems','cat, win, vin, sir!']
-cogs = ['fun','utils','debug','man']
+cogs = []
+for cog in os.listdir('cogs/'):
+    if cog.endswith('.py'):
+        cogs.append(cog[:-3])
 embed=discord.Embed()
 
 def py_shell(message,trash,_globals,_locals):
@@ -67,21 +66,3 @@ bot = commands.Bot(
     owner_id=653086042752286730,
     case_insensitive=True
 )
-
-async def log(message:str,*,guild: discord.Guild=None,guild_id: int=None):
-    if not guild:
-        for guild in bot.guilds:
-            for channel in guild.channels:
-                if channel.name == 'merlin-py':
-                    await channel.send(f"[{datetime.datetime.now()}] {message}")
-                    return
-    else:
-        if not guild and guild_id:
-            try:
-                guild = await bot.fetch_guild(guild_id)
-            except:
-                return 1
-        for channel in guild.channels:
-            if channel.name == 'merlin-py':
-                await channel.send(f"[{datetime.datetime.now()}] {message}")
-    return

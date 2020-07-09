@@ -1,6 +1,7 @@
 #!/bin/python3
 # bot.py
-from main_imports import *
+from ext.imports_init import *
+from ext.imports_share import *
 _globals = globals()
 _locals = locals()
 from dotenv import load_dotenv
@@ -53,7 +54,7 @@ async def on_message(message: discord.Message):
             msgtoSend = f'{message.author.name} has issued command: {message.content}'
             logger.info(msgtoSend)
             print(msgtoSend)
-            await log(message.channel.mention + ' ' + msgtoSend)
+            await log(message.channel.mention + ' ' + msgtoSend, guild=message.channel.guild)
             try:
                 await bot.process_commands(message)
                 try:    await message.delete()
@@ -185,75 +186,6 @@ async def crash(ctx,*,args=None):
     await ctx.send(f.read())
 
 
-@bot.command(name='help', help='Shows this message')
-async def help(ctx,*,args=None):
-    try: await ctx.message.delete()
-    except: pass
-    if args:
-        command = None
-        for cmd in bot.commands:
-            if cmd.name == args and not cmd.hidden:
-                command = cmd
-                break
-        if not command: return await ctx.send('Command not found, please try again.')
-        e = discord.Embed(title=f'Command `/' + ((' '.join(command.parents) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
-        e.add_field(name='Objective',   value=command.help)
-        e.add_field(name='Usage',       value=command.usage)
-        e.add_field(name='Cog',         value="No cog" if not command.cog else command.cog.qualified_name)
-        try:
-            if command.commands:
-                e.add_field(name='Sub-Commands',value=', '.join([cmd.name for cmd in command.commands]))
-        except: pass
-        msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-        names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands] # loop over all commands, if not hidden, append its string name
-        cogs = bot.cogs
-        def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
-        try:
-            rt = await bot.wait_for('message', check=check, timeout=30)
-            if rt:
-                return await ctx.invoke(bot.get_command('help'), args=rt.content)
-            return
-        except asyncio.exceptions.TimeoutError: return
-
-    all_cmds = bot.commands
-    e = discord.Embed(title='Command list',description='wd: <GLOBAL>')
-    count = 1
-    for cmd in all_cmds:
-        e.add_field(name=cmd.name,value=cmd.help or "<no help>")
-        count += 1
-    msg = await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]',embed=e)
-    names = [(None if cmd.hidden else cmd.name) for cmd in bot.commands]
-    cogs = bot.cogs
-    def check(m):
-        return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
-    try:
-        rt = await bot.wait_for('message', check=check, timeout=30)
-        if rt:
-            return await ctx.invoke(bot.get_command('help'), args=rt.content)
-        return
-    except asyncio.exceptions.TimeoutError: return
-
-
-@bot.command(name='eval',help='it is eval', hidden=True)
-@commands.is_owner()
-async def _eval(ctx, *, code='"bruh wat to eval"'):
-    try:
-        await ctx.send(eval(code))
-    except Exception:
-        await ctx.send('uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
-
-@bot.command(name='reload', help='reload a cog', hidden=True)
-@commands.is_owner()
-async def _reload(ctx, cog: str):
-    bot.unload_extension(f"cogs.{cog}")
-    bot.load_extension(f"cogs.{cog}")
-@bot.command(name='unload', help='unload a cog', hidden=True)
-@commands.is_owner()
-async def _unload(ctx, cog: str):   bot.unload_extension(f"cogs.{cog}")
-@bot.command(name='load', help='load a cog', hidden=True)
-@commands.is_owner()
-async def _load(ctx, cog: str):     bot.load_extension(f"cogs.{cog}")
-
 ######### background
 async def status():
         await bot.wait_until_ready()
@@ -275,14 +207,6 @@ bot.loop.create_task(status())
 
 @bot.event
 async def on_command_error(ctx, error):
-    """The event triggered when an error is raised while invoking a command.
-    Parameters
-    ------------
-    ctx: commands.Context
-        The context used for command invocation.
-    error: commands.CommandError
-        The Exception raised.
-    """
     try:
         raise error
     except Exception as e:
@@ -292,10 +216,10 @@ async def on_command_error(ctx, error):
             return await log("Note that the error has been passed to the global command error handler unexpectedly")
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
-        # cog = ctx.cog
-        # if cog:
-        #     if cog._get_overridden_method(cog.cog_command_error) is not None:
-        #         return
+        cog = ctx.cog
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
+                return
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send(f"Welp, I've no idea. Command not found!")
