@@ -2,6 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- ability to unload, load or reload cogs during runtime
+
 
 ## [2.1-a1]
 ### Added

@@ -2,14 +2,16 @@ from discord.ext import commands
 from discord.utils import get
 from logcfg import logger
 from fileman import *
-import discord,os,pyTableMaker,random
+from datetime import datetime
+import discord,os,pyTableMaker,random,sqlite3
+from ext.dbctrl import close_connection
 
 def is_sudoers(member):
     if get(member.guild.roles,name="Moderators") not in member.roles and get(member.guild.roles,name='Administrators') not in member.roles:
         return False
     return True
 
-class manage(commands.Cog):
+class man(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
     @commands.group(name='role',aliases=['roles'],help='Get your role rolling automatically.  Possible sub-commands: assign, remove, create, delete')
@@ -119,117 +121,67 @@ class manage(commands.Cog):
         except Exception as e:
             await ctx.send( f'An error occurred while trying to assign {member.mention} a new nickname (requested by {ctx.message.author.mention})\nError message: {e}')
             return
-    def check(self,person,reason,mod,_globals,_locals):
-        result = ''
-        reason = reason.replace('\\',"\\\\").replace('"','\\\"')
-        if f'u{person.id}' not in _globals and f'u{person.id}' not in _locals:
-            result += f"u{person.id} = {{'count': 0, 'reasons': [],'moderator': []}}\n"
-        result += f"u{person.id}['reasons'].append(\"{reason}\")\n"
-        result += f"u{person.id}['count'] += 1\n"
-        result += f"u{person.id}['moderator'].append('{mod}')\n"
-        return result
     @commands.command(name='warn',help='Warn a person: /warn @person reason',aliases=['warning'])
     async def warn(self,ctx,person:discord.Member=None,*,reason:str='Not specified'):
-        try:
-            if not person:
-                await ctx.send('No member has been specified.')
-                return
-            rf = open('samples/warnList','r')
-            _globals = globals()
-            _locals = locals()
-            exec(rf.read(),_globals,_locals)
-            result = self.check(person,reason,ctx.message.author.name,_globals,_locals)
-            wf = open('samples/warnList','a')
-            wf.write(result + '\n')
-            rf.close()
-            wf.close()
-            f = open('samples/warnList','r')
-            rs = '\n'.join([i for i in f.read().split('\n') if len(i) > 0])
-            f.close()
-            f = open('samples/warnList','w')
-            f.write(rs + '\n')
-            f.close()
-            await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
-        except Exception as e:
-            return print(e)
+        if not person:
+            await ctx.send('No member has been specified.')
+            return
+        connection = sqlite3.connect("samples/warnings.db")
+        cursor = connection.cursor()
+        rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id)), ).fetchall()
+        if rows==[] or not rows[0][0]:  cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (                        str(person.id), reason, str(ctx.message.author.id), datetime.now()))
+        else:                           cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (str(rows[0][0] + 1),    str(person.id), reason, str(ctx.message.author.id),  datetime.now()))
+        close_connection(connection)
+        await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.')
+        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {old_reason}.',guild=ctx.message.channel.guild)
     @commands.command(name='rmwn',help='Remove a warning: /rmwn @person warnNumber')
     async def rmwn(self,ctx,person:discord.Member=None,*,num:int=0):
         if not person:
             await ctx.send('No member has been specified.')
             return
-        rf = open('samples/warnList','r')
-        _locals = locals()
-        _globals = globals()
-        exec(rf.read(),_globals,_locals)
-        if (f'u{person.id}' not in _locals and f'u{person.id}' not in _globals) or _locals[f'u{person.id}']['count'] == 0:
-            await ctx.send(f'Either {person.mention} is not a thing, or he/she does not have any warning.')
-            rf.close()
-            return
-        if num==0:
-            rf.close()
-            delete_line_with_word('samples/warnList',f'u{person.id}')
-            await ctx.send(f'Removed all warnings for {person.mention}')
-            return
-        word = f'u{person.id}['
-        rf.close()
-        toRemove = []
-        num *= 3
-        num -= 2
-        l = 1
-        with open('samples/warnList') as rf:
-            for line in rf:
-                if word in line:
-                    if l == num or l == num+1 or l == num+2:
-                        toRemove.append(line[:-1])
-                    l += 1
-        for line in toRemove:
-            delete_line_by_full_match2('samples/warnList',line,1)
-        await ctx.send(f'Removed warning number {str(int((num + 2)/3))} for {person.mention}\n')
-        return
+        connection = sqlite3.connect("samples/warnings.db")
+        cursor = connection.cursor()
+        if num==0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id)))
+        else:       cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+        close_connection(connection)
+        return await ctx.send('Okay!')
     @commands.command(name='chkwrn',aliases=['checkwarn','checkwarns','checkwarnings','ckwn',"chkwn"],help='Show warnings of member: /chkwrn @person [raw]')
     async def chkwrn(self,ctx,member:discord.Member=None,raw=''):
         member = member or ctx.message.author
-        rf = open('samples/warnList','r')
-        _globals = globals()
-        _locals = locals()
-        exec(rf.read(),_globals,_locals)
-        rf.close()
-        try:
-            warnObj = _locals[f'u{member.id}']
-        except:
-            await ctx.send(f"Member {member.mention} does not have any warnings.")
-            return
+        connection = sqlite3.connect("samples/warnings.db")
+        cursor = connection.cursor()
+        rows = cursor.execute("SELECT ID,Moderator,Reason FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
+        if rows==[]:    return await ctx.send(f"Member {member.mention} does not have any warnings.")
         if raw=='raw':
             t = table.onelineTable()
             col_no = t.new_column('Warn No.')
             col_reason = t.new_column('Reason')
             col_mod = t.new_column('Moderator')
+            col_date = t.new_column('Date')
             loopCount = 1
-            for reason in warnObj['reasons']:
-                t.insert(str(loopCount),reason,warnObj['moderator'][loopCount-1])
+            for warning in rows:
+                t.insert(str(warning[0]),warning[2],self.bot.fetch_user(warning[1]))
                 loopCount += 1
             embed = discord.Embed(title="Warnings", description='```css\n'+t.get()+'\n```',color=0x00FFBB)
             embed.set_author(name=member,icon_url=ctx.message.author.avatar_url)
             await ctx.send(embed=embed)
-            return
         else:
             embed = discord.Embed(title="Warnings", description=f'list of warnings for {member.mention}',color=0x00FFBB)
             embed.set_author(name=member,icon_url=member.avatar_url)
             loopCount = 1
-            for reason in warnObj['reasons']:
-                embed.add_field(name=loopCount,value=reason,inline=True)
+            for warning in rows:
+                embed.add_field(name=self.bot.fetch_user(warning[1]).mention,value=str(warning[0])+'. '+warning[2],inline=True)
                 loopCount += 1
             await ctx.send(embed=embed)
-            return
+        return close_connection(connection)
     @commands.command(name='kick',help='/kick @someone [reason]',aliases=['sb','softban','k'])
     async def kick(self,ctx,member:discord.Member=None,reason:str='Not specified'):
         try:
             if not member:
                 await ctx.send('Please specify a member.')
                 return
+            await member.send(f'You have been kicked.\nReason: {reason}')
             await member.kick()
-            dm = await member.create_dm()
-            await dm.send(f'You have been kicked.\nReason: {reason}')
             await ctx.send(f'{ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n' + random.choice(['https://tenor.com/view/kung-fu-panda-karate-kick-gif-15261593','https://tenor.com/view/strong-kick-hammer-down-fatal-blow-scarlet-johnny-cage-gif-13863296']))
             return
         except Exception as e:
@@ -269,4 +221,4 @@ class manage(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(manage(bot))
+    bot.add_cog(man(bot))

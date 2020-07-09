@@ -4,7 +4,7 @@ connection = sqlite3.connect("../../samples/warnings.db")
 cursor = connection.cursor()
 cursor.execute("""CREATE TABLE warnings (
     ID int,
-    Person varchar(255),
+    Person int,
     Reason varchar(255),
     Moderator varchar(255),
     WarnedDate DATE

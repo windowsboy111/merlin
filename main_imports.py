@@ -1,7 +1,7 @@
 import time,botmc,discord,random,asyncio,threading,sys,subprocess,multiprocessing,contextlib,sys,os,easteregg,contextlib,csv,traceback,datetime
 from discord.ext import commands
 from time import sleep
-from consolemod import * # pylint: disable=unused-wildcard-import
+from ext.consolemod import * # pylint: disable=unused-wildcard-import
 from logcfg import logger
 from discord.utils import get
 from io import StringIO, TextIOWrapper, BytesIO
@@ -16,7 +16,7 @@ shell = dict()
 shell['py_out'] = ''
 stop = False
 statusLs = ['windowsboy111 coding...','vincintelligent searching for ***nhub videos','Useless_Alone._.007 playing with file systems','cat, win, vin, sir!']
-cogs = ['fun','utilities','debug','man']
+cogs = ['fun','utils','debug','man']
 embed=discord.Embed()
 
 def py_shell(message,trash,_globals,_locals):

@@ -1,7 +1,0 @@
-u690839099648638977 = {'count': 0, 'reasons': [],'moderator': []}
-u690839099648638977['reasons'].append("Not specified")
-u690839099648638977['count'] += 1
-u690839099648638977['moderator'].append('windowsboy111')
-u690839099648638977['reasons'].append("test '\\x1b?\"\"'")
-u690839099648638977['count'] += 1
-u690839099648638977['moderator'].append('windowsboy111')

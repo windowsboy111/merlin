@@ -15,7 +15,7 @@ logger.debug("Finished importing and logger configuration.  Loaded all libraries
 bot.remove_command('help')
 logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
 MODE = os.getenv('MODE')
-print(MODE)
+print(f"running in {MODE} mode...")
 # ---
 
 @bot.event
@@ -234,7 +234,7 @@ async def help(ctx,*,args=None):
     except asyncio.exceptions.TimeoutError: return
 
 
-@bot.command(name='eval',help='it is eval')
+@bot.command(name='eval',help='it is eval', hidden=True)
 @commands.is_owner()
 async def _eval(ctx, *, code='"bruh wat to eval"'):
     try:
@@ -242,6 +242,17 @@ async def _eval(ctx, *, code='"bruh wat to eval"'):
     except Exception:
         await ctx.send('uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
 
+@bot.command(name='reload', help='reload a cog', hidden=True)
+@commands.is_owner()
+async def _reload(ctx, cog: str):
+    bot.unload_extension(f"cogs.{cog}")
+    bot.load_extension(f"cogs.{cog}")
+@bot.command(name='unload', help='unload a cog', hidden=True)
+@commands.is_owner()
+async def _unload(ctx, cog: str):   bot.unload_extension(f"cogs.{cog}")
+@bot.command(name='load', help='load a cog', hidden=True)
+@commands.is_owner()
+async def _load(ctx, cog: str):     bot.load_extension(f"cogs.{cog}")
 
 ######### background
 async def status():
@@ -252,11 +263,9 @@ async def status():
                     activity = discord.Activity(type=discord.ActivityType(3),name=random.choice(statusLs))
                     await bot.change_presence(status=discord.Status.online, activity=activity)
                 elif MODE=='DEBUG':
-                    await bot.change_presence(status=discord.Status.idle)
-                    await log('RUNNING IN **DEBUG** MODE!')
+                    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType(3),name="windowsboy111 debugging me"))
                 elif MODE=='FIX':
-                    await bot.change_presence(status=discord.Status.dnd)
-                    await log('*RUNNING IN EMERGENCY **FIX** MODE!')
+                    await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3),name="windowsboy111 fixing me"))
                 await asyncio.sleep(30)
             except:
                 pass
@@ -274,44 +283,36 @@ async def on_command_error(ctx, error):
     error: commands.CommandError
         The Exception raised.
     """
+    try:
+        raise error
+    except Exception as e:
+        # This prevents any commands with local handlers being handled here in on_command_error.
+        if hasattr(ctx.command, 'on_error'):
+            await log(f'`{ctx.content}` caused an error: ```\n{traceback.format_exc()}```')
+            return await log("Note that the error has been passed to the global command error handler unexpectedly")
 
-    # This prevents any commands with local handlers being handled here in on_command_error.
-    if hasattr(ctx.command, 'on_error'):
-        return await log(ctx.content + 'caused an error: ' + traceback.format_exc())
+        # This prevents any cogs with an overwritten cog_command_error being handled here.
+        # cog = ctx.cog
+        # if cog:
+        #     if cog._get_overridden_method(cog.cog_command_error) is not None:
+        #         return
 
-    # This prevents any cogs with an overwritten cog_command_error being handled here.
-    cog = ctx.cog
-    if cog:
-        if cog._get_overridden_method(cog.cog_command_error) is not None:
-            return
+        # Anything in ignored will return and prevent anything happening.
+        if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send(f"Welp, I've no idea. Command not found!")
+        if isinstance(error, commands.MissingRequiredArgument): return await bot.invoke(bot.get_command('help'), args=ctx.command.name)
+        if isinstance(error, commands.BadArgument):             return await bot.invoke(bot.get_command('help'), args=ctx.command.name)
 
-    ignored = (commands.CommandNotFound, )
+        if isinstance(error, commands.errors.DisabledCommand):  return await ctx.send(f'{ctx.command} has been disabled.')
 
-    # Allows us to check for original exceptions raised and sent to CommandInvokeError.
-    # If nothing is found. We keep the exception passed to on_command_error.
-    error = getattr(error, 'original', error)
+        if isinstance(error, commands.errors.NoPrivateMessage):
+            try:                                                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+            except discord.HTTPException:                       return
 
-    # Anything in ignored will return and prevent anything happening.
-    if isinstance(error, ignored):
-        return
+        if isinstance(error, commands.errors.CommandInvokeError):      await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
 
-    if isinstance(error, commands.DisabledCommand):
-        await ctx.send(f'{ctx.command} has been disabled.')
-
-    elif isinstance(error, commands.NoPrivateMessage):
-        try:
-            await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
-        except discord.HTTPException:
-            pass
-
-    # For this error example we check to see where it came from...
-    elif isinstance(error, commands.BadArgument):
-        if ctx.command.qualified_name == 'tag list':  # Check if the command being invoked is 'tag list'
-            await ctx.send('I could not find that member. Please try again.')
-
-    else:
+        if isinstance(error, commands.errors.BadArgument):      return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. That member / channel / other kinds of object might not exist because I cannot find it.')
         # All other Errors not returned come here. And we can just print the default TraceBack.
-        await log('Ignoring exception in command {}:'.format(str(ctx.command)) + '\n\n```' + str(traceback.format_exc()) + '\n```')
+        await log('Ignoring exception in command {}:'.format(str(ctx.command)) + '\n\n```' + str(traceback.format_exc()) + '\n```',guild=ctx.message.channel.guild)
 
 #*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_#*_
 bot.run(TOKEN,bot=True,reconnect=True)
