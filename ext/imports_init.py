@@ -3,7 +3,7 @@ from discord.ext import commands
 from time import sleep
 from ext.consolemod import * # pylint: disable=unused-wildcard-import
 from ext.logcfg import logger
-from discord.utils import get
+from discord.utils import get, find
 from io import StringIO
 rt = ''
 runno = 0

@@ -6,6 +6,8 @@
 - message when bot joins a guild (being invited)
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
+### Fixed
+- failed to import `find()` from `imports_init`
 
 ## [2.1-b]
 ### Added
