@@ -4,6 +4,8 @@
 ## [Unreleased]
 ### Added
 - message when bot joins a guild (being invited)
+### Removed
+- excessive python syntax, imports, f-strings, etc (code formatting)
 
 ## [2.1-b]
 ### Added
