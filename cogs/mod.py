@@ -149,7 +149,7 @@ class Mod(commands.Cog):
             return
         connection = sqlite3.connect("samples/warnings.db")
         cursor = connection.cursor()
-        if num == 0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id)))
+        if num == 0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
         else:       cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
         cursor.execute("COMMIT;")
         close_cursor(cursor)

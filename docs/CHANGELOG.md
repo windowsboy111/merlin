@@ -11,6 +11,7 @@
 - `/ping` and `/msgstats` are both now in Debug cog instead of `Utils`
 ### Fixed
 - failed to import `find()` from `imports_init`
+- cannot remove warnings
 
 ## [2.1-b]
 ### Added
