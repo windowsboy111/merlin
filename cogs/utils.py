@@ -100,6 +100,8 @@ class Utils(commands.Cog):
         poll = qp(self.bot)
         try:
             id = int(id)
+        except ValueError:
+            id = '0x' + str(id).lower()
         except:
             await msg.edit('Sorry, but id has to be integer.')
             return
