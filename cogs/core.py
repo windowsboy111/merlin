@@ -13,7 +13,8 @@ class Core(commands.Cog):
         if args:
             command = None
             for cmd in self.bot.commands:
-                if cmd.name == args and not cmd.hidden:
+                if cmd.hidden: continue
+                if cmd.name == args:
                     command = cmd
                     break
             if not command: return await ctx.send('Command not found, please try again.')

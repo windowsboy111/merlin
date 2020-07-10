@@ -4,8 +4,11 @@
 ## [Unreleased]
 ### Added
 - message when bot joins a guild (being invited)
+- detailed `/msgstats` command
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
+### Changed
+- `/ping` and `/msgstats` are both now in Debug cog instead of `Utils`
 ### Fixed
 - failed to import `find()` from `imports_init`
 

@@ -1,31 +1,12 @@
 from discord.ext import commands
-from ext.logcfg import logger
 from quickpoll import QuickPoll as qp
 import discord
 verbose = True
 
 
-async def output(message, msg: discord.Message = None, ctx=None, dcmsg=True):
-    print(message)
-    logger.info(message)
-    if verbose and dcmsg:
-        if msg:
-            await msg.edit(content=message)
-        else:
-            return ctx.send(message)
-
-
 class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')
-    async def ping(self, ctx):
-        await ctx.send(embed=discord.Embed(title="Pong!", description='The latency is {} ms.'.format(self.bot.latency * 1000), color=0x3333ff))
-
-    @commands.command(name='msgstats', help='info of a message')
-    async def msgstats(self, ctx, *, args=''):
-        await ctx.send(f'args: {args}\nLength: {len(args)}')
 
     @commands.group(pass_context=True, help="/help vote", aliases=['poll', 'voting'], name='vote')
     async def vote(self, ctx):
