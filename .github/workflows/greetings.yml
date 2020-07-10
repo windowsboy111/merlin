@@ -6,7 +6,7 @@ jobs:
   greeting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/merlin-py
+    - uses: ref/merlin-py
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         issue-message: 'Thank you for submitting an issue! Be sure to follow instructions inside any issue templates. Remove excessive texts, don''t clutter your issue. Use common sense.'
