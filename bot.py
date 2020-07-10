@@ -5,6 +5,7 @@ from ext.imports_init import bot, traceback, commands, discord, asyncio, statusL
 from ext.imports_share import log
 _globals = globals()
 _locals = locals()
+lastmsg = list()
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 # token is stored inside ".env"

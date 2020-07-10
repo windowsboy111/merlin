@@ -1,4 +1,3 @@
-
 import discord
 from discord.ext import commands
 
@@ -21,23 +20,20 @@ class QuickPoll:
         if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
             reactions = ['✅', '❌']
         elif len(options) <= 10:
-            reactions = ['1⃣','2⃣','3⃣','4⃣','5⃣','6⃣','7⃣','8⃣','9⃣','🔟']
+            reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
         else:
-            reactions = ['🇦','🇧','🇨','🇩','🇪','🇫','🇬','🇭','🇮','🇯','🇰','🇱','🇲','🇳','🇴','🇵','🇶','🇷','🇸','🇹','🇺','🇻','🇼','🇽','🇾','🇿','0️⃣','1️⃣','2️⃣','3⃣','4⃣','5⃣','6⃣','7⃣','8⃣','9⃣','🔟']
-
+            reactions = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿', '0️⃣', '1️⃣', '2️⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
         description = []
         for x, option in enumerate(options):
             description += '\n {} {}'.format(reactions[x], option)
-        embed = discord.Embed(title=question, description=''.join(description),color=0x00FFBB)
-        embed.set_author(name=ctx.message.author,icon_url=ctx.message.author.avatar_url)
-        react_message = await msg.edit(embed=embed)
-        react_msg = react_message
-        i=0
+        embed = discord.Embed(title=question, description=''.join(description), color=0x00FFBB)
+        embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar_url)
+        await msg.edit(embed=embed)
+        i = 0
         for reaction in reactions[:len(options)]:
-            if i == 20:
-                msg = await ctx.send('And more reactions...')
+            if i == 20: msg = await ctx.send('And more reactions...')
             await msg.add_reaction(reaction)
-            i+=1
+            i += 1
         text = f'Poll ID: {str(hex(msg.id).lstrip("0x")).upper()}'
         if i > 10:
             text = "Can't tally this poll :("
@@ -46,18 +42,18 @@ class QuickPoll:
 
     @commands.command(pass_context=True)
     async def tally(self, ctx, msg, id):
-        try: if str(type(id)) == "<class 'str'>":
-            id = int(id, 16)
-        except: return 1
+        try:
+            if str(type(id)) == "<class 'str'>":    id = int(id, 16)
+        except Exception: return 1
         try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, id)
-        except: return 1
+        except Exception: return 1
         if not poll_message.embeds:
             await msg.edit(content='No embeds have been found')
             return 2
         embed = poll_message.embeds[0]
         if poll_message.author != ctx.message.guild.me: return 2
-        try: t = embed.description.split('\n')
-        except: return 1
+        try: embed.description.split('\n')
+        except Exception: return 1
         unformatted_options = [x.strip() for x in embed.description.split('\n')]
         opt_dict = {x[:2]: x[3:] for x in unformatted_options} if unformatted_options[0][0] == '1' \
             else {x[:1]: x[2:] for x in unformatted_options}
@@ -77,11 +73,12 @@ class QuickPoll:
                                 continue
                             voters.append(reactor.id)
 
-        output = discord.Embed(title='Results of the poll for "{}":\n'.format(embed.title),color=0xb6ff00)
+        output = discord.Embed(title='Results of the poll for "{}":\n'.format(embed.title), color=0xb6ff00)
         for key in tally.keys():
-            output.add_field(name=opt_dict[key],value=tally[key])
+            output.add_field(name=opt_dict[key], value=tally[key])
             output.set_footer(text='Poll ID: {}'.format(id))
         await msg.edit(embed=output)
-        edited = discord.Embed(title=embed.title,description='Poll ended',color=0xFFC300)
+        edited = discord.Embed(title=embed.title, description='Poll ended', color=0xFFC300)
         edited.set_footer(text=f"Result id: {msg.id}")
         await poll_message.edit(embed=edited)
+        return
