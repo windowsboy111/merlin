@@ -38,7 +38,7 @@ class QuickPoll:
                 msg = await ctx.send('And more reactions...')
             await msg.add_reaction(reaction)
             i+=1
-        text = 'Poll ID: {}'.format(msg.id)
+        text = f'Poll ID: {str(hex(msg.id).lstrip("0x")).upper()}'
         if i > 10:
             text = "Can't tally this poll :("
         embed.set_footer(text=text)
@@ -46,6 +46,9 @@ class QuickPoll:
 
     @commands.command(pass_context=True)
     async def tally(self, ctx, msg, id):
+        try: if str(type(id)) == "<class 'str'>":
+            id = int(id, 16)
+        except: return 1
         try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, id)
         except: return 1
         if not poll_message.embeds:
