@@ -9,6 +9,7 @@
 - excessive python syntax, imports, f-strings, etc (code formatting)
 ### Changed
 - `/ping` and `/msgstats` are both now in Debug cog instead of `Utils`
+- `man` cog has been renamed to `mod`
 ### Fixed
 - failed to import `find()` from `imports_init`
 - cannot remove warnings
