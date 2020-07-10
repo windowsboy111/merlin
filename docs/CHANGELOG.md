@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- message when bot joins a guild (being invited)
 
 ## [2.1-b]
 ### Added

@@ -101,6 +101,12 @@ async def on_member_join(member):
     await member.send(f'Hi {member.name}, welcome to KCCS Official Discord server!\nBy using the guild, you accept the rules.')
     print(f"{member} has joined the server.")
 
+@bot.event
+async def on_guild_join(guild):
+    general = find(lambda x: x.name == 'general',  guild.text_channels)
+    if general and general.permissions_for(guild.me).send_messages:
+        # await general.send('Hello {}! This is Merlin!\nMy prefix is `/` and `$`.\nYou can create a channel called #merlin-py and then I can log my own stuff!\nThanks for supporting! https://github.com/windowsboy111/Merlin'.format(guild.name))
+
 #####################################################################################################################################################################################
 
 @bot.group(name='mc',help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel",pass_context=True,aliases=['minecraft'])
