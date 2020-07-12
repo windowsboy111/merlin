@@ -4,6 +4,7 @@ from datetime import datetime
 import discord, pyTableMaker, random, sqlite3
 from ext.dbctrl import close_connection, close_cursor
 from ext.imports_share import log
+WARNFILE = 'data/warnings.db'
 
 
 def is_sudoers(member):
@@ -124,7 +125,7 @@ class Mod(commands.Cog):
         if not person:
             await ctx.send('No member has been specified.')
             return
-        connection = sqlite3.connect("samples/warnings.db")
+        connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
         rc = cursor.rowcount
         rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id), )).fetchall()
@@ -147,7 +148,7 @@ class Mod(commands.Cog):
         if not person:
             await ctx.send('No member has been specified.')
             return
-        connection = sqlite3.connect("samples/warnings.db")
+        connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
         if num == 0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
         else:       cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
@@ -159,7 +160,7 @@ class Mod(commands.Cog):
     @commands.command(name='chkwrn', aliases=['checkwarn', 'checkwarns', 'checkwarnings', 'ckwn', "chkwn"], help='Show warnings of member: /chkwrn @person [raw]')
     async def chkwrn(self, ctx, member: discord.Member = None, raw=''):
         member = member or ctx.message.author
-        connection = sqlite3.connect("samples/warnings.db")
+        connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
         rows = cursor.execute("SELECT ID,Moderator,Reason,WarnedDate FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
         if rows == []:
@@ -179,9 +180,11 @@ class Mod(commands.Cog):
                 loopCount += 1
             embed = discord.Embed(title="Warnings", description='```css\n' + t.get() + '\n```', color=0x00FFBB)
             embed.set_author(name=member, icon_url=ctx.message.author.avatar_url)
+            embed.timestamp = datetime.datetime.utcnow()
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(title="Warnings", description=f'list of warnings for {member.mention}', color=0x00FFBB)
+            embed.timestamp = datetime.datetime.utcnow()
             embed.set_author(name=member, icon_url=member.avatar_url)
             loopCount = 1
             for warning in rows:

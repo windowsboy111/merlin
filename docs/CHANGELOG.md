@@ -5,6 +5,7 @@
 ### Added
 - message when bot joins a guild (being invited)
 - detailed `/msgstats` command
+- `/info` command
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
 ### Changed

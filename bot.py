@@ -2,12 +2,14 @@
 # bot.py
 from dotenv import load_dotenv
 from ext.imports_init import bot, traceback, commands, discord, asyncio, statusLs, random, csv, logger, botmc, find, cogs, style, threading, load_py, easteregg, os
+import json
 from ext.imports_share import log
 _globals = globals()
 _locals = locals()
 lastmsg = list()
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+SETFILE = "data/settings.json"
 # token is stored inside ".env"
 
 # console log
@@ -35,7 +37,7 @@ async def on_message(message: discord.Message):
             for i in range(3):  await message.author.send('No more fork bombs')
             shell['py_out'] = "Enough fork bomb."
         if len(shell['py_out']) > 1998:
-            await message.channel.send(file=discord.File(open("samples/pyoutput.txt", "r"), "output.txt"))
+            await message.channel.send(file=discord.File(open("data/pyoutput.txt", "r"), "output.txt"))
             stop = False
             return
         await message.channel.send(shell['py_out'])
@@ -113,7 +115,27 @@ async def on_guild_join(guild):
     if general and general.permissions_for(guild.me).send_messages:
         await general.send(f'Hello {guild.name}! This is Merlin!\nMy prefix is `/` and `$`.\n'
                            'You can create a channel called #merlin-py and I can log my own stuff!\n'
-                           'Thanks for supporting! https://github.com/windowsboy111/Merlin')
+                           'Thanks for supporting! https://github.com/windowsboy111/Merlin\n\n'
+                           'If I have permissions, the owner of this guild will be informed to setup. Or else, type `/settings`.')
+        await guild.owner.send("**SETUP**\nBefore using me, let's spend a few minutes setting up Merlin...\n"
+                               "To continue, type (and press enter to send) `y` (300 seconds timeout)")
+
+        def check(m):   return m.author == guild.owner and m.content == 'y'
+        rt = await bot.wait_for('message', check=check, timeout=300)
+        await guild.owner.send("type prefix: (timeout 30)")
+        del check
+        def check(m):   return m.author == guild.owner
+        rt = await bot.wait_for('message', check=check, timeout=30)
+        gprefix = rt.content
+        await guild.owner.send("type admin roles, seperated with `, ` and send it (don't do `@`, timeout 60)")
+        rt = await bot.wait_for('message', check=check, timeout=60)
+        sudoers = rt.content.split(', ')
+        await guild.owner.send("thx! done!")
+        f = json.load(open(SETFILE, 'r'))
+        f[f'g{guild.id}'] = {"prefix": gprefix, "sudoers": sudoers}
+        with open(SETFILE, 'w') as outfile:
+            json.dump(f, outfile)
+    return
 
 
 @bot.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
@@ -161,7 +183,7 @@ async def srv(ctx, *, args: str = None):
 async def addsrv(ctx, link: str = None, name: str = None, note: str = None):
     if not link or not name or not note:
         return await ctx.send('Missing required arguments :/')
-    with open('samples/mcsrvs.csv', mode='w') as csv_f:
+    with open('data/mcsrvs.csv', mode='w') as csv_f:
         w = csv.writer(csv_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         w.writerow([link, name, note])
         return await ctx.send('Operation completed successfully.')

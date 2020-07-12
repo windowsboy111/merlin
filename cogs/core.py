@@ -1,5 +1,7 @@
 from discord.ext import commands
-import discord, traceback, asyncio
+import discord, traceback, asyncio, json, datetime
+BOTSETFILE = "ext/bot_settings.json"
+SETFILE = "data/settings.json"
 
 
 class Core(commands.Cog):
@@ -55,6 +57,51 @@ class Core(commands.Cog):
                 return await ctx.invoke(self.bot.get_command('help'), args=rt.content)
             return
         except asyncio.exceptions.TimeoutError: return
+
+    @commands.group(name='info', help='info about everything')
+    async def _info(self, ctx):
+        if ctx.invoked_subcommand is None:
+            botinfo = json.load(open(BOTSETFILE))
+            embed = discord.Embed(title="Info", description='you can add subcommand after this command so that it will show specific info!')
+            embed.add_field(name="Server", value=f"{ctx.guild.id} / `{ctx.guild.name}`")
+            embed.add_field(name=self.bot.user, value=f"ver `{botinfo['version']}`")
+            embed.add_field(name='Member count', value=len(ctx.guild.members))
+            embed.timestamp = datetime.datetime.utcnow()
+            await ctx.send(embed=embed)
+            return
+
+    @_info.command(name='server', help='info about the current server', aliases=['guild', 'srv'])
+    async def info_server(self, ctx):
+        settings = json.load(open(SETFILE, 'r'))
+        embed = discord.Embed(title='Server info', description=ctx.guild.description)
+        embed.add_field(name="Server", value=f"{ctx.guild.name} - {ctx.guild.id}")
+        embed.add_field(name='Members count', value=ctx.guild.member_count)
+        embed.add_field(name='Roles count', value=len(ctx.guild.roles))
+        embed.add_field(name='Channels count', value=f"{len(ctx.guild.text_channels)} text / {len(ctx.guild.voice_channels)} voice - total {len(ctx.guild.channels)}")
+        embed.add_field(name='Categories count', value=len(ctx.guild.categories))
+        embed.add_field(name='Sudoers', value=", ".join([discord.utils.get(ctx.guild.roles, name=r).mention for r in settings[f'g{ctx.guild.id}']["sudoers"]]))
+        embed.add_field(name='Rules channel', value=ctx.guild.rules_channel.mention if ctx.guild.rules_channel else "Not set")
+        embed.add_field(name='System channel', value=ctx.guild.system_channel.mention if ctx.guild.system_channel else "Not set")
+        embed.add_field(name='Region', value=str(ctx.guild.region) if ctx.guild.region else "Not set / found")
+        embed.add_field(name='afk', value=f"{ctx.guild.afk_timeout or '<no afk timeout>'} sec / {ctx.guild.afk_channel.name if ctx.guild.afk_channel else '<no afk channel>'}")
+        # embed.add_field(name='Public updates channel', value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
+        # new in discord.py version 1.4
+        None if not ctx.guild.icon_url else embed.set_image(url=ctx.guild.icon_url)
+        embed.add_field(name='Owner', value=ctx.guild.owner.mention)
+        embed.set_footer(text="Created at")
+        embed.timestamp = ctx.guild.created_at
+        await ctx.send(embed=embed)
+        return
+
+    @_info.command(name='bot', help='info about this discord bot', aliases=['merlin'])
+    async def info_bot(self, ctx):
+        settings = json.load(open(BOTSETFILE, 'r'))
+        embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
+        for key in settings.keys():
+            embed.add_field(name=key, value=settings[key])
+        embed.timestamp = datetime.datetime.utcnow()
+        await ctx.send(embed=embed)
+        return
 
     @commands.command(name='eval', help='it is eval', hidden=True)
     @commands.is_owner()

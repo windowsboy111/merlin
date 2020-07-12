@@ -48,7 +48,7 @@ def py_shell(message, trash, _globals, _locals):
             out = traceback.format_exc()
         shell['py_out'] = '```\n' + out + '\n>>>```'
         if len(shell['py_out']) > 1998:
-            f = open("samples/pyoutput.txt", "w")
+            f = open("data/pyoutput.txt", "w")
             f.write(shell['py_out'])
             f.close()
         return

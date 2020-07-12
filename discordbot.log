@@ -1,17 +1,20 @@
-[2020-07-10 07:19:45,037]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-10 07:19:45,038]INFO - discord: Program started.
-[2020-07-10 07:19:45,041]INFO - discord.client: logging in using static token
-[2020-07-10 07:19:45,343]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-10 07:19:45,345]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-10 07:19:45,470]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-wljf",{"micros":67284,"calls":["discord-sessions-prd-1-77",{"micros":64067,"calls":["start_session",{"micros":53341,"calls":["api-prd-main-4tm1",{"micros":48811,"calls":["get_user",{"micros":3750},"add_authorized_ip",{"micros":2180},"get_guilds",{"micros":7343},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":13,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 4a4de00131327a9e6fbae67a248710b4).
-[2020-07-10 07:19:49,047]INFO - discord: windowsboy111 has issued command: /rmwn <@653086042752286730>
-[2020-07-10 07:20:23,817]INFO - discord: windowsboy111 has issued command: /ckwn
-[2020-07-10 07:20:56,656]INFO - discord: windowsboy111 has issued command: /ckwn <@690839099648638977>
-[2020-07-10 07:21:02,662]INFO - discord: windowsboy111 has issued command: /ckwn <@666186125026525194>
-[2020-07-10 07:27:40,628]INFO - discord: Stupid Benz has issued command: /poll end all
-[2020-07-10 08:20:44,212]INFO - discord: Vincintelligent has issued command: /poll mk "Should this channel turn to private channel?"yes no
-[2020-07-10 08:37:10,213]INFO - discord.gateway: Received RECONNECT opcode.
-[2020-07-10 08:37:10,271]INFO - discord.client: Got a request to RESUME the websocket.
-[2020-07-10 08:37:10,478]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-10 08:37:10,480]INFO - discord.gateway: Shard ID None has sent the RESUME payload.
-[2020-07-10 08:37:10,541]INFO - discord.gateway: Shard ID None has successfully RESUMED session 4a4de00131327a9e6fbae67a248710b4 under trace ["gateway-prd-main-x6sl",{"micros":3935,"calls":["discord-sessions-prd-1-77",{"micros":37}]}].
+[2020-07-12 11:34:42,627]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-12 11:34:42,628]INFO - discord: Program started.
+[2020-07-12 11:34:42,629]INFO - discord.client: logging in using static token
+[2020-07-12 11:34:44,174]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-12 11:34:44,177]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-12 11:34:44,472]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7d3k",{"micros":60285,"calls":["discord-sessions-prd-1-31",{"micros":56853,"calls":["start_session",{"micros":46504,"calls":["api-prd-main-n27h",{"micros":43756,"calls":["get_user",{"micros":5071},"add_authorized_ip",{"micros":2190},"get_guilds",{"micros":2768},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 387657788a908c109884c07812ccb6ef).
+[2020-07-12 11:35:44,827]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:36:43,940]INFO - discord: windowsboy111 has issued command: /reload core
+[2020-07-12 11:36:47,071]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:37:11,383]INFO - discord: windowsboy111 has issued command: /reload core
+[2020-07-12 11:37:13,933]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:37:58,416]INFO - discord: windowsboy111 has issued command: /reload core
+[2020-07-12 11:38:00,025]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:39:50,895]INFO - discord: windowsboy111 has issued command: /reload core
+[2020-07-12 11:39:52,487]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:44:08,024]INFO - discord: windowsboy111 has issued command: /reload core
+[2020-07-12 11:44:20,407]INFO - discord: windowsboy111 has issued command: /info guild
+[2020-07-12 11:45:07,852]INFO - discord.client: Cleaning up tasks.
+[2020-07-12 11:45:07,852]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-07-12 11:45:07,987]INFO - discord.client: Closing the event loop.
