@@ -88,7 +88,7 @@ class Core(commands.Cog):
         # new in discord.py version 1.4
         None if not ctx.guild.icon_url else embed.set_image(url=ctx.guild.icon_url)
         embed.add_field(name='Owner', value=ctx.guild.owner.mention)
-        embed.set_footer(text="Created at")
+        embed.set_footer(text="Created on")
         embed.timestamp = ctx.guild.created_at
         await ctx.send(embed=embed)
         return

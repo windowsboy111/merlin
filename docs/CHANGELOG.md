@@ -16,6 +16,7 @@
 - PEP code formatting
 - fs reorganizing
 - cannot remove warnings
+- some grammar issues
 
 ## [2.1-b]
 ### Added
