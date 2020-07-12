@@ -1,0 +1,9 @@
+{
+    "g664090268500230155": {
+        "prefix":   "/",
+        "sudoers":  [
+            "Administrators",
+            "Moderators"
+        ]
+    }
+}

@@ -13,6 +13,8 @@
 - `man` cog has been renamed to `mod`
 ### Fixed
 - failed to import `find()` from `imports_init`
+- PEP code formatting
+- fs reorganizing
 - cannot remove warnings
 
 ## [2.1-b]

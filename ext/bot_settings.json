@@ -1,0 +1,16 @@
+{
+    "name":         "Merlin",
+    "version":      "2.1-b",
+    "build":        "beta",
+    "unreleased":   "2.1-b1",
+    "author":       {
+        "name":         "windowsboy111",
+        "discord":      "windowsboy111#1046",
+        "aliases":      [
+            "matriz",
+            "winboy111"
+        ]
+    },
+    "github":       "https://github.com/windowsboy111/Merlin-py",
+    "repl.it":      "https://repl.it/@windowsboy111/merlin-py#main.py"
+}
