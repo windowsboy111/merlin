@@ -1,10 +1,12 @@
 from discord.ext import commands
 from discord.utils import get
 from datetime import datetime
-import discord, pyTableMaker, random, sqlite3
+import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor
 from ext.imports_share import log
 WARNFILE = 'data/warnings.db'
+muted = dict()
+stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
 def is_sudoers(member):
@@ -235,6 +237,51 @@ class Mod(commands.Cog):
             await ctx.send("Fine. There you go.")
         except Exception:
             await ctx.send('Failed to unban the user.')
+        return
+
+    @commands.command(name='mute', help='mute a member')
+    async def mute(ctx, member: discord.Member, mute_time: str, *, reason=None):
+        if not is_sudoers(ctx.author): return await ctx.send(stringTable['sentances']['noPerms'])
+
+        if mute_time.endswith('m'):
+            t = int(mute_time[:-1]) * 60
+        elif mute_time.endswith('h'):
+            t = int(mute_time[:-1]) * 3600
+        elif mute_time.endswith('d'):
+            t = int(mute_time[:-1]) * 3600 * 24
+        elif mute_time.endswith('w'):
+            t = int(mute_time[:-1]) * 3600 * 24 * 7
+        else:
+            try:
+                t = int(mute_time)
+            except Exception:
+                await ctx.send("time should ends with `m`, `h`, `d`, `w`, or no postfix.")
+                return
+
+        role = discord.utils.get(ctx.guild.roles, name="Muted")
+        await member.add_roles(role)
+        await ctx.send(f'**Muted** {member.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}')
+
+        embed = discord.Embed(color=discord.Color.green())
+        embed.add_field(name=f"You've been **Muted** in {ctx.guild.name}.", value=f"**Action By: **{ctx.author.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}")
+        await member.send(embed=embed)
+        try:
+            muted[str(member.id)] += 1
+        except Exception:
+            muted[str(member.id)] = 1
+        muted[str(member.id)]
+        await asyncio.sleep(t)
+
+        if muted[str(member.id)] > 1:
+            muted[str(member.id)] -= 1
+            return
+        try:
+            await member.remove_roles(role)
+        except Exception:
+            muted[str(member.id)] -= 1
+            return
+        await ctx.send(f"**Unmuted {member.mention}**")
+        muted[str(member.id)] -= 1
         return
 
 

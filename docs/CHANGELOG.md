@@ -7,6 +7,8 @@
 - message when bot joins a guild (being invited)
 - detailed `/msgstats` command
 - `/info` command
+- `/mute` command
+- string table (actually json) `ext/wrds.json`
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
 ### Changed
