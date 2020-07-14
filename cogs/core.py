@@ -16,7 +16,7 @@ class Core(commands.Cog):
         if args:
             command = self.bot.get_command(args)
             if not command: return await ctx.send('Command not found, please try again.')
-            e = discord.Embed(title='Command `/' + ((' '.join(command.parents) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
+            e = discord.Embed(title='Command `/' + ((' '.join([p.name for p in command.parents]) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
             e.add_field(name='Objective',   value=command.help)
             e.add_field(name='Usage',       value=command.usage)
             e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
