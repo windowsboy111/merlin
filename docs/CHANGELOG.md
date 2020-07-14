@@ -13,6 +13,7 @@
 - `/ping` and `/msgstats` are both now in `Debug` cog instead of `Utils`
 - `man` cog has been renamed to `mod`
 ### Fixed
+- `/help` command completed
 - failed to import `find()` from `imports_init`
 - PEP code formatting
 - fs reorganizing
