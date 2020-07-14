@@ -24,6 +24,7 @@ class Core(commands.Cog):
                 e.add_field(name='Sub-Commands', value=', '.join([cmd.name for cmd in command.commands]))
             msg = await ctx.send(embed=e)
             names = [(None if cmd.hidden else cmd.name) for cmd in self.bot.commands]  # loop over all commands, if not hidden, append its string name
+            return
 
         all_cmds = self.bot.commands
         e = discord.Embed(title='Command list', description='wd: <GLOBAL>')
