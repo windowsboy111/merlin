@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.utils import get
 import discord, traceback, asyncio, json, datetime
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
@@ -13,31 +14,16 @@ class Core(commands.Cog):
         try: await ctx.message.delete()
         except Exception: pass
         if args:
-            command = None
-            for cmd in self.bot.commands:
-                if cmd.hidden: continue
-                if cmd.name == args:
-                    command = cmd
-                    break
+            command = self.bot.get_command(args)
             if not command: return await ctx.send('Command not found, please try again.')
             e = discord.Embed(title='Command `/' + ((' '.join(command.parents) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
             e.add_field(name='Objective',   value=command.help)
             e.add_field(name='Usage',       value=command.usage)
-            e.add_field(name='Cog',         value="No cog" if not command.cog else command.cog.qualified_name)
-            try:
-                if command.commands:
-                    e.add_field(name='Sub-Commands', value=', '.join([cmd.name for cmd in command.commands]))
-            except Exception: pass
-            await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]', embed=e)
+            e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
+            if hasattr(command, 'commands'):    # it is a group
+                e.add_field(name='Sub-Commands', value=', '.join([cmd.name for cmd in command.commands]))
+            msg = await ctx.send(embed=e)
             names = [(None if cmd.hidden else cmd.name) for cmd in self.bot.commands]  # loop over all commands, if not hidden, append its string name
-            cogs = self.bot.cogs
-            def check(m): return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
-            try:
-                rt = await self.bot.wait_for('message', check=check, timeout=30)
-                if rt:
-                    return await ctx.invoke(self.bot.get_command('help'), args=rt.content)
-                return
-            except asyncio.exceptions.TimeoutError: return
 
         all_cmds = self.bot.commands
         e = discord.Embed(title='Command list', description='wd: <GLOBAL>')
@@ -45,18 +31,7 @@ class Core(commands.Cog):
         for cmd in all_cmds:
             e.add_field(name=cmd.name, value=cmd.help or "<no help>")
             count += 1
-        await ctx.send('Type a command name in 30 seconds to get info about the command. [awaiting...]', embed=e)
-        names = [(None if cmd.hidden else cmd.name) for cmd in self.bot.commands]
-        cogs = self.bot.cogs
-
-        def check(m):
-            return m.author == ctx.message.author and m.channel == ctx.message.channel and (m.content in names or m.content in cogs)
-        try:
-            rt = await self.bot.wait_for('message', check=check, timeout=30)
-            if rt:
-                return await ctx.invoke(self.bot.get_command('help'), args=rt.content)
-            return
-        except asyncio.exceptions.TimeoutError: return
+        await ctx.send(embed=e)
 
     @commands.group(name='info', help='info about everything')
     async def _info(self, ctx):
@@ -73,7 +48,7 @@ class Core(commands.Cog):
     @_info.command(name='server', help='info about the current server', aliases=['guild', 'srv'])
     async def info_server(self, ctx):
         settings = json.load(open(SETFILE, 'r'))
-        embed = discord.Embed(title='Server info', description=ctx.guild.description)
+        embed = discord.Embed(title='Server info', description=ctx.guild.description or "<description not set>")
         embed.add_field(name="Server", value=f"{ctx.guild.name} - {ctx.guild.id}")
         embed.add_field(name='Members count', value=ctx.guild.member_count)
         embed.add_field(name='Roles count', value=len(ctx.guild.roles))

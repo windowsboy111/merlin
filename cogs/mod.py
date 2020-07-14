@@ -129,7 +129,6 @@ class Mod(commands.Cog):
         cursor = connection.cursor()
         rc = cursor.rowcount
         rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id), )).fetchall()
-        cursor.execute('COMMIT;')
         if rows == [] or not rows[0][0]:
             cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (
                            str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
@@ -139,9 +138,9 @@ class Mod(commands.Cog):
         if rc == cursor.rowcount:
             await ctx.send('Failed to warn that bad guy. Unexpected catched error happened (no modification has been made to the db, which is unintended...)')
         else:
+            cursor.execute("COMMIT;")
             await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
             await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
-        cursor.execute("COMMIT;")
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
@@ -180,11 +179,11 @@ class Mod(commands.Cog):
                 loopCount += 1
             embed = discord.Embed(title="Warnings", description='```css\n' + t.get() + '\n```', color=0x00FFBB)
             embed.set_author(name=member, icon_url=ctx.message.author.avatar_url)
-            embed.timestamp = datetime.datetime.utcnow()
+            embed.timestamp = datetime.utcnow()
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(title="Warnings", description=f'list of warnings for {member.mention}', color=0x00FFBB)
-            embed.timestamp = datetime.datetime.utcnow()
+            embed.timestamp = datetime.utcnow()
             embed.set_author(name=member, icon_url=member.avatar_url)
             loopCount = 1
             for warning in rows:

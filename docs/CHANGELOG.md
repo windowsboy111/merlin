@@ -3,13 +3,14 @@
 
 ## [Unreleased]
 ### Added
+- can run Merlin-py as a module
 - message when bot joins a guild (being invited)
 - detailed `/msgstats` command
 - `/info` command
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
 ### Changed
-- `/ping` and `/msgstats` are both now in Debug cog instead of `Utils`
+- `/ping` and `/msgstats` are both now in `Debug` cog instead of `Utils`
 - `man` cog has been renamed to `mod`
 ### Fixed
 - failed to import `find()` from `imports_init`
@@ -18,7 +19,7 @@
 - cannot remove warnings
 - some grammar issues
 
-## [2.1-b]
+## [2.1-b] - 2020-07-09
 ### Added
 - can now hide commands in `/help`
 - logging console
