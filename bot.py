@@ -1,7 +1,7 @@
 #!/bin/python3
 # bot.py
 from dotenv import load_dotenv
-from ext.imports_init import bot, traceback, commands, discord, asyncio, statusLs, random, csv, logger, botmc, find, cogs, style, threading, load_py, easteregg, os
+from ext.imports_init import bot, traceback, commands, discord, asyncio, statusLs, random, csv, logger, botmc, find, cogs, style, threading, load_py, easteregg, os, prefix
 import json
 from ext.imports_share import log
 _globals = globals()
@@ -265,8 +265,8 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send("Welp, I've no idea. Command not found!")
-        if isinstance(error, commands.MissingRequiredArgument): return await bot.invoke(bot.get_command('help'), args=ctx.command.name)
-        if isinstance(error, commands.BadArgument):             return await bot.invoke(bot.get_command('help'), args=ctx.command.name)
+        if isinstance(error, commands.MissingRequiredArgument): return await ctx.invoke(bot.get_command('help'), args=ctx.command.qualified_name)
+        if isinstance(error, commands.BadArgument):             return await ctx.invoke(bot.get_command('help'), args=ctx.command.qualified_name)
 
         if isinstance(error, commands.errors.DisabledCommand):  return await ctx.send(f'{ctx.command} has been disabled.')
 
@@ -278,7 +278,7 @@ async def on_command_error(ctx, error):
 
         if isinstance(error, commands.errors.BadArgument):      return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. That member / channel / other kinds of object might not exist because I cannot find it.')
         # All other Errors not returned come here. And we can just print the default TraceBack.
-        await log('Ignoring exception in command {}:'.format(str(ctx.command)) + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.message.channel.guild)
+        await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
 
 
 bot.run(TOKEN, bot=True, reconnect=True)

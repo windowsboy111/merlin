@@ -9,11 +9,11 @@ class Core(commands.Cog):
         self.bot = bot
 
     @commands.command(name='help', help='Shows this message')
-    async def help(self, ctx, *, args=None):
+    async def help(self, ctx, *, cmdName: str = None):
         try: await ctx.message.delete()
         except Exception: pass
-        if args:
-            command = self.bot.get_command(args)
+        if cmdName:
+            command = self.bot.get_command(cmdName)
             if not command or command.hidden: return await ctx.send('Command not found, please try again.')
             e = discord.Embed(title='Command `/' + ((' '.join([p.name for p in command.parents]) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
             e.add_field(name='Objective',   value=command.help)
