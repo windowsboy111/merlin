@@ -2,6 +2,19 @@ import discord
 from discord.ext import commands
 
 
+char64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
+
+
+def encode_base64(value: int):
+    if value < 64:
+        return char64[value]
+    return char64[value] if (value < 64) else char64[value % 64] + encode_base64(value // 64)
+
+
+def decode_base64(value: str):
+    return (char64.index(value[-1]) + decode_base64(value[:-1]) * 64) if (len(value) > 1) else char64.index(value)
+
+
 class QuickPoll:
     """"""
 
@@ -34,7 +47,7 @@ class QuickPoll:
             if i == 20: msg = await ctx.send('And more reactions...')
             await msg.add_reaction(reaction)
             i += 1
-        text = f'Poll ID: {str(hex(msg.id).lstrip("0x")).upper()}'
+        text = f'Poll ID: {encode_base64(msg.id)}'
         if i > 10:
             text = "Can't tally this poll :("
         embed.set_footer(text=text)
@@ -42,11 +55,12 @@ class QuickPoll:
 
     @commands.command(pass_context=True)
     async def tally(self, ctx, msg, id):
-        try:
-            if str(type(id)) == "<class 'str'>":    id = int(id, 16)
-        except Exception: return 1
-        try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, id)
-        except Exception: return 1
+        try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, int(id))
+        except Exception:
+            try:
+                poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, decode_base64(id))
+            except Exception:
+                return await ctx.send("Failed to get message with the given id :L")
         if not poll_message.embeds:
             await msg.edit(content='No embeds have been found')
             return 2

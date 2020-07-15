@@ -44,7 +44,7 @@ class Core(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-    @_info.command(name='server', help='info about the current server', aliases=['guild', 'srv'])
+    @_info.command(name='server', help='info about the current server', aliases=['guild', 'srv', 'g'])
     async def info_server(self, ctx):
         settings = json.load(open(SETFILE, 'r'))
         embed = discord.Embed(title='Server info', description=ctx.guild.description or "<description not set>")
@@ -67,7 +67,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @_info.command(name='bot', help='info about this discord bot', aliases=['merlin'])
+    @_info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
     async def info_bot(self, ctx):
         settings = json.load(open(BOTSETFILE, 'r'))
         embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
@@ -85,17 +85,27 @@ class Core(commands.Cog):
 
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
-    async def _reload(self, ctx, cog: str):
-        self.bot.unload_extension(f"cogs.{cog}")
-        self.bot.load_extension(f"cogs.{cog}")
+    async def _reload(self, ctx, module: str):
+        await ctx.invoke(self.bot.get_command('unload'), module=module)
+        await ctx.invoke(self.bot.get_command('load'), module=module)
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
-    async def _unload(self, ctx, cog: str):   self.bot.unload_extension(f"cogs.{cog}")
+    async def _unload(self, ctx, module: str):
+        cmd = self.bot.get_command(module)
+        if cmd is None:
+            self.bot.unload_extension(f"cogs.{module}")
+        else:
+            self.bot.unload_extension(f"cogs.{cmd.cog.name}")
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
-    async def _load(self, ctx, cog: str):     self.bot.load_extension(f"cogs.{cog}")
+    async def _load(self, ctx, module: str):
+        cmd = self.bot.get_command(module)
+        if cmd is None:
+            self.bot.load_extension(f"cogs.{module}")
+        else:
+            self.bot.load_extension(f"cogs.{cmd.cog.name}")
 
 
 def setup(bot):

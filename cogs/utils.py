@@ -28,8 +28,7 @@ class Utils(commands.Cog):
     @vote.command(name='check', help='Check polls that has not ended')
     async def check(self, ctx, *, num='0'):
         if num == '0':
-            await ctx.send('How many to check?')
-            return
+            num = 0xFFFFFF
         result = ''
         result2 = list()
         id = list()
@@ -85,9 +84,6 @@ class Utils(commands.Cog):
         msg = await ctx.send('deleting `system32`...')
         if id == '0':       return await msg.edit(content='bruh i need da poll id')
         poll = qp(self.bot)
-        try:                id = int(id)
-        except ValueError:  id = '0x' + str(id).lower()
-        except Exception:   return await msg.edit('Sorry, but id has to be either integer or compressed id.')
         await poll.tally(poll, msg=msg, ctx=ctx, id=id)
         try:                return await msg.edit(content='')
         except Exception:   return

@@ -3,12 +3,14 @@
 
 ## [Unreleased]
 ### Added
+- \*load commands now accept command name as argument
 - can run Merlin-py as a module
 - message when bot joins a guild (being invited)
 - detailed `/msgstats` command
 - `/info` command
 - `/mute` command
 - string table (actually json) `ext/wrds.json`
+- can now run `/check` without specifying the amount of messages to read (the feature that has been removed in [2.1-a2])
 ### Removed
 - excessive python syntax, imports, f-strings, etc (code formatting)
 ### Changed
@@ -43,7 +45,6 @@
 ## [2.1-a2] - 2020-07-05
 ### Added
 - allowing users to end all polls in a channel with `/poll end all` (buggy)
-- eval command for bot owner only
 - compressed spamming warning system, boosted performance
 - compressed bot.py
 - bot owner can now run `/eval` python expressions.
