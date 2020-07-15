@@ -55,7 +55,7 @@ async def on_message(message: discord.Message):
                     isCmd = True
                     break
         if isCmd:
-            msgtoSend = f'{message.author.name} has issued command: {message.content}'
+            msgtoSend = f'{message.author} has issued command: `{message.content}`'
             logger.info(msgtoSend)
             print(msgtoSend)
             await log(message.channel.mention + ' ' + msgtoSend, guild=message.channel.guild)

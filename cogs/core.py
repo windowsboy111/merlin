@@ -86,8 +86,8 @@ class Core(commands.Cog):
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
     async def _reload(self, ctx, module: str):
-        await ctx.invoke(self.bot.get_command('unload'), module=module)
-        await ctx.invoke(self.bot.get_command('load'), module=module)
+        await ctx.invoke(self.bot.get_command('_unload'), module=module)
+        await ctx.invoke(self.bot.get_command('_load'), module=module)
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
