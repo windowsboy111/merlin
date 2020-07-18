@@ -1,20 +1,41 @@
-[2020-07-12 11:34:42,627]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-12 11:34:42,628]INFO - discord: Program started.
-[2020-07-12 11:34:42,629]INFO - discord.client: logging in using static token
-[2020-07-12 11:34:44,174]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-12 11:34:44,177]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-12 11:34:44,472]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7d3k",{"micros":60285,"calls":["discord-sessions-prd-1-31",{"micros":56853,"calls":["start_session",{"micros":46504,"calls":["api-prd-main-n27h",{"micros":43756,"calls":["get_user",{"micros":5071},"add_authorized_ip",{"micros":2190},"get_guilds",{"micros":2768},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 387657788a908c109884c07812ccb6ef).
-[2020-07-12 11:35:44,827]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:36:43,940]INFO - discord: windowsboy111 has issued command: /reload core
-[2020-07-12 11:36:47,071]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:37:11,383]INFO - discord: windowsboy111 has issued command: /reload core
-[2020-07-12 11:37:13,933]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:37:58,416]INFO - discord: windowsboy111 has issued command: /reload core
-[2020-07-12 11:38:00,025]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:39:50,895]INFO - discord: windowsboy111 has issued command: /reload core
-[2020-07-12 11:39:52,487]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:44:08,024]INFO - discord: windowsboy111 has issued command: /reload core
-[2020-07-12 11:44:20,407]INFO - discord: windowsboy111 has issued command: /info guild
-[2020-07-12 11:45:07,852]INFO - discord.client: Cleaning up tasks.
-[2020-07-12 11:45:07,852]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-12 11:45:07,987]INFO - discord.client: Closing the event loop.
+[2020-07-16 11:26:44,596]INFO - discord.client: logging in using static token
+[2020-07-16 11:26:45,488]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-16 11:26:45,490]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-16 11:26:45,775]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-l9kf",{"micros":65888,"calls":["discord-sessions-prd-1-38",{"micros":53976,"calls":["start_session",{"micros":43090,"calls":["api-prd-main-pghj",{"micros":40116,"calls":["get_user",{"micros":6713},"add_authorized_ip",{"micros":1487},"get_guilds",{"micros":3896},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":14,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 7dc92bfe64de365725d0c076a3ba5be7).
+[2020-07-16 11:26:47,802]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
+[2020-07-16 11:26:50,357]INFO - discord: Loading Extensions...
+[2020-07-16 11:26:51,718]INFO - discord: Ready!
+[2020-07-16 11:27:03,610]INFO - discord: windowsboy111#1046 has issued command: `/vote create "delete python channel" yes no`
+[2020-07-16 11:27:10,755]INFO - discord: windowsboy111#1046 has issued command: `/role assign`
+[2020-07-16 11:27:21,718]INFO - discord: windowsboy111#1046 has issued command: `/role assign Developers <@408576714243833867>`
+[2020-07-16 11:28:33,242]INFO - discord: windowsboy111#1046 has issued command: `/role assign Developers <@408576714243833867>`
+[2020-07-16 11:30:17,364]INFO - discord: windowsboy111#1046 has issued command: `/reload mod`
+[2020-07-16 11:30:37,766]INFO - discord: windowsboy111#1046 has issued command: `/role assign Developers <@408576714243833867>`
+[2020-07-16 11:30:46,932]INFO - discord: windowsboy111#1046 has issued command: `/role assign <@&711491080486649856> <@408576714243833867>`
+[2020-07-16 11:31:44,610]INFO - discord: windowsboy111#1046 has issued command: `/reload mod`
+[2020-07-16 11:32:00,865]INFO - discord: windowsboy111#1046 has issued command: `/role add <@&711491080486649856> <@408576714243833867>`
+[2020-07-16 11:34:34,831]INFO - discord: windowsboy111#1046 has issued command: `/poll chk`
+[2020-07-16 11:35:10,413]INFO - discord: windowsboy111#1046 has issued command: `/poll end all`
+[2020-07-16 11:40:09,243]INFO - discord: Stupid Benz#7564 has issued command: `/test`
+[2020-07-16 11:40:45,885]INFO - discord: HTGAzureX1212.#0001 has issued command: `/test`
+[2020-07-16 11:42:10,749]INFO - discord: Stupid Benz#7564 has issued command: `/test`
+[2020-07-16 11:42:13,603]INFO - discord: Stupid Benz#7564 has issued command: `/hello`
+[2020-07-16 11:42:31,585]INFO - discord: Stupid Benz#7564 has issued command: `/poll mk "delete this channel" yes no`
+[2020-07-16 11:43:33,003]INFO - discord: Stupid Benz#7564 has issued command: `/ava`
+[2020-07-16 11:43:50,312]INFO - discord: Stupid Benz#7564 has issued command: `/avatar`
+[2020-07-16 11:45:25,136]INFO - discord: HTGAzureX1212.#0001 has issued command: `/shruf`
+[2020-07-16 12:35:04,910]INFO - discord.gateway: Websocket closed with 1006 (), attempting a reconnect.
+[2020-07-16 12:35:04,911]INFO - discord.client: Got a request to RESUME the websocket.
+[2020-07-16 12:35:05,528]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-16 12:35:05,531]INFO - discord.gateway: Shard ID None has sent the RESUME payload.
+[2020-07-16 12:35:05,750]INFO - discord.gateway: Shard ID None session has been invalidated.
+[2020-07-16 12:35:10,755]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-16 12:35:11,068]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-p9zx",{"micros":97990,"calls":["discord-sessions-prd-1-17",{"micros":90448,"calls":["start_session",{"micros":73045,"calls":["api-prd-main-r7rw",{"micros":69544,"calls":["get_user",{"micros":4367},"add_authorized_ip",{"micros":3715},"get_guilds",{"micros":6042},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":13,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: aabc636ec1e8b9f7f9dbd3cb2c30fd2c).
+[2020-07-16 12:35:13,092]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
+[2020-07-16 12:35:16,121]INFO - discord: Loading Extensions...
+[2020-07-16 12:36:23,483]WARNING - discord.gateway: Shard ID None has stopped responding to the gateway. Closing and restarting.
+[2020-07-16 12:36:31,138]INFO - discord: windowsboy111#1046 has issued command: `/bot info`
+[2020-07-16 12:36:36,947]INFO - discord: windowsboy111#1046 has issued command: `/info bot`
+[2020-07-16 12:46:01,151]INFO - discord.client: Cleaning up tasks.
+[2020-07-16 12:46:01,151]INFO - discord.client: Cleaning up after 5 tasks.
+[2020-07-16 12:46:01,278]INFO - discord.client: Closing the event loop.

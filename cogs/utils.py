@@ -5,6 +5,15 @@ verbose = True
 
 
 class Utils(commands.Cog):
+    """\
+    Type: discord.ext.commands.Cog
+    Most of the utilities are stored in this cog
+    Load this extension as an external file with `client.load_extension('cogs.utils')`
+    ---
+    This cog contains:
+    ## Commands
+    - vote / poll
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -25,7 +34,7 @@ class Utils(commands.Cog):
         await msg.edit(content='')
         return
 
-    @vote.command(name='check', help='Check polls that has not ended')
+    @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
     async def check(self, ctx, *, num='0'):
         if num == '0':
             num = 0xFFFFFF

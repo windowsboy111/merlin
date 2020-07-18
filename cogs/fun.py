@@ -5,6 +5,21 @@ lolpwd = 'samples/'
 
 
 class Fun(commands.Cog):
+    """\
+    This cog is for fun only. Most of the commands here are for the author to
+    experiment with discord.py. Most of them are out of support and contains
+    hard-coded strings and objects which isn't great.
+    ---
+    ## Commands
+    - cough
+    - test
+    - stupid
+    - whatis
+    - boomer
+    - media
+    - say
+    - send
+    """
     def __init__(self, bot):
         self.bot = bot
 

@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- descriptions for many things (see them with `help()`)
 
 ## [2.1-b1]
 ### Added

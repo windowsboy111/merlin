@@ -1,4 +1,4 @@
-class cursor():
+class Cursor:
     def position(self,line,column):
         """Move cursor to specified position"""
         print("\033[{line};{column}f".format(line=line,column=column))

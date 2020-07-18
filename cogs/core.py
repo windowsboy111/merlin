@@ -1,23 +1,128 @@
 from discord.ext import commands
-import discord, traceback, json, datetime
+from discord.utils import get
+import discord, traceback, json, datetime, inspect
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
+settings = json.load(open(SETFILE, 'r'))
+
+
+def is_sudoers(member: discord.Member):
+    """\
+    Type: function
+    Checks if the provided member has admin roles (has moderating priviledges)
+    This function fetches the Admin roles list from the settings `dict()`
+    ---
+    return: bool
+    """
+    for role in member.roles:
+        if role.name in settings[f'g{member.guild.id}']['sudoers']:
+            return True
+    return False
 
 
 class Core(commands.Cog):
+    """\
+    Type: discord.ext.commands.Cog
+    The most important commands of the bot are in this cog / extension.
+    Load this extension as an external file with `client.load_extension('cogs.core')`
+    ---
+    This cog contains:
+    ## Commands
+    - settings
+    - help
+    - info
+    - eval
+    - unload
+    - reload
+    - load
+    """
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.group(name='settings', help='settings about everything')
+    async def settings(self, ctx):
+        prefix = settings[f'g{ctx.guild.id}']['prefix']
+        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
+        if ctx.invoked_subcommand is None:
+            e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
+            e.add_field(name='Prefix', value=', '.join(prefix))
+            e.add_field(name='Moderating roles (sudoers)', value=', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers]))
+            await ctx.send(embed=e)
+
+    @settings.group(name='prefix', help='edit prefix list')
+    async def settings_prefix(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.invoke(self.bot.get_command('help'), cmdName='settings prefix')
+
+    @settings_prefix.command(name='add', help='add a prefix for this server')
+    async def settings_prefix_add(self, ctx, prefix: str):
+        prefixes = settings[f'g{ctx.guild.id}']['prefix']
+        if prefix in prefixes:
+            return ctx.send('That prefix already exists!')
+        settings[f"g{ctx.guild.id}"]['prefix'].append(prefix)
+        with open(SETFILE, 'w') as outfile:
+            json.dump(settings, outfile)
+        await ctx.send("Prefixes now avaliable: " + ', '.join(settings[f'g{ctx.guild.id}']['prefix']))
+
+    @settings_prefix.command(name='remove', help='remove a prefix for this server', aliases=['del', 'delete', 'rm'])
+    async def settings_prefix_remove(self, ctx, prefix: str):
+        prefixes = settings[f'g{ctx.guild.id}']['prefix']
+        if prefix not in prefixes:
+            return await ctx.send('The specified prefix does not exist in the list!')
+        settings[f'g{ctx.guild.id}']['prefix'].remove(prefix)
+        with open(SETFILE, 'w') as outfile:
+            json.dump(settings, outfile)
+        return await ctx.send("Removed the specified prefix")
+
+    @settings.group(name='mods', help='set roles that are moderators / admins', aliases=['mod', 'admin', 'admins'])
+    async def settings_mods(self, ctx):
+        if not is_sudoers(ctx.author):
+            return await ctx.send("g3t r3kt you dumb this command is for the server admins only!")
+        if ctx.invoked_subcommand is None:
+            await ctx.invoke(self.bot.get_command('help'), cmdName='settings mods')
+
+    @settings_mods.command(name='add', help='add a moderating role')
+    async def settings_mods_add(self, ctx, role: discord.Role):
+        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
+        sudoers.append(str(role))
+        with open(SETFILE, 'w') as outfile:
+            json.dump(settings, outfile)
+        return await ctx.send("Moderators roles: " + ', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers]))
+
+    @settings_mods.command(name='remove', help='remove a moderating role', aliases=['del', 'rm', 'delete'])
+    async def setings_mod_remove(self, ctx, role: discord.Role):
+        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
+        sudoers.remove(str(role))
+        with open(SETFILE, 'w') as outfile:
+            json.dump(settings, outfile)
+        return await ctx.send("Moderators roles: " + ', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers]))
 
     @commands.command(name='help', help='Shows this message')
     async def help(self, ctx, *, cmdName: str = None):
         try: await ctx.message.delete()
         except Exception: pass
+        prefix = None
+        prefixes = settings[f"g{ctx.guild.id}"]["prefix"]
+        for p in prefixes:
+            if ctx.message.content.startswith(p):
+                prefix = p
+                break
         if cmdName:
             command = self.bot.get_command(cmdName)
             if not command or command.hidden: return await ctx.send('Command not found, please try again.')
-            e = discord.Embed(title='Command `/' + ((' '.join([p.name for p in command.parents]) + ' ' + command.name) if (command.parents) else (command.name)) + '`', description=(command.description or "<no description>"))
+            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(command.description or "<no description>"))
+            usage = prefix + command.qualified_name + ' '
+            for param in command.clean_params:
+                if type(param) is str:
+                    usage += f'<{param}> '
+                    continue
+                if param.default == param.default:
+                    usage += f'<{param.name}>'
+                else:
+                    usage += f'<[{param.name}]>'
+                usage += ' '
             e.add_field(name='Objective',   value=command.help)
-            e.add_field(name='Usage',       value=command.usage)
+            e.add_field(name='Usage',       value=usage)
             e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
             if hasattr(command, 'commands'):    # it is a group
                 e.add_field(name='Sub-Commands', value=', '.join([cmd.name for cmd in command.commands]))
@@ -33,7 +138,7 @@ class Core(commands.Cog):
         await ctx.send(embed=e)
 
     @commands.group(name='info', help='info about everything')
-    async def _info(self, ctx):
+    async def info(self, ctx):
         if ctx.invoked_subcommand is None:
             botinfo = json.load(open(BOTSETFILE))
             embed = discord.Embed(title="Info", description='you can add subcommand after this command so that it will show specific info!')
@@ -67,7 +172,7 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @_info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
+    @info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
     async def info_bot(self, ctx):
         settings = json.load(open(BOTSETFILE, 'r'))
         embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
@@ -86,8 +191,10 @@ class Core(commands.Cog):
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
     async def _reload(self, ctx, module: str):
-        await ctx.invoke(self.bot.get_command('_unload'), module=module)
-        await ctx.invoke(self.bot.get_command('_load'), module=module)
+        cmd = self.bot.get_command(module)
+        if cmd is not None:
+            module = cmd.cog.name.lower()
+        self.bot.reload_extension(f'cogs.{module}')
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
@@ -96,7 +203,7 @@ class Core(commands.Cog):
         if cmd is None:
             self.bot.unload_extension(f"cogs.{module}")
         else:
-            self.bot.unload_extension(f"cogs.{cmd.cog.name}")
+            self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
@@ -105,7 +212,7 @@ class Core(commands.Cog):
         if cmd is None:
             self.bot.load_extension(f"cogs.{module}")
         else:
-            self.bot.load_extension(f"cogs.{cmd.cog.name}")
+            self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
 
 
 def setup(bot):

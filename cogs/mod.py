@@ -7,12 +7,21 @@ from ext.imports_share import log
 WARNFILE = 'data/warnings.db'
 muted = dict()
 stringTable = json.load(open('ext/wrds.json', 'r'))
+settings = json.load(open('data/settings.json', 'r'))
 
 
-def is_sudoers(member):
-    if get(member.guild.roles, name="Moderators") not in member.roles and get(member.guild.roles, name='Administrators') not in member.roles:
-        return False
-    return True
+def is_sudoers(member: discord.Member):
+    """\
+    Type: function
+    Checks if the provided member has admin roles (has moderating priviledges)
+    This function fetches the Admin roles list from the settings `dict()`
+    ---
+    return: bool
+    """
+    for role in member.roles:
+        if role.name in settings[f'g{member.guild.id}']['sudoers']:
+            return True
+    return False
 
 
 class Mod(commands.Cog):
@@ -21,34 +30,19 @@ class Mod(commands.Cog):
 
     @commands.group(name='role', aliases=['roles'], help='Get your role rolling automatically.  Possible sub-commands: assign, remove, create, delete')
     async def role(self, ctx):
-        if is_sudoers(ctx.author):
-            await ctx.send('g3t r3kt, u r not admin!!')
-            await ctx.message.delete()
-            return
+        if not is_sudoers(ctx.author):
+            return await ctx.send('g3t r3kt, u r not admin!!')
         if ctx.invoked_subcommand is None:
-            await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
-            await ctx.message.delete()
-            return
+            return await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
 
     @role.command(name='assign', aliases=['give', 'set', 'grant', 'add'], help='Possible rolename: 2a, 1b, friends, etc.', pass_context=True)
-    async def assign(self, ctx, rolename: discord.Role, member: discord.Member = None):
+    async def assign(self, ctx, role: discord.Role, member: discord.Member = None):
         member = member or ctx.message.author
-        if rolename == '':
-            await ctx.send('apparently this function requires 2 parameters.')
-            await ctx.message.delete()
+        if role is None:
+            await ctx.send(f'Failed to get the role.  Probably role {role} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
             return
-        try:
-            role = get(ctx.guild.roles, name=rolename)
-            if role is None:
-                await ctx.send(f'Failed to get the role.  Probably role {rolename} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
-                await ctx.message.delete()
-                return
-            await member.add_roles(role)
-            await ctx.send(f'Role {rolename} has been added to {member.mention} by {ctx.message.author.mention}.')
-        except Exception as e:
-            await ctx.send(f'failed to add role {rolename} to {member} (requested by {ctx.message.author.mention}) with error message:\n{e}')
-        await ctx.message.delete()
-        return
+        await member.add_roles(role)
+        await ctx.send(f'Role {role} has been added to {member.mention} by {ctx.message.author.mention}.')
 
     @role.command(name='remove', aliases=['rm', 'revoke'], help='Possible rolename: 2a, 1b, friends, etc.', pass_context=True)
     async def remove(self, ctx, rolename='', member: discord.Member = None):
@@ -87,24 +81,18 @@ class Mod(commands.Cog):
         return
 
     @role.command(name='delete', aliases=['del'], help='Delete a role (remove from all users)')
-    async def delete(self, ctx, *, rolename):
-        if rolename == '':
-            await ctx.send('apparently this function requires 2 parameters.')
-            await ctx.message.delete()
-            return
-        role = discord.utils.get(ctx.guild.roles, name=rolename)
+    async def delete(self, ctx, *, role: discord.Role):
         if role:
             try:
                 await role.delete()
-                await ctx.send(f'Role {rolename} deleted successfully. (Requested by {ctx.message.author.mention})')
+                await ctx.send(f'Role {role.name} deleted successfully. (Requested by {ctx.message.author.mention})')
             except discord.Forbidden as e:
-                await ctx.send(f'Failed to delete role {rolename} because the requester {ctx.message.author.mention} '
+                await ctx.send(f'Failed to delete role {role.name} because the requester {ctx.message.author.mention} '
                                f'has missing permissions.  Administrative privileges are required.\nError message: {e}')
             except Exception as e:
-                await ctx.send(f'Failed to create role {rolename} (requested by {ctx.message.author.mention}).\nError message: {e}')
+                await ctx.send(f'Failed to create role {role.name} (requested by {ctx.message.author.mention}).\nError message: {e}')
         else:
-            await ctx.send(f'Failed to get the role.  Probably role {rolename} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
-        await ctx.message.delete()
+            await ctx.send(f'Failed to get the role.  Probably role {role.name} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
         return
 
     @commands.command(name='nickname', help='Change the nickname')
@@ -115,7 +103,7 @@ class Mod(commands.Cog):
             await ctx.send('Nickname cannot be blank.')
             return
         try:
-            await ctx.message.guild.get_member(member.id).edit(nick=newNick)
+            await member.edit(nick=newNick)
             await ctx.send('Operation completed successfully.')
             return
         except Exception as e:
@@ -132,17 +120,16 @@ class Mod(commands.Cog):
         rc = cursor.rowcount
         rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id), )).fetchall()
         if rows == [] or not rows[0][0]:
-            cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (0,?,?,?,?);", (
+            cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (1,?,?,?,?);", (
                            str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
         else:
             cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (
                            str(rows[0][0] + 1), str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
         if rc == cursor.rowcount:
-            await ctx.send('Failed to warn that bad guy. Unexpected catched error happened (no modification has been made to the db, which is unintended...)')
-        else:
-            cursor.execute("COMMIT;")
-            await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
-            await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
+            return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened (no modification has been made to the db, which is unintended...)')
+        cursor.execute("COMMIT;")
+        await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
+        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
@@ -151,8 +138,8 @@ class Mod(commands.Cog):
             return
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
-        if num == 0:  cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
-        else:       cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+        if num == 0:    cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
+        else:           cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
         cursor.execute("COMMIT;")
         close_cursor(cursor)
         close_connection(connection)
@@ -240,8 +227,8 @@ class Mod(commands.Cog):
         return
 
     @commands.command(name='mute', help='mute a member')
-    async def mute(ctx, member: discord.Member, mute_time: str, *, reason=None):
-        if not is_sudoers(ctx.author): return await ctx.send(stringTable['sentances']['noPerms'])
+    async def mute(self, ctx, member: discord.Member, mute_time: str, *, reason=None):
+        if not is_sudoers(ctx.message.author): return await ctx.send(stringTable['sentences']['noPerms'])
 
         if mute_time.endswith('m'):
             t = int(mute_time[:-1]) * 60

@@ -1,73 +1,92 @@
 #!/bin/python3
 # bot.py
+print("Merlin bot written in python by windowsboy111 :)")
+print('==> Starting... (In loop)')
+print(' >> Importing libraries...', end='\r')
+import sys, os
 from dotenv import load_dotenv
-from ext.imports_init import bot, traceback, commands, discord, asyncio, statusLs, random, csv, logger, botmc, find, cogs, style, threading, load_py, easteregg, os
-import json
-from ext.imports_share import log
-_globals = globals()
-_locals = locals()
+from ext.imports_share import log, bot
+import botmc, discord, random, asyncio, os, easteregg, csv, traceback, json, sys
+from discord.ext import commands
+from ext.consolemod import style
+from ext.logcfg import logger
+from discord.utils import find
+print(' >> Defining constant variables...', end='\r')
+exitType = 0
+rt = ''
+statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
+cogs = []
+for cog in os.listdir('cogs/'):
+    if cog.endswith('.py'):
+        cogs.append(cog[:-3])
+embed = discord.Embed()
 lastmsg = list()
+# token is stored inside ".env"
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 SETFILE = "data/settings.json"
-# token is stored inside ".env"
+print(' >> Defining functions and objects...', end='\r')
 
-# console log
-logger.info("Program started.")
-logger.debug("Finished importing and logger configuration.  Loaded all libraries.")
+
+def slog(message: str):
+    print(' >> ' + message, end='\r')
+    logger.debug(message)
+
+
+def nlog(message: str):
+    print('\n==> ' + message)
+    logger.info(message)
+
+
+def get_prefix(bot: commands.Bot, message):
+    with open('data/settings.json', 'r') as f:
+        settings = json.load(f)
+        prefix = None
+        try:
+            prefix = settings['g' + str(message.guild.id)]['prefix']
+        except KeyError:
+            settings['g' + str(message.guild.id)] = {'prefix': ["/"]}
+            prefix = ['/']
+        return prefix.append('<@690839099648638977> ')
+
+
+settings = json.load(open(SETFILE))
 
 # init
+slog('Configuring bot...')
 bot.remove_command('help')
-logger.debug("Loaded env, custom exceptions, and \"constant\" variables / some global variables.")
 MODE = os.getenv('MODE')
-print(f"running in {MODE} mode...")
 
 
 @bot.event
 async def on_message(message: discord.Message):
-    global lastmsg, shell, _globals, _locals, stop
+    global lastmsg
     if await easteregg.easter(message): return
-    if type(message.channel) != discord.DMChannel and message.channel.name == 'python' and message.author != bot.user:
-        p = threading.Thread(target=load_py, args=[message, shell, _globals, _locals])
-        p.start()
-        p.join(5)
-        if p.is_alive():
-            stop = True
-            p.join()
-            for i in range(3):  await message.author.send('No more fork bombs')
-            shell['py_out'] = "Enough fork bomb."
-        if len(shell['py_out']) > 1998:
-            await message.channel.send(file=discord.File(open("data/pyoutput.txt", "r"), "output.txt"))
-            stop = False
-            return
-        await message.channel.send(shell['py_out'])
-        shell['py_out'] = ''
-        stop = False
-        return
-    if message.content.startswith('/') and message.author != bot.user:
-        isCmd = False
-        for cmd in bot.commands:
-            if message.content.lower().split(' ')[0] == '/' + cmd.name:
-                isCmd = True
-                break
-            for alias in cmd.aliases:
-                if message.content.lower().split(' ')[0] == '/' + alias:
-                    isCmd = True
-                    break
-        if isCmd:
-            msgtoSend = f'{message.author} has issued command: `{message.content}`'
-            logger.info(msgtoSend)
-            print(msgtoSend)
-            await log(message.channel.mention + ' ' + msgtoSend, guild=message.channel.guild)
-            try:
-                await bot.process_commands(message)
-                try:    await message.delete()
-                except Exception: pass
-                finally: return
-            except discord.ext.commands.errors.CommandNotFound: return
-            except Exception as e:
-                await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
-                print(str(e))
+    try:
+        prefixes = settings[f"g{message.channel.guild.id}"]['prefix']
+    except KeyError:
+        prefixes = ['/']
+        settings[f"g{message.channel.guild.id}"] = {"prefix": ['/']}
+    realPrefix = None
+    for prefix in prefixes:
+        if message.content.startswith(prefix) and message.author != bot.user:
+            realPrefix = prefix
+            break
+    if realPrefix:
+        prefix = realPrefix
+        msgtoSend = f'{message.author} has issued command: `{message.content}`'
+        logger.info(msgtoSend)
+        print(msgtoSend)
+        await log(message.channel.mention + ' ' + msgtoSend, guild=message.channel.guild)
+        try:
+            await bot.process_commands(message)
+            try:    await message.delete()
+            except Exception: pass
+            finally: return
+        except discord.ext.commands.errors.CommandNotFound: return
+        except Exception:
+            await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
+            print(traceback.format_exc())
     if 'invite me' in message.content.lower():  await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
     if (message.author.bot): return
     if lastmsg == []:   lastmsg = [message.content.lower(), message.author, 1, False]
@@ -84,7 +103,8 @@ async def on_message(message: discord.Message):
 
 @bot.event
 async def on_ready():
-    print(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id}'))
+    nlog(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode'))
+    slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
         await bot.change_presence(status=discord.Status.online, activity=activity)
@@ -96,9 +116,12 @@ async def on_ready():
         await bot.change_presence(status=discord.Status.dnd)
         await log('*RUNNING IN EMERGENCY **FIX** MODE!')
     await log('logged in')
+    nlog('Loading Extensions...')
     for cog in cogs:
+        slog(f'Loading {cog}...')
         bot.load_extension('cogs.' + cog)
     await log('loaded extensions / cogs')
+    nlog("Ready!")
     return
 
 
@@ -136,6 +159,63 @@ async def on_guild_join(guild):
         with open(SETFILE, 'w') as outfile:
             json.dump(f, outfile)
     return
+
+
+# background
+async def status():
+    await bot.wait_until_ready()
+    while True:
+        try:
+            if not MODE or MODE == 'NORMAL':
+                activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
+                await bot.change_presence(status=discord.Status.online, activity=activity)
+            elif MODE == 'DEBUG':
+                await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me"))
+            elif MODE == 'FIX':
+                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
+            await asyncio.sleep(30)
+        except Exception:
+            pass
+try:
+    bot.loop.create_task(status())
+except Exception:
+    pass
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    try:
+        raise error
+    except Exception:
+        # This prevents any commands with local handlers being handled here in on_command_error.
+        if hasattr(ctx.command, 'on_error'):
+            await log(f'`{ctx.content}` caused an error: ```\n{traceback.format_exc()}```')
+            return await log("Note that the error has been passed to the global command error handler unexpectedly")
+
+        # This prevents any cogs with an overwritten cog_command_error being handled here.
+        cog = ctx.cog
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
+                return
+
+        # Anything in ignored will return and prevent anything happening.
+        if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send("Welp, I've no idea. Command not found!")
+        if isinstance(error, commands.MissingRequiredArgument): return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+        if isinstance(error, commands.BadArgument):             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+
+        if isinstance(error, commands.errors.DisabledCommand):  return await ctx.send(f'{ctx.command} has been disabled.')
+
+        if isinstance(error, commands.errors.NoPrivateMessage):
+            try:                                                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+            except discord.HTTPException:                       return
+
+        if isinstance(error, commands.errors.CommandInvokeError):      await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
+
+        if isinstance(error, commands.errors.BadArgument):      return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. That member / channel / other kinds of object might not exist because I cannot find it.')
+        # All other Errors not returned come here. And we can just print the default TraceBack.
+        await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
+
+slog("Adding bot commands...")
 
 
 @bot.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
@@ -229,56 +309,61 @@ async def crash(ctx, *, args=None):
     await ctx.send(f.read())
 
 
-# background
-async def status():
-    await bot.wait_until_ready()
-    while True:
-        try:
-            if not MODE or MODE == 'NORMAL':
-                activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
-                await bot.change_presence(status=discord.Status.online, activity=activity)
-            elif MODE == 'DEBUG':
-                await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me"))
-            elif MODE == 'FIX':
-                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
-            await asyncio.sleep(30)
-        except Exception:
-            pass
-bot.loop.create_task(status())
+@bot.command(name='reboot', aliases=['restart'], hidden=True)
+@commands.is_owner()
+async def _reboot(ctx):
+    global exitType
+    print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
+    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
+    await ctx.send('Bot will restart in 10 seconds.')
+    await asyncio.sleep(10)
+    await ctx.send('Logging out...')
+    await log('Logging out...')
+    print('Logging out...')
+    exitType = 1
+    await bot.logout()
 
 
-@bot.event
-async def on_command_error(ctx, error):
+@bot.command(name='shutdown', aliases=['stop', 'sdwn', 'kthxbai', 'halt'], hidden=True)
+@commands.is_owner()
+async def _shutdown(ctx):
+    global exitType
+    nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
+    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
+    await ctx.send('Bot will shutdown in 10 seconds.')
+    await asyncio.sleep(10)
+    await ctx.send('Logging out...')
+    await log('Logging out...')
+    nlog('Logging out...')
+    exitType = 2
+    await bot.logout()
+
+# login / start services
+slog('Running / logging in...          ')
+while True:
+    bot.run(TOKEN, bot=True, reconnect=True)
+    if exitType == 0:
+        nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
+        continue
+    else:
+        nlog('Logged out')
+        break
+if exitType == 2:
+    print("\nExiting...")
+    import sys
+    sys.exit(0)
+slog('Tidying up...')
+for var in dir():
+    if var.startswith('__'):
+        continue
     try:
-        raise error
-    except Exception:
-        # This prevents any commands with local handlers being handled here in on_command_error.
-        if hasattr(ctx.command, 'on_error'):
-            await log(f'`{ctx.content}` caused an error: ```\n{traceback.format_exc()}```')
-            return await log("Note that the error has been passed to the global command error handler unexpectedly")
-
-        # This prevents any cogs with an overwritten cog_command_error being handled here.
-        cog = ctx.cog
-        if cog:
-            if cog._get_overridden_method(cog.cog_command_error) is not None:
-                return
-
-        # Anything in ignored will return and prevent anything happening.
-        if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send("Welp, I've no idea. Command not found!")
-        if isinstance(error, commands.MissingRequiredArgument): return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-        if isinstance(error, commands.BadArgument):             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-
-        if isinstance(error, commands.errors.DisabledCommand):  return await ctx.send(f'{ctx.command} has been disabled.')
-
-        if isinstance(error, commands.errors.NoPrivateMessage):
-            try:                                                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
-            except discord.HTTPException:                       return
-
-        if isinstance(error, commands.errors.CommandInvokeError):      await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
-
-        if isinstance(error, commands.errors.BadArgument):      return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. That member / channel / other kinds of object might not exist because I cannot find it.')
-        # All other Errors not returned come here. And we can just print the default TraceBack.
-        await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
-
-
-bot.run(TOKEN, bot=True, reconnect=True)
+        del globals()[var]
+    except KeyError:
+        pass
+    try:
+        del locals()[var]
+    except KeyError:
+        pass
+print('==> Removed all variables\n==> Restarting script...\n\n')
+import os, sys
+os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)

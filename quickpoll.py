@@ -8,7 +8,7 @@ char64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
 def encode_base64(value: int):
     if value < 64:
         return char64[value]
-    return char64[value] if (value < 64) else char64[value % 64] + encode_base64(value // 64)
+    return char64[value] if (value < 64) else encode_base64(value // 64) + char64[value % 64]
 
 
 def decode_base64(value: str):
