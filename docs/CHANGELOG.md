@@ -2,8 +2,11 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1-b2]
 ### Added
 - descriptions for many things (see them with `help()`)
+- now a module
 ### Fixed
 - mute command might break
 
