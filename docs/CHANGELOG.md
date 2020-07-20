@@ -2,6 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
+## Fixed
+- keep alive func [FATAL]
+- a lot of bugs when merging git :/ [FATAL]
 
 ## [2.1-b2]
 ### Added
