@@ -1,7 +1,6 @@
 from discord.ext import commands
-from quickpoll import QuickPoll as qp
+from ext.quickpoll import QuickPoll as qp
 import discord
-verbose = True
 
 
 class Utils(commands.Cog):

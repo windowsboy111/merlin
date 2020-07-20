@@ -116,15 +116,15 @@ def mcsrv(embed, args):
             else:
                 ver = "Unknown"
             embed = discord.Embed(title="Minecraft KCCS Official", description="Here's da info", color=0x00b9ff)
-            embed.add_field(name="Server name: ",         value=name,         inline=True)
-            embed.add_field(name="Server link: ",         value=link,         inline=True)
-            embed.add_field(name="Server status: ",       value=status,       inline=True)
-            embed.add_field(name="Server version: ",      value=ver,          inline=True)
-            embed.add_field(name="Note: ",                value=note,         inline=True)
-            embed.add_field(name="Latency (Ping): ",      value=ping,         inline=True)
-            embed.add_field(name="Number of players: ",   value=players,      inline=True)
-            embed.add_field(name="Players Online: ",      value=playerls,     inline=True)
-            embed.add_field(name="Description: ",         value=dscrp,        inline=True)
+            embed.add_field(name="Server name:",         value=name,         inline=True)
+            embed.add_field(name="Server link:",         value=link,         inline=True)
+            embed.add_field(name="Server status:",       value=status,       inline=True)
+            embed.add_field(name="Server version:",      value=ver,          inline=True)
+            embed.add_field(name="Note:",                value=note,         inline=True)
+            embed.add_field(name="Latency (Ping):",      value=ping,         inline=True)
+            embed.add_field(name="Number of players:",   value=players,      inline=True)
+            embed.add_field(name="Players Online:",      value=playerls,     inline=True)
+            embed.add_field(name="Description:",         value=dscrp,        inline=True)
             logger.info('Attempting to return obj "embed" from srv <id/link>')
             return embed
     except IndexError:

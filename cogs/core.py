@@ -149,7 +149,7 @@ class Core(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-    @_info.command(name='server', help='info about the current server', aliases=['guild', 'srv', 'g'])
+    @info.command(name='server', help='info about the current server', aliases=['guild', 'srv', 'g'])
     async def info_server(self, ctx):
         settings = json.load(open(SETFILE, 'r'))
         embed = discord.Embed(title='Server info', description=ctx.guild.description or "<description not set>")

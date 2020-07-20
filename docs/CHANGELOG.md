@@ -4,6 +4,8 @@
 ## [Unreleased]
 ### Added
 - descriptions for many things (see them with `help()`)
+### Fixed
+- mute command might break
 
 ## [2.1-b1]
 ### Added

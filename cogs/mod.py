@@ -228,6 +228,7 @@ class Mod(commands.Cog):
 
     @commands.command(name='mute', help='mute a member')
     async def mute(self, ctx, member: discord.Member, mute_time: str, *, reason=None):
+        global muted
         if not is_sudoers(ctx.message.author): return await ctx.send(stringTable['sentences']['noPerms'])
 
         if mute_time.endswith('m'):

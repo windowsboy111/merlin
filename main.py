@@ -1,26 +1,26 @@
-# import os
-# os.system('pip install python-dotenv mcstatus flask discord.py Naked')
-import keep_alive, threading
-from time import sleep
+import keep_alive
+import traceback
+import os
+import sys
+import time
 
 
-def a():
-    while True:
-        print(end="")
-        sleep(300)
+def main(port=8080, host="0.0.0.0"):
+    try:
+        keep_alive.keep_alive(port=port, host=host)
+    except Exception:
+        print(traceback.format_exc())
+        print('Retrying in 5 seconds...')
+        time.sleep(5)
+        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
-
-t = threading.Thread(target=a)
-t.start()
-try:
-    keep_alive.keep_alive()
-except Exception as e:
-    print(e)
-try:
-    import bot
-except Exception as e:
-    print(e)
-    while True:
-        print(e)
-        sleep(5)
+    try:
         import bot
+    except Exception:
+        print(traceback.format_exc())
+        print('Retrying in 5 seconds...')
+        time.sleep(5)
+        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+
+if __name__ == '__main__':
+    main()
