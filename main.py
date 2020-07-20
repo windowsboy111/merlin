@@ -22,5 +22,6 @@ def main(port=8080, host="0.0.0.0"):
         time.sleep(5)
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 
+
 if __name__ == '__main__':
     main()
