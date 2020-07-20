@@ -93,7 +93,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b1...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...HEAD
+[2.1-b2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b1...2.1-b2
 [2.1-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b...2.1-b1
 [2.1-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-a2...2.1-b
 [2.1-a2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-a1...2.1-a2
