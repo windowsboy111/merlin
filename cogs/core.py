@@ -4,6 +4,7 @@ import discord, traceback, json, datetime, inspect
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
 settings = json.load(open(SETFILE, 'r'))
+stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
 def is_sudoers(member: discord.Member):
@@ -14,10 +15,27 @@ def is_sudoers(member: discord.Member):
     ---
     return: bool
     """
+    if member.guild.owner == member:
+        return True
     for role in member.roles:
-        if role.name in settings[f'g{member.guild.id}']['sudoers']:
-            return True
+        try:
+            if role.name in settings[f'g{member.guild.id}']['sudoers']:
+                return True
+        except KeyError:
+            settings[f'g{member.guild.id}'] = {"sudoers": [], "prefix": ["/"]}
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
     return False
+
+
+def chk_sudo():
+    """\
+    Type: decorator
+    The command will only be able to be executed by the author if the author is owner or have permissions
+    """
+    async def predicate(ctx):
+        return is_sudoers(ctx.author)
+    return commands.check(predicate)
 
 
 class Core(commands.Cog):
@@ -50,6 +68,7 @@ class Core(commands.Cog):
             await ctx.send(embed=e)
 
     @settings.group(name='prefix', help='edit prefix list')
+    @chk_sudo()
     async def settings_prefix(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.invoke(self.bot.get_command('help'), cmdName='settings prefix')
@@ -75,9 +94,8 @@ class Core(commands.Cog):
         return await ctx.send("Removed the specified prefix")
 
     @settings.group(name='mods', help='set roles that are moderators / admins', aliases=['mod', 'admin', 'admins'])
+    @chk_sudo()
     async def settings_mods(self, ctx):
-        if not is_sudoers(ctx.author):
-            return await ctx.send("g3t r3kt you dumb this command is for the server admins only!")
         if ctx.invoked_subcommand is None:
             await ctx.invoke(self.bot.get_command('help'), cmdName='settings mods')
 
@@ -96,6 +114,16 @@ class Core(commands.Cog):
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
         return await ctx.send("Moderators roles: " + ', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers]))
+
+    @settings.error
+    async def settings_error(self, ctx, error):
+        if isinstance(error, KeyError):
+            await ctx.send(stringTable['core']['guildSettingsNotFound'])
+            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": []}
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
+            await ctx.send(stringTable['core']['guildSettingsFixed'])
+            return 2
 
     @commands.command(name='help', help='Shows this message')
     async def help(self, ctx, *, cmdName: str = None):

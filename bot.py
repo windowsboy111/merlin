@@ -1,17 +1,25 @@
 #!/bin/python3
 # bot.py
-print("Merlin bot written in python by windowsboy111 :)")
-print('==> Starting... (In loop)')
-print(' >> Importing libraries...', end='\r')
-import sys, os
+import sys
+import os
+import random
+import csv
+import traceback
+import json
+import asyncio
+import discord
 from dotenv import load_dotenv
-from ext.imports_share import log, bot
-import botmc, discord, random, asyncio, os, easteregg, csv, traceback, json, sys
 from discord.ext import commands
 from ext.consolemod import style
 from ext.logcfg import logger
 from discord.utils import find
-print(' >> Defining constant variables...', end='\r')
+from ext.imports_share import log, bot
+import botmc
+import easteregg
+print("Merlin bot written in python by windowsboy111 :)")
+print('==> Starting... (In loop)')
+print(' >> Imported libraries...', end='\r\n')
+print(' >> Defining constant variables...', end='\r\n')
 exitType = 0
 rt = ''
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
@@ -24,17 +32,25 @@ lastmsg = list()
 # token is stored inside ".env"
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+LASTWRDFILE = "data/lastword.json"
+lastword = json.load(open(LASTWRDFILE, 'r'))
 SETFILE = "data/settings.json"
-print(' >> Defining functions and objects...', end='\r')
+stringTable = json.load(open('ext/wrds.json', 'r'))
+print(' >> Defining functions and objects...', end='\r\n')
 
 
 def slog(message: str):
-    print(' >> ' + message, end='\r')
+    print(' >> ' + message, end='\r\n')
     logger.debug(message)
 
 
 def nlog(message: str):
     print('\n==> ' + message)
+    logger.info(message)
+
+
+def cmd_handle_log(message: str):
+    print('[CMDHDL]\t' + message)
     logger.info(message)
 
 
@@ -61,12 +77,15 @@ MODE = os.getenv('MODE')
 @bot.event
 async def on_message(message: discord.Message):
     global lastmsg
-    if await easteregg.easter(message): return
+    if await easteregg.easter(message):
+        return
     try:
         prefixes = settings[f"g{message.channel.guild.id}"]['prefix']
     except KeyError:
         prefixes = ['/']
         settings[f"g{message.channel.guild.id}"] = {"prefix": ['/']}
+        with open(SETFILE, 'w') as outfile:
+            json.dump(settings, outfile)
     realPrefix = None
     for prefix in prefixes:
         if message.content.startswith(prefix) and message.author != bot.user:
@@ -74,22 +93,31 @@ async def on_message(message: discord.Message):
             break
     if realPrefix:
         prefix = realPrefix
-        msgtoSend = f'{message.author} has issued command: `{message.content}`'
-        logger.info(msgtoSend)
-        print(msgtoSend)
-        await log(message.channel.mention + ' ' + msgtoSend, guild=message.channel.guild)
+        msgtoSend = f'{message.author} has issued command: '
+        cmd_handle_log(msgtoSend + style.green(message.content) + style.reset())
+        await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
         try:
             await bot.process_commands(message)
-            try:    await message.delete()
-            except Exception: pass
-            finally: return
-        except discord.ext.commands.errors.CommandNotFound: return
+            try:
+                await message.delete()
+            except Exception:
+                pass
+            finally:
+                return
+        except discord.ext.commands.errors.CommandNotFound:
+            return
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
-    if 'invite me' in message.content.lower():  await message.channel.send('RbBFAfK is the invite code for this server.\nhttps://discord.gg/RbBFAfK\n')
-    if (message.author.bot): return
-    if lastmsg == []:   lastmsg = [message.content.lower(), message.author, 1, False]
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][message.author.id] = message.id
+    except KeyError:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
+    if (message.author.bot):
+        return
+    if lastmsg == []:
+        lastmsg = [message.content.lower(), message.author, 1, False]
     elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
         lastmsg[2] += 1
         await message.delete()
@@ -97,8 +125,12 @@ async def on_message(message: discord.Message):
         await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
     elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
         lastmsg[2] += 1
-        if lastmsg[2] == 4: lastmsg[3] = True
-    else:   lastmsg = [message.content.lower(), message.author, 1, False]
+        if lastmsg[2] == 4:
+            lastmsg[3] = True
+    else:
+        lastmsg = [message.content.lower(), message.author, 1, False]
+    with open(LASTWRDFILE, 'w') as f:
+        json.dump(lastword, f)
 
 
 @bot.event
@@ -138,20 +170,17 @@ async def on_guild_join(guild):
     if general and general.permissions_for(guild.me).send_messages:
         await general.send(f'Hello {guild.name}! This is Merlin!\nMy prefix is `/` and `$`.\n'
                            'You can create a channel called #merlin-py and I can log my own stuff!\n'
-                           'Thanks for supporting! https://github.com/windowsboy111/Merlin\n\n'
+                           'Thanks for supporting! https://github.com/windowsboy111/Merlin-py\n\n'
                            'If I have permissions, the owner of this guild will be informed to setup. Or else, type `/settings`.')
         await guild.owner.send("**SETUP**\nBefore using me, let's spend a few minutes setting up Merlin...\n"
                                "To continue, type (and press enter to send) `y` (300 seconds timeout)")
 
-        def check(m):   return m.author == guild.owner and m.content == 'y'
-        rt = await bot.wait_for('message', check=check, timeout=300)
+        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner and m.content == 'y', timeout=300)
         await guild.owner.send("type prefix: (timeout 30)")
-        del check
-        def check(m):   return m.author == guild.owner
-        rt = await bot.wait_for('message', check=check, timeout=30)
+        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=30)
         gprefix = rt.content
         await guild.owner.send("type admin roles, seperated with `, ` and send it (don't do `@`, timeout 60)")
-        rt = await bot.wait_for('message', check=check, timeout=60)
+        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=60)
         sudoers = rt.content.split(', ')
         await guild.owner.send("thx! done!")
         f = json.load(open(SETFILE, 'r'))
@@ -170,7 +199,8 @@ async def status():
                 activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
                 await bot.change_presence(status=discord.Status.online, activity=activity)
             elif MODE == 'DEBUG':
-                await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me"))
+                activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
+                await bot.change_presence(status=discord.Status.idle, activity=activity)
             elif MODE == 'FIX':
                 await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
             await asyncio.sleep(30)
@@ -199,19 +229,31 @@ async def on_command_error(ctx, error):
                 return
 
         # Anything in ignored will return and prevent anything happening.
-        if isinstance(error, commands.errors.CommandNotFound):  return await ctx.send("Welp, I've no idea. Command not found!")
-        if isinstance(error, commands.MissingRequiredArgument): return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-        if isinstance(error, commands.BadArgument):             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+        if isinstance(error, commands.errors.CommandNotFound):
+            return await ctx.send("Welp, I've no idea. Command not found!")
+        if isinstance(error, commands.MissingRequiredArgument):
+            return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+        if isinstance(error, commands.BadArgument):
+            return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
 
-        if isinstance(error, commands.errors.DisabledCommand):  return await ctx.send(f'{ctx.command} has been disabled.')
+        if isinstance(error, commands.errors.DisabledCommand):
+            return await ctx.send(f'{ctx.command} has been disabled.')
 
         if isinstance(error, commands.errors.NoPrivateMessage):
-            try:                                                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
-            except discord.HTTPException:                       return
+            try:
+                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+            except discord.HTTPException:
+                return
 
-        if isinstance(error, commands.errors.CommandInvokeError):      await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
+        if isinstance(error, commands.errors.CommandInvokeError):
+            await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
 
-        if isinstance(error, commands.errors.BadArgument):      return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. That member / channel / other kinds of object might not exist because I cannot find it.')
+        if isinstance(error, discord.ext.commands.errors.NotOwner):
+            return await ctx.send(stringTable['notOwner'])
+
+        if isinstance(error, commands.errors.BadArgument):
+            return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
+                                  'That member / channel / other kinds of object might not exist because I cannot find it.')
         # All other Errors not returned come here. And we can just print the default TraceBack.
         await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
 
@@ -350,11 +392,14 @@ while True:
         break
 if exitType == 2:
     print("\nExiting...")
-    import sys
     sys.exit(0)
 slog('Tidying up...')
 for var in dir():
     if var.startswith('__'):
+        continue
+    if var == 'os':
+        continue
+    if var == 'sys':
         continue
     try:
         del globals()[var]
@@ -365,5 +410,4 @@ for var in dir():
     except KeyError:
         pass
 print('==> Removed all variables\n==> Restarting script...\n\n')
-import os, sys
 os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)

@@ -2,6 +2,13 @@
 > windowsboy111
 
 ## [Unreleased]
+## Added
+- `/mute` command now checks if a Muted role exists
+- owner is always "sudoers" in guild
+- owner check is now handled
+- it now checks if it can run inside DMs / PMs
+## Removed
+- `/nickname` command
 ## Fixed
 - keep alive func [FATAL]
 - a lot of bugs when merging git :/ [FATAL]

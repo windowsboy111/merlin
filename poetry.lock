@@ -183,14 +183,14 @@ category = "main"
 description = "A library that creates text-based tables"
 name = "pytablemaker"
 optional = false
-python-versions = "*"
-version = "1.2.1"
+python-versions = ">=3.7"
+version = "1.3a2"
 
 [[package]]
 category = "main"
 description = "Add .env support to your django/flask apps in development and deployments"
 name = "python-dotenv"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.14.0"
 

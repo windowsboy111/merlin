@@ -4,10 +4,12 @@ from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor
 from ext.imports_share import log
+from exceptions import NoMutedRole
 WARNFILE = 'data/warnings.db'
 muted = dict()
+SETFILE = "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
-settings = json.load(open('data/settings.json', 'r'))
+settings = json.load(open(SETFILE, 'r'))
 
 
 def is_sudoers(member: discord.Member):
@@ -18,10 +20,27 @@ def is_sudoers(member: discord.Member):
     ---
     return: bool
     """
+    if member.guild.owner == member:
+        return True
     for role in member.roles:
-        if role.name in settings[f'g{member.guild.id}']['sudoers']:
-            return True
+        try:
+            if role.name in settings[f'g{member.guild.id}']['sudoers']:
+                return True
+        except KeyError:
+            settings[f'g{member.guild.id}'] = {"sudoers": [], "prefix": ["/"]}
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
     return False
+
+
+def chk_sudo():
+    """\
+    Type: decorator
+    The command will only be able to be executed by the author if the author is owner or have permissions
+    """
+    async def predicate(ctx):
+        return is_sudoers(ctx.author)
+    return commands.check(predicate)
 
 
 class Mod(commands.Cog):
@@ -29,6 +48,8 @@ class Mod(commands.Cog):
         self.bot = bot
 
     @commands.group(name='role', aliases=['roles'], help='Get your role rolling automatically.  Possible sub-commands: assign, remove, create, delete')
+    @commands.guild_only()
+    @chk_sudo()
     async def role(self, ctx):
         if not is_sudoers(ctx.author):
             return await ctx.send('g3t r3kt, u r not admin!!')
@@ -54,7 +75,8 @@ class Mod(commands.Cog):
         try:
             role = get(ctx.guild.roles, name=rolename)
             if role is None:
-                await ctx.send(f'Failed to get the role.  Probably role {rolename} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
+                await ctx.send(f'Failed to get the role.  Probably role {rolename} is not a thing.  '
+                               f'{ctx.message.author.mention}, please make sure you got it right.')
                 await ctx.message.delete()
                 return
             await member.remove_roles(role)
@@ -74,7 +96,8 @@ class Mod(commands.Cog):
             await ctx.guild.create_role(name=rolename)
             await ctx.send(f'Role {rolename} created successfully. (Requested by {ctx.message.author.mention})')
         except discord.Forbidden as e:
-            await ctx.send(f'Failed to create role {rolename} because the requester {ctx.message.author.mention} has missing permissions.  Administrative privileges are required.\nError message: {e}')
+            await ctx.send(f'Failed to create role {rolename} because the requester {ctx.message.author.mention} has missing permissions.  '
+                           f'Administrative privileges are required.\nError message: {e}')
         except Exception as e:
             await ctx.send(f'Failed to create role {rolename} (requested by {ctx.message.author.mention}).\nError message: {e}')
         await ctx.message.delete()
@@ -92,25 +115,13 @@ class Mod(commands.Cog):
             except Exception as e:
                 await ctx.send(f'Failed to create role {role.name} (requested by {ctx.message.author.mention}).\nError message: {e}')
         else:
-            await ctx.send(f'Failed to get the role.  Probably role {role.name} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
+            await ctx.send(f'Failed to get the role.  Probably role {role.name} is not a thing.  '
+                           f'{ctx.message.author.mention}, please make sure you got it right.')
         return
 
-    @commands.command(name='nickname', help='Change the nickname')
-    async def nickname(self, ctx, newNick='', member: discord.Member = None):
-        async with ctx.typing():
-            member = member or ctx.message.author
-        if newNick == '':
-            await ctx.send('Nickname cannot be blank.')
-            return
-        try:
-            await member.edit(nick=newNick)
-            await ctx.send('Operation completed successfully.')
-            return
-        except Exception as e:
-            await ctx.send(f'An error occurred while trying to assign {member.mention} a new nickname (requested by {ctx.message.author.mention})\nError message: {e}')
-            return
-
     @commands.command(name='warn', help='Warn a person: /warn @person reason', aliases=['warning'])
+    @commands.guild_only()
+    @chk_sudo()
     async def warn(self, ctx, person: discord.Member = None, *, reason: str = 'Not specified'):
         if not person:
             await ctx.send('No member has been specified.')
@@ -126,26 +137,32 @@ class Mod(commands.Cog):
             cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (
                            str(rows[0][0] + 1), str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
         if rc == cursor.rowcount:
-            return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened (no modification has been made to the db, which is unintended...)')
+            return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened '
+                                  '(no modification has been made to the db, which is unintended...)')
         cursor.execute("COMMIT;")
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
         await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
+    @commands.guild_only()
+    @chk_sudo()
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
         if not person:
             await ctx.send('No member has been specified.')
             return
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
-        if num == 0:    cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
-        else:           cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+        if num == 0:
+            cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
+        else:
+            cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
         cursor.execute("COMMIT;")
         close_cursor(cursor)
         close_connection(connection)
         return await ctx.send('Okay!')
 
-    @commands.command(name='chkwrn', aliases=['checkwarn', 'checkwarns', 'checkwarnings', 'ckwn', "chkwn"], help='Show warnings of member: /chkwrn @person [raw]')
+    @commands.command(name='chkwrn', aliases=['checkwarn', 'checkwarns', 'checkwarnings', 'ckwn', "chkwn"], help='Show warnings of member')
+    @commands.guild_only()
     async def chkwrn(self, ctx, member: discord.Member = None, raw=''):
         member = member or ctx.message.author
         connection = sqlite3.connect(WARNFILE)
@@ -156,7 +173,7 @@ class Mod(commands.Cog):
             close_connection(connection)
             return await ctx.send(f"Member {member.mention} does not have any warnings.")
         if raw == 'raw':
-            t = pyTableMaker.onelineTable()
+            t = pyTableMaker.onelineTable(cellwrap=25)
             t.new_column('Warn No.')
             t.new_column('Reason')
             t.new_column('Moderator')
@@ -184,6 +201,8 @@ class Mod(commands.Cog):
         return close_connection(connection)
 
     @commands.command(name='kick', help='/kick @someone [reason]', aliases=['sb', 'softban', 'k'])
+    @commands.guild_only()
+    @chk_sudo()
     async def kick(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         try:
             if not member:
@@ -191,25 +210,36 @@ class Mod(commands.Cog):
                 return
             await member.send(f'You have been kicked.\nReason: {reason}')
             await member.kick()
-            await ctx.send(f'{ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n' + random.choice(['https://tenor.com/view/kung-fu-panda-karate-kick-gif-15261593', 'https://tenor.com/view/strong-kick-hammer-down-fatal-blow-scarlet-johnny-cage-gif-13863296']))
+            await ctx.send(
+                f'{ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n'
+                + random.choice([
+                    'https://tenor.com/view/kung-fu-panda-karate-kick-gif-15261593',
+                    'https://tenor.com/view/strong-kick-hammer-down-fatal-blow-scarlet-johnny-cage-gif-13863296'])
+            )
             return
         except Exception as e:
             await ctx.send(f'Wut happened? {e}')
 
     @commands.command(name='ban', aliases=["b"], help='/ban @someone [reason]')
+    @commands.guild_only()
+    @chk_sudo()
     async def ban(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         global id
-        try:
-            if not member: return await ctx.send('Please specify a member.')
-            await member.send(f'You have been banned.\nReason: {reason}')
-            await member.ban()
-            id = member.id
-            await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice(['https://imgur.com/V4TVpbC', 'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581', 'https://tenor.com/view/cat-red-hammer-bongo-cat-bang-hammer-gif-15733820']))
-            return
-        except Exception as e:
-            await ctx.send(f'Wut happened? {e}')
+        if not member:
+            return await ctx.send('Please specify a member.')
+        await member.send(f'You have been banned.\nReason: {reason}')
+        await member.ban()
+        id = member.id
+        await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
+            'https://imgur.com/V4TVpbC',
+            'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581',
+            'https://tenor.com/view/cat-red-hammer-bongo-cat-bang-hammer-gif-15733820'
+        ]))
+        return
 
     @commands.command(name='unban', help='/unban userID')
+    @commands.guild_only()
+    @chk_sudo()
     async def unban(self, ctx, userID: int = 0):
         if userID == 0:
             global id
@@ -218,18 +248,15 @@ class Mod(commands.Cog):
                 return
             else:
                 userID = id
-        try:
-            user = await self.bot.fetch_user(userID)
-            await ctx.guild.unban(user)
-            await ctx.send("Fine. There you go.")
-        except Exception:
-            await ctx.send('Failed to unban the user.')
-        return
+        user = await self.bot.fetch_user(userID)
+        await ctx.guild.unban(user)
+        await ctx.send("Fine. There you go.")
 
     @commands.command(name='mute', help='mute a member')
+    @commands.guild_only()
+    @chk_sudo()
     async def mute(self, ctx, member: discord.Member, mute_time: str, *, reason=None):
         global muted
-        if not is_sudoers(ctx.message.author): return await ctx.send(stringTable['sentences']['noPerms'])
 
         if mute_time.endswith('m'):
             t = int(mute_time[:-1]) * 60
@@ -247,11 +274,14 @@ class Mod(commands.Cog):
                 return
 
         role = discord.utils.get(ctx.guild.roles, name="Muted")
+        if role is None:
+            raise NoMutedRole
         await member.add_roles(role)
         await ctx.send(f'**Muted** {member.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}')
 
         embed = discord.Embed(color=discord.Color.green())
-        embed.add_field(name=f"You've been **Muted** in {ctx.guild.name}.", value=f"**Action By: **{ctx.author.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}")
+        embed.add_field(name=f"You've been **Muted** in {ctx.guild.name}.", value=f"**Action By: **{ctx.author.mention}\n"
+                                                                                  f"**Reason: **{reason}\n**Duration:** {mute_time}")
         await member.send(embed=embed)
         try:
             muted[str(member.id)] += 1
@@ -271,6 +301,11 @@ class Mod(commands.Cog):
         await ctx.send(f"**Unmuted {member.mention}**")
         muted[str(member.id)] -= 1
         return
+
+        @mute.error
+        async def mute_error(self, ctx, error):
+            if isinstance(error, NoMutedRole):
+                await ctx.send("That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
 
 def setup(bot):

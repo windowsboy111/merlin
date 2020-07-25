@@ -1,24 +1,8 @@
 {
-    "sentences": {
-        "noPerms":  "You do not have permissions!",
-        "warnDM":   "You are warned because of {r}",
-        "kickDM":   "you've been kicked from Young Tech Gurus",
-        "warn1":    "{m}, you are on strike 1 / 3",
-        "warn2":    "{m}, you are on strike 2 / 3",
-        "warn3":    "{m} is now kicked from the server",
-        "ban":      "banned {}",
-        "check1":   "You are on 1 strike. Might just be a slip up.\nThe mod team will decide when we'll remove the strike",
-        "check2":   "You are on 2 strikes. Go through the rules again to ensure you won't violate other rules again.\nWe don't want to result in letting you go.",
-        "check0":   "You are on 0 strikes. Keep it up.",
-        "remove":   "{m}, your strike has been lifted.\nYou are now on {n} / 3."
-    },
-    "rules": {
-        "rule1": "Do NOT share any indecent content, indecency will result in an immediate ban",
-        "rule2": "No toxic behaviour to other server members, we are here to learn, so be respectful to beginners",
-        "rule3": "Do NOT use your skills in pursuit of illegal actions or acts of bad intent",
-        "rule4": "Do NOT force your opinions on other people, keep an open mind",
-        "rule5": "No spam",
-        "rule6": "Keep subject specific discussions within the realm",
-        "rule7": "Memes are allowed, but keep them in #general, #humor, or #dark-humor"
+    "noPerms":  "You do not have permissions!",
+    "notOwner": "Hey bud, you have dug too deep into how the bot works! The command you have just ran is for the bot owner only :P you cannot do that!",
+    "core": {
+        "guildSettingsNotFound": "During the execution of the command, a `KeyError` exception occurred. I think we are missing settings from this discord server, and we are fixing this issue. Please wait.",
+        "guildSettingsFixed": "We have just replaced your guild (discord server) settings with the default values. My prefix is now `/`. Good to go now, huh? Run `/settings` again now. :)"
     }
 }
