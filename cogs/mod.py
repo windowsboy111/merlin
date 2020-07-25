@@ -3,7 +3,7 @@ from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor
-from ext.imports_share import log
+from ext.imports_share import log, chk_sudo
 from exceptions import NoMutedRole
 WARNFILE = 'data/warnings.db'
 muted = dict()
@@ -12,44 +12,13 @@ stringTable = json.load(open('ext/wrds.json', 'r'))
 settings = json.load(open(SETFILE, 'r'))
 
 
-def is_sudoers(member: discord.Member):
-    """\
-    Type: function
-    Checks if the provided member has admin roles (has moderating priviledges)
-    This function fetches the Admin roles list from the settings `dict()`
-    ---
-    return: bool
-    """
-    if member.guild.owner == member:
-        return True
-    for role in member.roles:
-        try:
-            if role.name in settings[f'g{member.guild.id}']['sudoers']:
-                return True
-        except KeyError:
-            settings[f'g{member.guild.id}'] = {"sudoers": [], "prefix": ["/"]}
-            with open(SETFILE, 'w') as outfile:
-                json.dump(settings, outfile)
-    return False
-
-
-def chk_sudo():
-    """\
-    Type: decorator
-    The command will only be able to be executed by the author if the author is owner or have permissions
-    """
-    async def predicate(ctx):
-        return is_sudoers(ctx.author)
-    return commands.check(predicate)
-
-
 class Mod(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(name='role', aliases=['roles'], help='Get your role rolling automatically.  Possible sub-commands: assign, remove, create, delete')
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def role(self, ctx):
         if not is_sudoers(ctx.author):
             return await ctx.send('g3t r3kt, u r not admin!!')
@@ -120,8 +89,8 @@ class Mod(commands.Cog):
         return
 
     @commands.command(name='warn', help='Warn a person: /warn @person reason', aliases=['warning'])
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def warn(self, ctx, person: discord.Member = None, *, reason: str = 'Not specified'):
         if not person:
             await ctx.send('No member has been specified.')
@@ -144,8 +113,8 @@ class Mod(commands.Cog):
         await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
         if not person:
             await ctx.send('No member has been specified.')
@@ -201,8 +170,8 @@ class Mod(commands.Cog):
         return close_connection(connection)
 
     @commands.command(name='kick', help='/kick @someone [reason]', aliases=['sb', 'softban', 'k'])
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def kick(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         try:
             if not member:
@@ -221,8 +190,8 @@ class Mod(commands.Cog):
             await ctx.send(f'Wut happened? {e}')
 
     @commands.command(name='ban', aliases=["b"], help='/ban @someone [reason]')
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def ban(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         global id
         if not member:
@@ -238,8 +207,8 @@ class Mod(commands.Cog):
         return
 
     @commands.command(name='unban', help='/unban userID')
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def unban(self, ctx, userID: int = 0):
         if userID == 0:
             global id
@@ -253,8 +222,8 @@ class Mod(commands.Cog):
         await ctx.send("Fine. There you go.")
 
     @commands.command(name='mute', help='mute a member')
-    @commands.guild_only()
     @chk_sudo()
+    @commands.guild_only()
     async def mute(self, ctx, member: discord.Member, mute_time: str, *, reason=None):
         global muted
 
@@ -302,10 +271,10 @@ class Mod(commands.Cog):
         muted[str(member.id)] -= 1
         return
 
-        @mute.error
-        async def mute_error(self, ctx, error):
-            if isinstance(error, NoMutedRole):
-                await ctx.send("That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+    @mute.error
+    async def mute_error(self, ctx, error):
+        if isinstance(error, NoMutedRole):
+            await ctx.send("That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
 
 def setup(bot):

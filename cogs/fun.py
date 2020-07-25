@@ -100,8 +100,8 @@ class Fun(commands.Cog):
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Mumbo Jumbo - Stupid.mp3"))
 
-    @media.command(name='discord', help='/media discord, will give you file related to "discord"', aliases=['disc', 'dc'])
-    async def discord(self, ctx, *, args=""):
+    @media.command(name='discord', help='/media discord, will give you file related to "discord"', aliases=['dc'])
+    async def disc(self, ctx, *, args=""):
         global lolpwd
         async with ctx.typing():
             await ctx.send(file=discord.File(f"{lolpwd}Discord_3WIP.ogg"))
@@ -133,8 +133,12 @@ class Fun(commands.Cog):
         lastword = json.load(open(LASTWRDFILE, 'r'))
         result = ''
         for member in members:
-            lastmsg = await discord.TextChannel.fetch_message(ctx.message.channel, lastword[f'g{ctx.guild.id}'][member.id])
-            result += f'[Last message]({lastmsg}) by {member.mention}:\n>>> {lastmsg.content}\n\n'
+            try:
+                lastmsg = await discord.TextChannel.fetch_message(ctx.message.channel, lastword[f'g{ctx.guild.id}'][str(member.id)])
+                quoteResult = "\n> ".join(lastmsg.content.split("\n"))
+                result += f'Last message by {member.mention}: {lastmsg.jump_url}\n> {quoteResult}\n\n'
+            except Exception:
+                result += f"Cannot find last message by {member.mention}\n"
         return await ctx.send(result)
 
 

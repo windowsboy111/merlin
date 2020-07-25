@@ -13,11 +13,11 @@ from discord.ext import commands
 from ext.consolemod import style
 from ext.logcfg import logger
 from discord.utils import find
-from ext.imports_share import log, bot
+from ext.imports_share import log, bot, get_prefix
 import botmc
 import easteregg
 print("Merlin bot written in python by windowsboy111 :)")
-print('==> Starting... (In loop)')
+print('==> Starting...')
 print(' >> Imported libraries...', end='\r\n')
 print(' >> Defining constant variables...', end='\r\n')
 exitType = 0
@@ -54,18 +54,6 @@ def cmd_handle_log(message: str):
     logger.info(message)
 
 
-def get_prefix(bot: commands.Bot, message):
-    with open('data/settings.json', 'r') as f:
-        settings = json.load(f)
-        prefix = None
-        try:
-            prefix = settings['g' + str(message.guild.id)]['prefix']
-        except KeyError:
-            settings['g' + str(message.guild.id)] = {'prefix': ["/"]}
-            prefix = ['/']
-        return prefix.append('<@690839099648638977> ')
-
-
 settings = json.load(open(SETFILE))
 
 # init
@@ -79,23 +67,13 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
-    try:
-        prefixes = settings[f"g{message.channel.guild.id}"]['prefix']
-    except KeyError:
-        prefixes = ['/']
-        settings[f"g{message.channel.guild.id}"] = {"prefix": ['/']}
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-    realPrefix = None
-    for prefix in prefixes:
-        if message.content.startswith(prefix) and message.author != bot.user:
-            realPrefix = prefix
-            break
-    if realPrefix:
-        prefix = realPrefix
+    if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         cmd_handle_log(msgtoSend + style.green(message.content) + style.reset())
-        await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
+        try:
+            await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
+        except AttributeError:
+            pass
         try:
             await bot.process_commands(message)
             try:
@@ -109,9 +87,11 @@ async def on_message(message: discord.Message):
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
+    if isinstance(message.channel, discord.channel.DMChannel):
+        return 0
     try:
         global lastword
-        lastword[f'g{message.guild.id}'][message.author.id] = message.id
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
     if (message.author.bot):
@@ -217,10 +197,15 @@ async def on_command_error(ctx, error):
     try:
         raise error
     except Exception:
+        # This tells the issuer that the command cannot be used in DM
+        if isinstance(error, commands.errors.NoPrivateMessage):
+            try:
+                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+            except discord.HTTPException:
+                return
         # This prevents any commands with local handlers being handled here in on_command_error.
         if hasattr(ctx.command, 'on_error'):
-            await log(f'`{ctx.content}` caused an error: ```\n{traceback.format_exc()}```')
-            return await log("Note that the error has been passed to the global command error handler unexpectedly")
+            return
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog = ctx.cog
@@ -239,12 +224,6 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.errors.DisabledCommand):
             return await ctx.send(f'{ctx.command} has been disabled.')
 
-        if isinstance(error, commands.errors.NoPrivateMessage):
-            try:
-                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
-            except discord.HTTPException:
-                return
-
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
 
@@ -258,97 +237,6 @@ async def on_command_error(ctx, error):
         await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
 
 slog("Adding bot commands...")
-
-
-@bot.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
-async def mc(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
-        return
-
-
-@mc.command(name='srv', help='list servers', aliases=['server'])
-async def srv(ctx, *, args: str = None):
-    global embed
-    global rtc
-    embed = discord.Embed(title='Spinning \'round...', description='Gift me a sec')
-    msg = await ctx.send(embed=embed)
-    await msg.add_reaction(bot.get_emoji(687495401661661324))
-    rtc = 0
-    try:
-        logger.info("Attempting to call botmc.mcsrv()")
-        embed = botmc.mcsrv(embed, args)
-    except botmc.InvalidArgument as e:
-        rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
-        rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
-        rtc = 2
-    except botmc.OfflineServer as e:
-        rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
-        rtc = 3
-    except Exception as e:
-        rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
-        rtc = 1
-    if rtc != 0:
-        embed = discord.Embed(title="ERROR", description=str(rtrn), color=0xFF0000)
-        if rtc == 1:
-            logger.error("Exit code: " + str(rtc))
-        else:
-            logger.warn("Exit code: " + str(rtc))
-    else:
-        logger.info("Exit code: " + str(rtc))
-    embed.set_footer(text="kthxbai code: {}.".format(rtc))
-    await msg.edit(embed=embed)
-    await msg.remove_reaction(bot.get_emoji(687495401661661324), bot.user)
-
-
-@mc.command(name='addsrv', help='add a shortcut looking for a server', aliases=['asv'])
-async def addsrv(ctx, link: str = None, name: str = None, note: str = None):
-    if not link or not name or not note:
-        return await ctx.send('Missing required arguments :/')
-    with open('data/mcsrvs.csv', mode='w') as csv_f:
-        w = csv.writer(csv_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        w.writerow([link, name, note])
-        return await ctx.send('Operation completed successfully.')
-
-
-@mc.command(name='kill', help='cmd /kill')
-async def kill(ctx, *, member=None):
-    try:
-        if member == '@a' or member == '@e':
-            a = ""
-            for member in ctx.guild.members:
-                a += f'{member.display_name} fell out of the world\n'
-                a += f'Killed {member.display_name}\n'
-                await ctx.send(a)
-                a = ""
-            return
-        if member == '@r':
-            r = random.choice(ctx.guild.members).display_name
-            await ctx.send(f'{r} fell out fo the world.\nKilled {r}')
-            return
-        if member == '@p' or member == '@s':
-            await ctx.send(f'{ctx.message.author.display_name} fell out of the world.\nKilled {ctx.message.author.display_name}')
-            return
-        if not member:
-            await ctx.send(f'{ctx.message.author.display_name} fell out of the world.\nKilled {ctx.message.author.display_name}')
-            return
-        rs = ''
-        for char in member:
-            if char in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                rs += char
-        member = bot.get_user(int(rs))
-        member = member or ctx.message.author
-        await ctx.send(f'{member.display_name} fell out of the world.\nKilled {member.display_name}')
-        return
-    except Exception as e:
-        await ctx.send('No entity was found')
-        print(e)
-
-
-@mc.command(name='crash')
-async def crash(ctx, *, args=None):
-    f = open("samples/mc_crash.txt", "r", encoding='utf-8')
-    await ctx.send(f.read())
 
 
 @bot.command(name='reboot', aliases=['restart'], hidden=True)

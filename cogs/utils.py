@@ -1,6 +1,9 @@
 from discord.ext import commands
 from ext.quickpoll import QuickPoll as qp
 import discord
+import csv
+import random
+import botmc
 
 
 class Utils(commands.Cog):
@@ -95,6 +98,86 @@ class Utils(commands.Cog):
         await poll.tally(poll, msg=msg, ctx=ctx, id=id)
         try:                return await msg.edit(content='')
         except Exception:   return
+    
+    @commands.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
+    async def mc(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
+            return
+
+    @mc.command(name='srv', help='list servers', aliases=['server'])
+    async def srv(self, ctx, *, args: str = None):
+        global embed
+        global rtc
+        embed = discord.Embed(title='Spinning \'round...', description='Gift me a sec')
+        msg = await ctx.send(embed=embed)
+        await msg.add_reaction(self.bot.get_emoji(687495401661661324))
+        rtc = 0
+        try:
+            embed = botmc.mcsrv(embed, args)
+        except botmc.InvalidArgument as e:
+            rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
+            rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
+            rtc = 2
+        except botmc.OfflineServer as e:
+            rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
+            rtc = 3
+        except Exception as e:
+            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtc = 1
+        if rtc != 0:
+            embed = discord.Embed(title="ERROR", description=str(rtrn), color=0xFF0000)
+        embed.set_footer(text="kthxbai code: {}.".format(rtc))
+        await msg.edit(embed=embed)
+        await msg.remove_reaction(self.bot.get_emoji(687495401661661324), self.bot.user)
+
+    @mc.command(name='addsrv', help='add a shortcut looking for a server', aliases=['asv'])
+    async def addsrv(self, ctx, link: str = None, name: str = None, note: str = None):
+        if not link or not name or not note:
+            return await ctx.send('Missing required arguments :/')
+        with open('data/mcsrvs.csv', mode='w') as csv_f:
+            w = csv.writer(csv_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            w.writerow([link, name, note])
+            return await ctx.send('Operation completed successfully.')
+
+
+    @mc.command(name='kill', help='cmd /kill')
+    async def kill(self, ctx, *, member=None):
+        try:
+            if member == '@a' or member == '@e':
+                a = ""
+                for member in ctx.guild.members:
+                    a += f'{member.display_name} fell out of the world\n'
+                    a += f'Killed {member.display_name}\n'
+                    await ctx.send(a)
+                    a = ""
+                return
+            if member == '@r':
+                r = random.choice(ctx.guild.members).display_name
+                await ctx.send(f'{r} fell out fo the world.\nKilled {r}')
+                return
+            if member == '@p' or member == '@s':
+                await ctx.send(f'{ctx.message.author.display_name} fell out of the world.\nKilled {ctx.message.author.display_name}')
+                return
+            if not member:
+                await ctx.send(f'{ctx.message.author.display_name} fell out of the world.\nKilled {ctx.message.author.display_name}')
+                return
+            rs = ''
+            for char in member:
+                if char in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                    rs += char
+            member = self.bot.get_user(int(rs))
+            member = member or ctx.message.author
+            await ctx.send(f'{member.display_name} fell out of the world.\nKilled {member.display_name}')
+            return
+        except Exception as e:
+            await ctx.send('No entity was found')
+            print(e)
+
+    @mc.command(name='crash')
+    async def crash(self, ctx, *, args=None):
+        f = open("samples/mc_crash.txt", "r", encoding='utf-8')
+        await ctx.send(f.read())
 
 
 def setup(bot):

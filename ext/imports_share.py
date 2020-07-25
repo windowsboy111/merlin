@@ -3,6 +3,8 @@ from discord.ext import commands
 
 
 def get_prefix(bot: commands.Bot, message):
+    if isinstance(message.channel, discord.channel.DMChannel):
+        return ('<@690839099648638977> ', '/')
     with open('data/settings.json', 'r') as f:
         settings = json.load(f)
         prefix = None
@@ -11,9 +13,9 @@ def get_prefix(bot: commands.Bot, message):
         except KeyError:
             settings['g' + str(message.guild.id)] = {'prefix': ["/"]}
             prefix = ['/']
-        result = prefix.copy()
-        result.append('<@690839099648638977> ')
-        return result
+        prefixes = prefix.copy()
+        prefixes.append('<@690839099648638977> ')
+        return tuple(prefixes)
 
 
 bot = discord.ext.commands.Bot(
@@ -41,3 +43,34 @@ async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None
             if channel.name == 'merlin-py':
                 await channel.send(f"[{datetime.datetime.now()}] {message}")
     return
+
+
+def is_sudoers(member: discord.Member):
+    """\
+    Type: function
+    Checks if the provided member has admin roles (has moderating priviledges)
+    This function fetches the Admin roles list from the settings `dict()`
+    ---
+    return: bool
+    """
+    if member.guild.owner == member:
+        return True
+    for role in member.roles:
+        try:
+            if role.name in settings[f'g{member.guild.id}']['sudoers']:
+                return True
+        except KeyError:
+            settings[f'g{member.guild.id}'] = {"sudoers": [], "prefix": ["/"]}
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
+    return False
+
+
+def chk_sudo():
+    """\
+    Type: decorator
+    The command will only be able to be executed by the author if the author is owner or have permissions
+    """
+    async def predicate(ctx):
+        return is_sudoers(ctx.author)
+    return commands.check(predicate)

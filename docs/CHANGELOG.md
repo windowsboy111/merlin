@@ -7,11 +7,18 @@
 - owner is always "sudoers" in guild
 - owner check is now handled
 - it now checks if it can run inside DMs / PMs
+- stdout now logs user issuing commands with prefix `[CMDHDL]\t`
+- track last message from a user with `/quote`
+## Changed
+- group `/mc` is now cog `utils`
 ## Removed
 - `/nickname` command
 ## Fixed
 - keep alive func [FATAL]
 - a lot of bugs when merging git :/ [FATAL]
+- help command will not show hidden commands when wd is `<GLOBAL>`
+- couldn't use commands via dm
+- it shows that it is in loop with stdout even the loop does not exist in the first placw
 
 ## [2.1-b2]
 ### Added
