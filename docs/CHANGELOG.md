@@ -4,6 +4,7 @@
 ## [Unreleased]
 ### Fixed
 - no attribute hint
+- stage is now stable
 
 ## [2.1.0]
 ### Added
