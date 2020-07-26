@@ -2,7 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
-## Added
+
+## [2.1-b3]
+### Added
 - error message will split out if restarting the bot failed
 - if fail to import extension when bot starts, bot treat start as a reconnect
 - build number for bot info
@@ -15,13 +17,13 @@
 - stdout now logs user issuing commands with prefix `[CMDHDL]\t`
 - track last message from a user with `/quote`
 - `is_sudoers()` moved to imports_share and new `@chk_sudo()`
-## Changed
+### Changed
 - Dynamic welcome message
 - group `/mc` is now cog `utils`
 - `invite me` command now moved to `/invite`
-## Removed
+### Removed
 - `/nickname` command
-## Fixed
+### Fixed
 - kick commands, those kinds of things do not work
 - keep alive func [FATAL]
 - a lot of bugs when merging git :/ [FATAL]
@@ -119,7 +121,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...HEAD
+[2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
 [2.1-b2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b1...2.1-b2
 [2.1-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b...2.1-b1
 [2.1-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-a2...2.1-b
