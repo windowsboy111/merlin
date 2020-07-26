@@ -3,7 +3,6 @@
 import sys
 import os
 import random
-import csv
 import traceback
 import json
 import asyncio
@@ -14,7 +13,6 @@ from ext.consolemod import style
 from ext.logcfg import logger
 from discord.utils import find
 from ext.imports_share import log, bot, get_prefix
-import botmc
 import easteregg
 print("Merlin bot written in python by windowsboy111 :)")
 print('==> Starting...')
@@ -138,9 +136,9 @@ async def on_ready():
 
 
 @bot.event
-async def on_member_join(member):
+async def on_member_join(member: discord.Member):
     logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
-    await member.send(f'Hi {member.name}, welcome to KCCS Official Discord server!\nBy using the guild, you accept the rules.')
+    await member.send(f'Hi {member.name}, welcome to {member.guild.qualified_name} Discord server!\nBy using the guild, you accept the rules.')
     print(f"{member} has joined the server.")
 
 

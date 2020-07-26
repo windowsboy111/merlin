@@ -8,13 +8,14 @@ import botmc
 
 class Utils(commands.Cog):
     """\
-    Type: discord.ext.commands.Cog
-    Most of the utilities are stored in this cog
+    Type: discord.ext.commands.Cog  
+    Most of the utilities are stored in this cog  
     Load this extension as an external file with `client.load_extension('cogs.utils')`
     ---
-    This cog contains:
-    ## Commands
+    This cog contains:  
+    ## Commands  
     - vote / poll
+    - mc
     """
     def __init__(self, bot):
         self.bot = bot
@@ -98,7 +99,7 @@ class Utils(commands.Cog):
         await poll.tally(poll, msg=msg, ctx=ctx, id=id)
         try:                return await msg.edit(content='')
         except Exception:   return
-    
+
     @commands.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
     async def mc(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -140,7 +141,6 @@ class Utils(commands.Cog):
             w.writerow([link, name, note])
             return await ctx.send('Operation completed successfully.')
 
-
     @mc.command(name='kill', help='cmd /kill')
     async def kill(self, ctx, *, member=None):
         try:
@@ -178,6 +178,10 @@ class Utils(commands.Cog):
     async def crash(self, ctx, *, args=None):
         f = open("samples/mc_crash.txt", "r", encoding='utf-8')
         await ctx.send(f.read())
+
+    @commands.command(name='invite')
+    async def invite(self, ctx):
+        await ctx.send((await ctx.guild.invites())[0].url)
 
 
 def setup(bot):

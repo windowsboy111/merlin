@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord.utils import get
-import discord, traceback, json, datetime, inspect
+import discord, traceback, json, datetime
 from ext.imports_share import chk_sudo
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
@@ -10,11 +10,11 @@ stringTable = json.load(open('ext/wrds.json', 'r'))
 
 class Core(commands.Cog):
     """\
-    Type: discord.ext.commands.Cog
-    The most important commands of the bot are in this cog / extension.
-    Load this extension as an external file with `client.load_extension('cogs.core')`
+    Type: discord.ext.commands.Cog  
+    The most important commands of the bot are in this cog / extension.  
+    Load this extension as an external file with `client.load_extension('cogs.core')`  
     ---
-    This cog contains:
+    This cog contains:  
     ## Commands
     - settings
     - help
@@ -95,7 +95,7 @@ class Core(commands.Cog):
             await ctx.send(stringTable['core']['guildSettingsFixed'])
             return 2
 
-    @commands.command(name='help', help='Shows this message')
+    @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
     async def help(self, ctx, *, cmdName: str = None):
         try: await ctx.message.delete()
         except Exception: pass

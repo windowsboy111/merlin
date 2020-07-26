@@ -1,5 +1,6 @@
 import discord, datetime, json
 from discord.ext import commands
+SETFILE = "data/settings.json"
 
 
 def get_prefix(bot: commands.Bot, message):
@@ -47,12 +48,13 @@ async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None
 
 def is_sudoers(member: discord.Member):
     """\
-    Type: function
-    Checks if the provided member has admin roles (has moderating priviledges)
-    This function fetches the Admin roles list from the settings `dict()`
+    Type: function  
+    Checks if the provided member has admin roles (has moderating priviledges)  
+    This function fetches the Admin roles list from the settings `dict()`  
     ---
     return: bool
     """
+    settings = json.load(open(SETFILE, 'r'))
     if member.guild.owner == member:
         return True
     for role in member.roles:
@@ -68,8 +70,8 @@ def is_sudoers(member: discord.Member):
 
 def chk_sudo():
     """\
-    Type: decorator
-    The command will only be able to be executed by the author if the author is owner or have permissions
+    Type: decorator  
+    The command will only be able to be executed by the author if the author is owner or have permissions  
     """
     async def predicate(ctx):
         return is_sudoers(ctx.author)

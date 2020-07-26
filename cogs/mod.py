@@ -20,8 +20,6 @@ class Mod(commands.Cog):
     @chk_sudo()
     @commands.guild_only()
     async def role(self, ctx):
-        if not is_sudoers(ctx.author):
-            return await ctx.send('g3t r3kt, u r not admin!!')
         if ctx.invoked_subcommand is None:
             return await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
 
@@ -178,7 +176,7 @@ class Mod(commands.Cog):
                 await ctx.send('Please specify a member.')
                 return
             await member.send(f'You have been kicked.\nReason: {reason}')
-            await member.kick()
+            await member.kick(reason=reason)
             await ctx.send(
                 f'{ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n'
                 + random.choice([
@@ -197,7 +195,7 @@ class Mod(commands.Cog):
         if not member:
             return await ctx.send('Please specify a member.')
         await member.send(f'You have been banned.\nReason: {reason}')
-        await member.ban()
+        await member.ban(reason=reason)
         id = member.id
         await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
             'https://imgur.com/V4TVpbC',

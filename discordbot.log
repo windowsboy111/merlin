@@ -1,42 +1,33 @@
-[2020-07-25 21:13:45,590]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-25 21:13:45,605]INFO - discord.client: logging in using static token
-[2020-07-25 21:13:46,592]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-25 21:13:46,595]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-25 21:13:46,902]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-sf3z",{"micros":91361,"calls":["discord-sessions-prd-1-58",{"micros":87978,"calls":["start_session",{"micros":77303,"calls":["api-prd-main-6wkh",{"micros":70714,"calls":["get_user",{"micros":3544},"add_authorized_ip",{"micros":7168},"get_guilds",{"micros":13958},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: f8e9bbfa770d251a6500897c5902f748).
-[2020-07-25 21:13:48,926]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
-[2020-07-25 21:13:51,305]INFO - discord: Loading Extensions...
-[2020-07-25 21:13:52,579]INFO - discord: Ready!
-[2020-07-25 21:14:02,928]INFO - discord: windowsboy111#1046 has issued command: [32m/mc srv mc.hypixel.net[0m
-[2020-07-25 21:14:03,763]INFO - discord: Started botmc.mc()
-[2020-07-25 21:14:03,763]INFO - discord: 2nd argument detected, searching for same srv_id for override...
-[2020-07-25 21:14:04,672]INFO - discord: Attempting to return obj "embed" from srv <id/link>
-[2020-07-25 21:14:25,740]INFO - discord: windowsboy111#1046 has issued command: [32m/mc srv[0m
-[2020-07-25 21:14:26,731]INFO - discord: Started botmc.mc()
-[2020-07-25 21:14:26,731]INFO - discord: Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()
-[2020-07-25 21:14:26,731]INFO - discord: Started chkmcsrvstatus(), try-excepting if servers are online...
-[2020-07-25 21:14:32,844]WARNING - discord.gateway: Heartbeat blocked for more than 5 seconds.
-[2020-07-25 21:14:36,707]INFO - discord: Attempting to return dict from chkmcsrvstatus()...
-[2020-07-25 21:14:36,707]INFO - discord: returned.  Formatting...
-[2020-07-25 21:14:36,707]INFO - discord: Attempting to return obj "embed" from srv
-[2020-07-25 21:15:14,579]INFO - discord: windowsboy111#1046 has issued command: [32m/poll[0m
-[2020-07-25 21:15:21,747]INFO - discord: windowsboy111#1046 has issued command: [32m/help poll[0m
-[2020-07-25 21:23:01,957]INFO - discord: T_lymphocyte#7344 has issued command: [32m/holpe[0m
-[2020-07-25 21:23:08,601]INFO - discord: T_lymphocyte#7344 has issued command: [32m/help[0m
-[2020-07-25 21:23:16,450]INFO - discord: T_lymphocyte#7344 has issued command: [32m/mc[0m
-[2020-07-25 21:23:28,696]INFO - discord: T_lymphocyte#7344 has issued command: [32m/mc srv[0m
-[2020-07-25 21:23:29,838]INFO - discord: Started botmc.mc()
-[2020-07-25 21:23:29,839]INFO - discord: Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()
-[2020-07-25 21:23:29,839]INFO - discord: Started chkmcsrvstatus(), try-excepting if servers are online...
-[2020-07-25 21:23:37,976]WARNING - discord.gateway: Heartbeat blocked for more than 5 seconds.
-[2020-07-25 21:23:39,165]INFO - discord: Attempting to return dict from chkmcsrvstatus()...
-[2020-07-25 21:23:39,165]INFO - discord: returned.  Formatting...
-[2020-07-25 21:23:39,166]INFO - discord: Attempting to return obj "embed" from srv
-[2020-07-25 21:55:02,912]INFO - discord: windowsboy111#1046 has issued command: [32m/poll end EUnHEIh00P[0m
-[2020-07-25 22:24:16,816]INFO - discord.gateway: Received RECONNECT opcode.
-[2020-07-25 22:24:17,038]INFO - discord.client: Got a request to RESUME the websocket.
-[2020-07-25 22:24:17,642]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-25 22:24:17,644]INFO - discord.gateway: Shard ID None has sent the RESUME payload.
-[2020-07-25 22:24:17,861]INFO - discord.gateway: Shard ID None has successfully RESUMED session f8e9bbfa770d251a6500897c5902f748 under trace ["gateway-prd-main-fffg",{"micros":5068,"calls":["discord-sessions-prd-1-58",{"micros":21}]}].
-[2020-07-25 22:55:22,042]INFO - discord.client: Cleaning up tasks.
-[2020-07-25 22:55:22,042]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-25 22:55:22,220]INFO - discord.client: Closing the event loop.
+[2020-07-26 10:10:33,420]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 10:10:33,429]INFO - discord.client: logging in using static token
+[2020-07-26 10:10:34,753]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 10:10:34,756]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 10:10:35,036]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-x10x",{"micros":58467,"calls":["discord-sessions-prd-1-55",{"micros":55161,"calls":["start_session",{"micros":42130,"calls":["api-prd-main-8wqn",{"micros":39569,"calls":["get_user",{"micros":2410},"add_authorized_ip",{"micros":4574},"get_guilds",{"micros":2646},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 88096bad13130a90673c6e807edf5859).
+[2020-07-26 10:10:37,070]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
+[2020-07-26 10:10:41,409]INFO - discord: Loading Extensions...
+[2020-07-26 10:10:42,850]INFO - discord: Ready!
+[2020-07-26 10:10:54,193]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
+[2020-07-26 10:11:45,265]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
+[2020-07-26 10:11:49,913]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
+[2020-07-26 10:12:12,858]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
+[2020-07-26 10:12:16,272]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
+[2020-07-26 10:13:03,343]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
+[2020-07-26 10:13:05,389]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
+[2020-07-26 10:13:29,759]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
+[2020-07-26 10:13:59,465]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
+[2020-07-26 10:15:27,446]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
+[2020-07-26 10:16:51,332]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
+[2020-07-26 10:16:59,297]INFO - discord: T_lymphocyte#7344 has issued command: [32m/info[0m
+[2020-07-26 10:17:17,703]INFO - discord: windowsboy111#1046 has issued command: [32m/help info[0m
+[2020-07-26 10:17:52,416]INFO - discord: windowsboy111#1046 has issued command: [32m/help[0m
+[2020-07-26 10:18:04,888]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:07,981]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:09,517]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:10,776]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:11,574]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:11,728]INFO - discord: Merlin#3585 has issued command: [32m/warn <@491109452003541035>[0m
+[2020-07-26 10:18:12,291]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:13,522]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
+[2020-07-26 10:18:52,704]INFO - discord: windowsboy111#1046 has issued command: [32m/ckwn <@491109452003541035>[0m
+[2020-07-26 10:31:56,319]INFO - discord: windowsboy111#1046 has issued command: [32m/ping[0m
+[2020-07-26 10:41:03,646]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m

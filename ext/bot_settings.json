@@ -1,10 +1,12 @@
 {
     "name":         "Merlin",
     "version":      "2.1-b2",
-    "build":        "beta",
+    "stage":        "beta",
+    "build":        "2007.001",
     "unreleased":   "2.1-b3",
     "author name":  "windowsboy111",
     "author disc":  "windowsboy111#1046",
-    "github":       "https://github.com/windowsboy111/Merlin-py",
-    "repl.it":      "https://repl.it/@windowsboy111/merlin-py#main.py"
+    "source":       "[Github](https://github.com/windowsboy111/Merlin-py)",
+    "hosting":      "[repl.it](https://repl.it/@windowsboy111/merlin-py#main.py)",
+    "pypi":         "[`pip install Merlin-bot`](https://pypi.org/project/Merlin-bot)"
 }
