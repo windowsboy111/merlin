@@ -1,15 +1,29 @@
-[2020-07-26 11:04:24,315]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-26 11:04:24,316]INFO - discord.client: logging in using static token
-[2020-07-26 11:04:25,240]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-26 11:04:25,243]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-26 11:04:25,508]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-bmv8",{"micros":53464,"calls":["discord-sessions-prd-1-29",{"micros":50594,"calls":["start_session",{"micros":32359,"calls":["api-prd-main-zp8q",{"micros":29553,"calls":["get_user",{"micros":2660},"add_authorized_ip",{"micros":1588},"get_guilds",{"micros":6219},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":16,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 0b5c59735bb10c7ef3daeaed85f4ae09).
-[2020-07-26 11:04:27,519]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
-[2020-07-26 11:04:30,247]INFO - discord: Loading Extensions...
-[2020-07-26 11:04:31,454]INFO - discord: Ready!
-[2020-07-26 11:04:34,662]INFO - discord: windowsboy111#1046 has issued command: [32m/reboot[0m
-[2020-07-26 11:04:48,256]INFO - discord.gateway: Websocket closed with 1000 (), cannot reconnect.
-[2020-07-26 11:04:48,257]INFO - discord.client: Cleaning up tasks.
-[2020-07-26 11:04:48,257]INFO - discord.client: Cleaning up after 1 tasks.
-[2020-07-26 11:04:48,258]INFO - discord.client: All tasks finished cancelling.
-[2020-07-26 11:04:48,258]INFO - discord.client: Closing the event loop.
-[2020-07-26 11:04:48,259]INFO - discord: Logged out
+[2020-07-26 11:57:19,677]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 11:57:19,682]INFO - discord.client: logging in using static token
+[2020-07-26 11:57:20,682]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 11:57:20,685]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 11:57:21,021]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-94j4",{"micros":106438,"calls":["discord-sessions-prd-1-74",{"micros":102223,"calls":["start_session",{"micros":81170,"calls":["api-prd-main-6hng",{"micros":74399,"calls":["get_user",{"micros":3797},"add_authorized_ip",{"micros":3216},"get_guilds",{"micros":10206},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: a27b7ef931203d3bc7094d4dff582a4c).
+[2020-07-26 11:57:23,036]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
+[2020-07-26 11:57:25,645]INFO - discord: Loading Extensions...
+[2020-07-26 11:57:27,111]INFO - discord: Ready!
+[2020-07-26 11:57:41,774]INFO - discord: windowsboy111#1046 has issued command: [32m/help[0m
+[2020-07-26 11:57:50,170]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox[0m
+[2020-07-26 11:58:23,785]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox sandbox[0m
+[2020-07-26 11:59:36,568]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
+[2020-07-26 11:59:44,643]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox sandbox[0m
+[2020-07-26 11:59:54,558]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox test[0m
+[2020-07-26 12:00:10,340]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox mc[0m
+[2020-07-26 12:00:17,294]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox mc srv[0m
+[2020-07-26 12:00:18,367]INFO - discord: Started botmc.mc()
+[2020-07-26 12:00:18,367]INFO - discord: Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()
+[2020-07-26 12:00:18,367]INFO - discord: Started chkmcsrvstatus(), try-excepting if servers are online...
+[2020-07-26 12:00:27,630]INFO - discord: Attempting to return dict from chkmcsrvstatus()...
+[2020-07-26 12:00:27,631]INFO - discord: returned.  Formatting...
+[2020-07-26 12:00:27,631]INFO - discord: Attempting to return obj "embed" from srv
+[2020-07-26 12:00:37,136]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox mc srv sth.else[0m
+[2020-07-26 12:02:53,487]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utisl[0m
+[2020-07-26 12:02:55,637]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
+[2020-07-26 12:03:11,020]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox mc srv hypxla[0m
+[2020-07-26 12:04:01,687]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox help[0m
+[2020-07-26 12:30:13,754]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox settings prefix[0m
+[2020-07-26 12:30:37,509]INFO - discord: windowsboy111#1046 has issued command: [32m/sandbox settings prefix add[0m
