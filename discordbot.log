@@ -1,33 +1,8 @@
-[2020-07-26 10:10:33,420]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-26 10:10:33,429]INFO - discord.client: logging in using static token
-[2020-07-26 10:10:34,753]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-26 10:10:34,756]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-26 10:10:35,036]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-x10x",{"micros":58467,"calls":["discord-sessions-prd-1-55",{"micros":55161,"calls":["start_session",{"micros":42130,"calls":["api-prd-main-8wqn",{"micros":39569,"calls":["get_user",{"micros":2410},"add_authorized_ip",{"micros":4574},"get_guilds",{"micros":2646},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 88096bad13130a90673c6e807edf5859).
-[2020-07-26 10:10:37,070]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
-[2020-07-26 10:10:41,409]INFO - discord: Loading Extensions...
-[2020-07-26 10:10:42,850]INFO - discord: Ready!
-[2020-07-26 10:10:54,193]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
-[2020-07-26 10:11:45,265]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
-[2020-07-26 10:11:49,913]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
-[2020-07-26 10:12:12,858]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
-[2020-07-26 10:12:16,272]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
-[2020-07-26 10:13:03,343]INFO - discord: windowsboy111#1046 has issued command: [32m/reload utils[0m
-[2020-07-26 10:13:05,389]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
-[2020-07-26 10:13:29,759]INFO - discord: windowsboy111#1046 has issued command: [32m/invite[0m
-[2020-07-26 10:13:59,465]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
-[2020-07-26 10:15:27,446]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
-[2020-07-26 10:16:51,332]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
-[2020-07-26 10:16:59,297]INFO - discord: T_lymphocyte#7344 has issued command: [32m/info[0m
-[2020-07-26 10:17:17,703]INFO - discord: windowsboy111#1046 has issued command: [32m/help info[0m
-[2020-07-26 10:17:52,416]INFO - discord: windowsboy111#1046 has issued command: [32m/help[0m
-[2020-07-26 10:18:04,888]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:07,981]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:09,517]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:10,776]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:11,574]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:11,728]INFO - discord: Merlin#3585 has issued command: [32m/warn <@491109452003541035>[0m
-[2020-07-26 10:18:12,291]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:13,522]INFO - discord: T_lymphocyte#7344 has issued command: [32m/quote <@690839099648638977>[0m
-[2020-07-26 10:18:52,704]INFO - discord: windowsboy111#1046 has issued command: [32m/ckwn <@491109452003541035>[0m
-[2020-07-26 10:31:56,319]INFO - discord: windowsboy111#1046 has issued command: [32m/ping[0m
-[2020-07-26 10:41:03,646]INFO - discord: windowsboy111#1046 has issued command: [32m/info bot[0m
+[2020-07-26 01:53:05,513]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 01:53:05,544]INFO - discord.client: logging in using static token
+[2020-07-26 01:53:05,892]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 01:53:05,893]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 01:53:06,041]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-v6mr",{"micros":81749,"calls":["discord-sessions-prd-1-55",{"micros":79163,"calls":["start_session",{"micros":71043,"calls":["api-prd-main-t65x",{"micros":68587,"calls":["get_user",{"micros":20070},"add_authorized_ip",{"micros":1724},"get_guilds",{"micros":5976},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":559,"calls":[]}]}]}] (Session ID: 4b091638867dcce2a07df43c34e1a93d).
+[2020-07-26 01:53:08,063]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in NORMAL mode
+[2020-07-26 01:53:09,002]INFO - discord: Loading Extensions...
+[2020-07-26 01:53:09,871]INFO - discord: Ready!
