@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import json
 long_description = ''
 cfg = json.load(open('ext/bot_settings.json', 'r'))
