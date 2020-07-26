@@ -6,12 +6,11 @@ import random
 import traceback
 import json
 import asyncio
-import logging
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 from ext.consolemod import style
-from ext.logcfg import get_logger
+from ext.logcfg import get_logger, logging
 from discord.utils import find
 from ext.imports_share import log, bot, get_prefix
 import easteregg
@@ -43,7 +42,7 @@ cmdHdlLogger = get_logger('CMDHDL')
 
 def slog(message: str):
     print(' >> ' + message)
-    logger.info(message)
+    logger.hint(message)
 
 
 def nlog(message: str):
@@ -72,7 +71,18 @@ settings = json.load(open(SETFILE))
 slog('Configuring bot...')
 bot.remove_command('help')
 MODE = os.getenv('MODE')
-logging.basicConfig(filename='discordbot.log', level=logging.INFO, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
+logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
+HINT_LEVEL_NUM = 17
+logging.addLevelName(HINT_LEVEL_NUM, "HINT")
+
+
+def hint(self, message, *args, **kws):
+    if self.isEnabledFor(HINT_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(HINT_LEVEL_NUM, message, args, **kws)
+
+
+logging.Logger.hint = hint
 
 
 @bot.event

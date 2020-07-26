@@ -5,6 +5,7 @@
 
 ## [2.1.0]
 ### Added
+- hint logging level
 - added description for bot_settings, also changed the description for imports_share
 - sandbox command
 - more pypi classifiers
