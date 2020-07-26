@@ -177,6 +177,17 @@ version = "1.2.1"
 
 [[package]]
 category = "main"
+description = "Add .env support to your django/flask apps in development and deployments"
+name = "python-dotenv"
+optional = false
+python-versions = "*"
+version = "0.14.0"
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
+category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -216,7 +227,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "84880da6c56bfce6b12b3a6b6c182d9dc417ab94234a5c052c78b7eadcb485fc"
+content-hash = "f87ee945aae23774d73659fa9988283943bdc2b9360bfc97fc73af682f16ee23"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -337,6 +348,10 @@ multidict = [
 ]
 pytablemaker = [
     {file = "pyTableMaker-1.2.1.tar.gz", hash = "sha256:00d22b8c5c97d424294d3d6a426d35e0e9fac1109b3bd1ad94a53a4ac77a1975"},
+]
+python-dotenv = [
+    {file = "python-dotenv-0.14.0.tar.gz", hash = "sha256:8c10c99a1b25d9a68058a1ad6f90381a62ba68230ca93966882a4dbc3bc9c33d"},
+    {file = "python_dotenv-0.14.0-py2.py3-none-any.whl", hash = "sha256:c10863aee750ad720f4f43436565e4c1698798d763b63234fb5021b6c616e423"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
