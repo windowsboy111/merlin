@@ -61,7 +61,7 @@ def event_log(message: str):
 
 
 def cmd_handle_warn(message: str):
-    print(style.orange2(message) + style.reset())
+    print(style.orange + message + style.reset)
     eventLogger.warn(message)
 
 
@@ -80,7 +80,7 @@ async def on_message(message: discord.Message):
         return
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
-        cmd_handle_log(msgtoSend + style.green(message.content) + style.reset())
+        cmd_handle_log(msgtoSend + style.green + message.content + style.reset)
         try:
             await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
         except AttributeError:

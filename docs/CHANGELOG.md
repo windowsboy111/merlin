@@ -6,6 +6,7 @@
 - sandbox command
 - more pypi classifiers
 ### Changed
+- consolemod styles are now str, not function
 - help command now if have sub-command will have details
 
 ## [2.1-b3]

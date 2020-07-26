@@ -1,11 +1,12 @@
 from mcstatus import MinecraftServer
 import discord, csv
-from ext.logcfg import logger
+from ext.logcfg import get_logger
 from pyTableMaker import modernTable
 
 
 # constant variables!!!
 mcserverarglist = ["srv", "server"]  # The args you type in order to indicate you wanna get minecraft servers info
+logger = get_logger('MCraft')
 
 
 # user-defined exceptions
