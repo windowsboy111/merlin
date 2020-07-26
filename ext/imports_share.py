@@ -21,7 +21,7 @@ def get_prefix(bot: commands.Bot, message):
 
 bot = discord.ext.commands.Bot(
     command_prefix=get_prefix,
-    description="The bot for KCCS Official",
+    description="an awesome discord bot coded in discord.py",
     owner_id=653086042752286730,
     case_insensitive=True
 )

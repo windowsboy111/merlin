@@ -6,6 +6,7 @@ import random
 import traceback
 import json
 import asyncio
+import logging
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -42,7 +43,7 @@ cmdHdlLogger = get_logger('CMDHDL')
 
 def slog(message: str):
     print(' >> ' + message)
-    logger.debug(message)
+    logger.info(message)
 
 
 def nlog(message: str):
@@ -62,7 +63,7 @@ def event_log(message: str):
 
 def cmd_handle_warn(message: str):
     print(style.orange + message + style.reset)
-    eventLogger.warn(message)
+    cmdHdlLogger.warn(message)
 
 
 settings = json.load(open(SETFILE))
@@ -71,6 +72,7 @@ settings = json.load(open(SETFILE))
 slog('Configuring bot...')
 bot.remove_command('help')
 MODE = os.getenv('MODE')
+logging.basicConfig(filename='discordbot.log', level=logging.INFO, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
 
 
 @bot.event
@@ -80,7 +82,8 @@ async def on_message(message: discord.Message):
         return
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
-        cmd_handle_log(msgtoSend + style.green + message.content + style.reset)
+        print(msgtoSend + style.green + message.content + style.reset)
+        cmdHdlLogger.info(msgtoSend + message.content)
         try:
             await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
         except AttributeError:
@@ -296,6 +299,7 @@ while True:
         break
 if exitType == 2:
     print("\nExiting...")
+    open('discordbot.log', 'w').write('')
     sys.exit(0)
 slog('Tidying up...')
 for var in dir():
@@ -316,4 +320,5 @@ try:
     os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
 except PermissionError as e:
     print(f"OPERATION FAILED: {str(e)}")
+    open('discordbot.log', 'w').write('')
     sys.exit(2)

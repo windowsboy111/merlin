@@ -42,6 +42,7 @@ def restorepos():
     """Restore the saved cursor position"""
     print("\033[u")
 
+
 def get_fg_color(r, g, b):
     return f"\033[38;2;{r};{g};{b}m"
 

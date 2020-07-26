@@ -2,7 +2,10 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1.0]
 ### Added
+- added description for bot_settings, also changed the description for imports_share
 - sandbox command
 - more pypi classifiers
 ### Changed
@@ -127,7 +130,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.0...HEAD
+[2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...2.1.0
 [2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
 [2.1-b2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b1...2.1-b2
 [2.1-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b...2.1-b1
