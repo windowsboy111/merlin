@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+### Fixed
+- no attribute hint
 
 ## [2.1.0]
 ### Added
