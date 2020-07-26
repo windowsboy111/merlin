@@ -8,7 +8,6 @@ import traceback
 import json
 import asyncio
 import discord
-from dotenv import load_dotenv
 from discord.ext import commands
 from ext.consolemod import style
 from ext.logcfg import logger
@@ -30,7 +29,6 @@ for cog in os.listdir('cogs/'):
 embed = discord.Embed()
 lastmsg = list()
 # token is stored inside ".env"
-load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 LASTWRDFILE = "data/lastword.json"
 lastword = json.load(open(LASTWRDFILE, 'r'))

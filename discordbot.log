@@ -1,42 +1,8 @@
-[2020-07-25 21:13:45,590]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-25 21:13:45,605]INFO - discord.client: logging in using static token
-[2020-07-25 21:13:46,592]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-25 21:13:46,595]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-25 21:13:46,902]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-sf3z",{"micros":91361,"calls":["discord-sessions-prd-1-58",{"micros":87978,"calls":["start_session",{"micros":77303,"calls":["api-prd-main-6wkh",{"micros":70714,"calls":["get_user",{"micros":3544},"add_authorized_ip",{"micros":7168},"get_guilds",{"micros":13958},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":8,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: f8e9bbfa770d251a6500897c5902f748).
-[2020-07-25 21:13:48,926]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
-[2020-07-25 21:13:51,305]INFO - discord: Loading Extensions...
-[2020-07-25 21:13:52,579]INFO - discord: Ready!
-[2020-07-25 21:14:02,928]INFO - discord: windowsboy111#1046 has issued command: [32m/mc srv mc.hypixel.net[0m
-[2020-07-25 21:14:03,763]INFO - discord: Started botmc.mc()
-[2020-07-25 21:14:03,763]INFO - discord: 2nd argument detected, searching for same srv_id for override...
-[2020-07-25 21:14:04,672]INFO - discord: Attempting to return obj "embed" from srv <id/link>
-[2020-07-25 21:14:25,740]INFO - discord: windowsboy111#1046 has issued command: [32m/mc srv[0m
-[2020-07-25 21:14:26,731]INFO - discord: Started botmc.mc()
-[2020-07-25 21:14:26,731]INFO - discord: Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()
-[2020-07-25 21:14:26,731]INFO - discord: Started chkmcsrvstatus(), try-excepting if servers are online...
-[2020-07-25 21:14:32,844]WARNING - discord.gateway: Heartbeat blocked for more than 5 seconds.
-[2020-07-25 21:14:36,707]INFO - discord: Attempting to return dict from chkmcsrvstatus()...
-[2020-07-25 21:14:36,707]INFO - discord: returned.  Formatting...
-[2020-07-25 21:14:36,707]INFO - discord: Attempting to return obj "embed" from srv
-[2020-07-25 21:15:14,579]INFO - discord: windowsboy111#1046 has issued command: [32m/poll[0m
-[2020-07-25 21:15:21,747]INFO - discord: windowsboy111#1046 has issued command: [32m/help poll[0m
-[2020-07-25 21:23:01,957]INFO - discord: T_lymphocyte#7344 has issued command: [32m/holpe[0m
-[2020-07-25 21:23:08,601]INFO - discord: T_lymphocyte#7344 has issued command: [32m/help[0m
-[2020-07-25 21:23:16,450]INFO - discord: T_lymphocyte#7344 has issued command: [32m/mc[0m
-[2020-07-25 21:23:28,696]INFO - discord: T_lymphocyte#7344 has issued command: [32m/mc srv[0m
-[2020-07-25 21:23:29,838]INFO - discord: Started botmc.mc()
-[2020-07-25 21:23:29,839]INFO - discord: Getting IndexError while trying to check 2nd argument, treating request as a basic mc srv list.  Attempting to call chkmcsrvstatus()
-[2020-07-25 21:23:29,839]INFO - discord: Started chkmcsrvstatus(), try-excepting if servers are online...
-[2020-07-25 21:23:37,976]WARNING - discord.gateway: Heartbeat blocked for more than 5 seconds.
-[2020-07-25 21:23:39,165]INFO - discord: Attempting to return dict from chkmcsrvstatus()...
-[2020-07-25 21:23:39,165]INFO - discord: returned.  Formatting...
-[2020-07-25 21:23:39,166]INFO - discord: Attempting to return obj "embed" from srv
-[2020-07-25 21:55:02,912]INFO - discord: windowsboy111#1046 has issued command: [32m/poll end EUnHEIh00P[0m
-[2020-07-25 22:24:16,816]INFO - discord.gateway: Received RECONNECT opcode.
-[2020-07-25 22:24:17,038]INFO - discord.client: Got a request to RESUME the websocket.
-[2020-07-25 22:24:17,642]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-25 22:24:17,644]INFO - discord.gateway: Shard ID None has sent the RESUME payload.
-[2020-07-25 22:24:17,861]INFO - discord.gateway: Shard ID None has successfully RESUMED session f8e9bbfa770d251a6500897c5902f748 under trace ["gateway-prd-main-fffg",{"micros":5068,"calls":["discord-sessions-prd-1-58",{"micros":21}]}].
-[2020-07-25 22:55:22,042]INFO - discord.client: Cleaning up tasks.
-[2020-07-25 22:55:22,042]INFO - discord.client: Cleaning up after 5 tasks.
-[2020-07-25 22:55:22,220]INFO - discord.client: Closing the event loop.
+[2020-07-26 01:04:36,726]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 01:04:36,807]INFO - discord.client: logging in using static token
+[2020-07-26 01:04:37,175]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 01:04:37,177]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 01:04:37,309]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-m63k",{"micros":71304,"calls":["discord-sessions-prd-1-34",{"micros":69865,"calls":["start_session",{"micros":46108,"calls":["api-prd-main-3f1f",{"micros":43008,"calls":["get_user",{"micros":8735},"add_authorized_ip",{"micros":3166},"get_guilds",{"micros":4488},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":20,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 075960211244da6b16c5b1f3b2bb7aed).
+[2020-07-26 01:04:39,410]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in NORMAL mode
+[2020-07-26 01:04:40,369]INFO - discord: Loading Extensions...
+[2020-07-26 01:04:40,906]INFO - discord: Ready!
