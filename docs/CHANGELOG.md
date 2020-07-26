@@ -2,6 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
+### Fixed
+- no attribute hint
+- stage is now stable
 
 ## [2.1.0]
 ### Added
@@ -131,8 +134,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.0...HEAD
-[2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...2.1.0
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...HEAD
+[2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...r2.1.0
 [2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
 [2.1-b2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b1...2.1-b2
 [2.1-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b...2.1-b1

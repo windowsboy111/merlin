@@ -34,10 +34,22 @@ LASTWRDFILE = "data/lastword.json"
 lastword = json.load(open(LASTWRDFILE, 'r'))
 SETFILE = "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
-print(' >> Defining functions and objects...')
+print(' >> Configuring bot...')
 logger = get_logger('Merlin')
 eventLogger = get_logger('EVENT')
 cmdHdlLogger = get_logger('CMDHDL')
+logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
+HINT_LEVEL_NUM = 17
+logging.addLevelName(HINT_LEVEL_NUM, "HINT")
+
+
+def hint(self, message, *args, **kws):
+    if self.isEnabledFor(HINT_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(HINT_LEVEL_NUM, message, args, **kws)
+
+
+logging.Logger.hint = hint
 
 
 def slog(message: str):
@@ -68,21 +80,8 @@ def cmd_handle_warn(message: str):
 settings = json.load(open(SETFILE))
 
 # init
-slog('Configuring bot...')
 bot.remove_command('help')
 MODE = os.getenv('MODE')
-logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
-HINT_LEVEL_NUM = 17
-logging.addLevelName(HINT_LEVEL_NUM, "HINT")
-
-
-def hint(self, message, *args, **kws):
-    if self.isEnabledFor(HINT_LEVEL_NUM):
-        # Yes, logger takes its '*args' as 'args'.
-        self._log(HINT_LEVEL_NUM, message, args, **kws)
-
-
-logging.Logger.hint = hint
 
 
 @bot.event
