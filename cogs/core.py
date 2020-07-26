@@ -108,7 +108,7 @@ class Core(commands.Cog):
         if cmdName:
             command = self.bot.get_command(cmdName)
             if not command or command.hidden: return await ctx.send('Command not found, please try again.')
-            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(command.description or "<no description>"))
+            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(command.description or "<no description>"), color=0x0000ff)
             usage = prefix + command.qualified_name + ' '
             for param in command.clean_params:
                 if type(param) is str:
@@ -123,12 +123,12 @@ class Core(commands.Cog):
             e.add_field(name='Usage',       value=usage)
             e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
             if hasattr(command, 'commands'):    # it is a group
-                e.add_field(name='Sub-Commands', value=', '.join([cmd.name for cmd in command.commands]))
+                e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.help}\n" for cmd in command.commands]))
             await ctx.send(embed=e)
             return
 
         all_cmds = self.bot.commands
-        e = discord.Embed(title='Command list', description='wd: <GLOBAL>')
+        e = discord.Embed(title='Command list', description='wd: <GLOBAL>', color=0x0000ff)
         count = 1
         for cmd in all_cmds:
             if cmd.hidden:

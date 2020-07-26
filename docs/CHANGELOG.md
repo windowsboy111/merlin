@@ -2,6 +2,10 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- sandbox command
+### Changed
+- help command now if have sub-command will have details
 
 ## [2.1-b3]
 ### Added
