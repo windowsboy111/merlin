@@ -1,8 +1,8 @@
-[2020-07-26 01:04:36,726]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-26 01:04:36,807]INFO - discord.client: logging in using static token
-[2020-07-26 01:04:37,175]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-26 01:04:37,177]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-26 01:04:37,309]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-m63k",{"micros":71304,"calls":["discord-sessions-prd-1-34",{"micros":69865,"calls":["start_session",{"micros":46108,"calls":["api-prd-main-3f1f",{"micros":43008,"calls":["get_user",{"micros":8735},"add_authorized_ip",{"micros":3166},"get_guilds",{"micros":4488},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":20,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 075960211244da6b16c5b1f3b2bb7aed).
-[2020-07-26 01:04:39,410]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in NORMAL mode
-[2020-07-26 01:04:40,369]INFO - discord: Loading Extensions...
-[2020-07-26 01:04:40,906]INFO - discord: Ready!
+[2020-07-26 01:53:05,513]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 01:53:05,544]INFO - discord.client: logging in using static token
+[2020-07-26 01:53:05,892]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 01:53:05,893]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 01:53:06,041]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-v6mr",{"micros":81749,"calls":["discord-sessions-prd-1-55",{"micros":79163,"calls":["start_session",{"micros":71043,"calls":["api-prd-main-t65x",{"micros":68587,"calls":["get_user",{"micros":20070},"add_authorized_ip",{"micros":1724},"get_guilds",{"micros":5976},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":559,"calls":[]}]}]}] (Session ID: 4b091638867dcce2a07df43c34e1a93d).
+[2020-07-26 01:53:08,063]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in NORMAL mode
+[2020-07-26 01:53:09,002]INFO - discord: Loading Extensions...
+[2020-07-26 01:53:09,871]INFO - discord: Ready!
