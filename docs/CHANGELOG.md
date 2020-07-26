@@ -4,6 +4,7 @@
 ## [Unreleased]
 ### Added
 - sandbox command
+- more pypi classifiers
 ### Changed
 - help command now if have sub-command will have details
 

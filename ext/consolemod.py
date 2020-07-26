@@ -1,76 +1,96 @@
-class Cursor:
-    def position(self,line,column):
-        """Move cursor to specified position"""
-        print("\033[{line};{column}f".format(line=line,column=column))
-    def up(self,lines):
-        """Move cursor up specified number of lines"""
-        print("\033[{lines}A")
-    def down(self,lines):
-        """Move cursor down specified number of lines"""
-        print("\033[{lines}B")
-    def left(self,columns):
-        """Move cursor left specified number of columns"""
-        print("\033[{columns}C")
-    def right(self,columns):
-        """Move cursor right specified number of columns"""
-        print("\033[{columns}D")
-    def cls(self):
-        """Clears the screen, and move cursor to 0,0"""
-        print("\033[2J")
-    def eraseline(self):
-        """Erase the whole line (till the end of line)"""
-        print("\033[2J")
-    def savepos(self):
-        """Save current cursor position"""
-        print("\033[s")
-    def restorepos(self):
-        """Restore the saved cursor position"""
-        print("\033[u")
-class style():
-    magenta    = lambda x="": '\33[35m' + str(x)
-    cyan       = lambda x="": '\33[36m' + str(x)
-    underline  = lambda x="": '\33[4m' + str(x)
-    reset      = lambda x="": '\33[0m' + str(x)
-    end        = lambda x="": '\33[0m' + str(x)
-    bold       = lambda x="": '\33[1m' + str(x)
-    italic     = lambda x="": '\33[3m' + str(x)
-    url        = lambda x="": '\33[4m' + str(x)
-    blink      = lambda x="": '\33[5m' + str(x)
-    blink2     = lambda x="": '\33[6m' + str(x)
-    selected   = lambda x="": '\33[7m' + str(x)
+def position(line, column):
+    """Move cursor to specified position"""
+    print(f"\033[{line};{column}f")
 
-    black      = lambda x="": '\33[30m' + str(x)
-    red        = lambda x="": '\33[31m' + str(x)
-    green      = lambda x="": '\33[32m' + str(x)
-    yellow     = lambda x="": '\33[33m' + str(x)
-    blue       = lambda x="": '\33[34m' + str(x)
-    violet     = lambda x="": '\33[35m' + str(x)
-    beige      = lambda x="": '\33[36m' + str(x)
-    white      = lambda x="": '\33[37m' + str(x)
 
-    blackbg    = lambda x="": '\33[40m' + str(x)
-    redbg      = lambda x="": '\33[41m' + str(x)
-    greenbg    = lambda x="": '\33[42m' + str(x)
-    yellowbg   = lambda x="": '\33[43m' + str(x)
-    bluebg     = lambda x="": '\33[44m' + str(x)
-    violetbg   = lambda x="": '\33[45m' + str(x)
-    beigebg    = lambda x="": '\33[46m' + str(x)
-    whitebg    = lambda x="": '\33[47m' + str(x)
+def up(lines):
+    """Move cursor up specified number of lines"""
+    print(f"\033[{lines}A")
 
-    grey       = lambda x="": '\33[90m' + str(x)
-    red2       = lambda x="": '\33[91m' + str(x)
-    green2     = lambda x="": '\33[92m' + str(x)
-    yellow2    = lambda x="": '\33[93m' + str(x)
-    blue2      = lambda x="": '\33[94m' + str(x)
-    violet2    = lambda x="": '\33[95m' + str(x)
-    beige2     = lambda x="": '\33[96m' + str(x)
-    white2     = lambda x="": '\33[97m' + str(x)
 
-    greybg     = lambda x="": '\33[100m' + str(x)
-    redbg2     = lambda x="": '\33[101m' + str(x)
-    greenbg2   = lambda x="": '\33[102m' + str(x)
-    yellowbg2  = lambda x="": '\33[103m' + str(x)
-    bluebg2    = lambda x="": '\33[104m' + str(x)
-    violetbg2  = lambda x="": '\33[105m' + str(x)
-    beigebg2   = lambda x="": '\33[106m' + str(x)
-    whitebg2   = lambda x="": '\33[107m' + str(x)
+def down(lines):
+    """Move cursor down specified number of lines"""
+    print(f"\033[{lines}B")
+
+
+def left(columns):
+    """Move cursor left specified number of columns"""
+    print(f"\033[{columns}C")
+
+
+def right(columns):
+    """Move cursor right specified number of columns"""
+    print(f"\033[{columns}D")
+
+
+def cls():
+    """Clears the screen, and move cursor to 0,0"""
+    print("\033[2J")
+
+
+def eraseline():
+    """Erase the whole line (till the end of line)"""
+    print("\033[2J")
+
+
+def savepos():
+    """Save current cursor position"""
+    print("\033[s")
+
+
+def restorepos():
+    """Restore the saved cursor position"""
+    print("\033[u")
+
+def get_fg_color(r, g, b):
+    return f"\033[38;2;{r};{g};{b}m"
+
+class style:
+    reset      = '\33[0m'
+    end        = '\33[0m'
+    bold       = '\33[1m'
+    italic     = '\33[3m'
+    url        = '\33[4m'
+    underline  = '\33[4m'
+    blink      = '\33[5m'
+    blink2     = '\33[6m'
+    selected   = '\33[7m'
+
+    black      = '\33[30m'
+    red        = '\33[31m'
+    green      = '\33[32m'
+    yellow     = '\33[33m'
+    blue       = '\33[34m'
+    violet     = '\33[35m'
+    magenta    = '\33[35m'
+    cyan       = '\33[36m'
+    white      = '\33[37m'
+
+    blackbg    = '\33[40m'
+    redbg      = '\33[41m'
+    greenbg    = '\33[42m'
+    yellowbg   = '\33[43m'
+    bluebg     = '\33[44m'
+    violetbg   = '\33[45m'
+    beigebg    = '\33[46m'
+    whitebg    = '\33[47m'
+
+    grey       = '\33[90m'
+    red2       = '\33[91m'
+    green2     = '\33[92m'
+    yellow2    = '\33[93m'
+    blue2      = '\33[94m'
+    violet2    = '\33[95m'
+    beige2     = '\33[96m'
+    white2     = '\33[97m'
+
+    greybg     = '\33[100m'
+    redbg2     = '\33[101m'
+    greenbg2   = '\33[102m'
+    yellowbg2  = '\33[103m'
+    bluebg2    = '\33[104m'
+    violetbg2  = '\33[105m'
+    beigebg2   = '\33[106m'
+    whitebg2   = '\33[107m'
+
+    orange     = '\33[38;2;255;135;0m'

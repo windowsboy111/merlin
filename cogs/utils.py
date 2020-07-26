@@ -189,7 +189,7 @@ class Utils(commands.Cog):
     @commands.command(name='sandbox', help='check if a command runs properly')
     async def sandbox(self, ctx, *, commandName: str):
         command = None
-        rt = None
+        ret = None
         startTime = None
         errorCode = int()
         try:
@@ -198,17 +198,17 @@ class Utils(commands.Cog):
                 await ctx.send(f"msh: command not found: `{commandName}`")
                 return 3
             startTime = datetime.now()
-            rt = await ctx.invoke(command)
+            ret = await ctx.invoke(command)
         except Exception as err:
             timeElapsed = datetime.now() - startTime
             e = discord.Embed(title='Task Failed Succefully', description=f":x: `{ctx.message.content.split()[0][:-7]}{commandName}`", color=0xff0000)
             e.add_field(name='command name', value=command.qualified_name)
             e.add_field(name='time used', value=timeElapsed)
             try:
-                errorCode = str(int(rt))
+                errorCode = str(int(ret))
             except Exception:
                 try:
-                    errorCode = str(rt)
+                    errorCode = str(ret)
                 except Exception:
                     errorCode = str("return value cannot be converted to string")
             e.add_field(name='Return value', value=errorCode)
@@ -224,10 +224,10 @@ class Utils(commands.Cog):
         e.add_field(name='command name', value=command.qualified_name)
         e.add_field(name='time used', value=timeElapsed)
         try:
-            errorCode = str(int(rt))
+            errorCode = str(int(ret))
         except Exception:
             try:
-                errorCode = str(rt)
+                errorCode = str(ret)
             except Exception:
                 errorCode = str("return value cannot be converted to string")
         e.add_field(name='Return value', value=errorCode)

@@ -10,7 +10,7 @@ import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 from ext.consolemod import style
-from ext.logcfg import logger
+from ext.logcfg import get_logger
 from discord.utils import find
 from ext.imports_share import log, bot, get_prefix
 import easteregg
@@ -20,7 +20,7 @@ print(' >> Imported libraries...')
 load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
-rt = ''
+ret = ''
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
 cogs = []
 for cog in os.listdir('cogs/'):
@@ -35,6 +35,9 @@ lastword = json.load(open(LASTWRDFILE, 'r'))
 SETFILE = "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
 print(' >> Defining functions and objects...')
+logger = get_logger('Merlin')
+eventLogger = get_logger('EVENT')
+cmdHdlLogger = get_logger('CMDHDL')
 
 
 def slog(message: str):
@@ -49,7 +52,17 @@ def nlog(message: str):
 
 def cmd_handle_log(message: str):
     print('[CMDHDL]\t' + message)
-    logger.info(message)
+    cmdHdlLogger.info(message)
+
+
+def event_log(message: str):
+    print('[EVENT]\t' + message)
+    eventLogger.info(message)
+
+
+def cmd_handle_warn(message: str):
+    print(style.orange2(message) + style.reset())
+    eventLogger.warn(message)
 
 
 settings = json.load(open(SETFILE))
@@ -113,7 +126,7 @@ async def on_message(message: discord.Message):
 
 @bot.event
 async def on_ready():
-    nlog(style.cyan(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode'))
+    nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
@@ -158,13 +171,13 @@ async def on_guild_join(guild):
         await guild.owner.send("**SETUP**\nBefore using me, let's spend a few minutes setting up Merlin...\n"
                                "To continue, type (and press enter to send) `y` (300 seconds timeout)")
 
-        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner and m.content == 'y', timeout=300)
+        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner and m.content == 'y', timeout=300)
         await guild.owner.send("type prefix: (timeout 30)")
-        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=30)
-        gprefix = rt.content
+        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=30)
+        gprefix = ret.content
         await guild.owner.send("type admin roles, seperated with `, ` and send it (don't do `@`, timeout 60)")
-        rt = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=60)
-        sudoers = rt.content.split(', ')
+        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=60)
+        sudoers = ret.content.split(', ')
         await guild.owner.send("thx! done!")
         f = json.load(open(SETFILE, 'r'))
         f[f'g{guild.id}'] = {"prefix": gprefix, "sudoers": sudoers}
@@ -203,7 +216,7 @@ async def on_command_error(ctx, error):
         # This tells the issuer that the command cannot be used in DM
         if isinstance(error, commands.errors.NoPrivateMessage):
             try:
-                return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+                return await ctx.author.send(f'{ctx.command} cannot be used in Private Messages.')
             except discord.HTTPException:
                 return
         # This prevents any commands with local handlers being handled here in on_command_error.
