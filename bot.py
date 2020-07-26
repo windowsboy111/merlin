@@ -7,6 +7,7 @@ import traceback
 import json
 import asyncio
 import discord
+from dotenv import load_dotenv
 from discord.ext import commands
 from ext.consolemod import style
 from ext.logcfg import logger
@@ -15,8 +16,9 @@ from ext.imports_share import log, bot, get_prefix
 import easteregg
 print("Merlin bot written in python by windowsboy111 :)")
 print('==> Starting...')
-print(' >> Imported libraries...', end='\r\n')
-print(' >> Defining constant variables...', end='\r\n')
+print(' >> Imported libraries...')
+load_dotenv()
+print(' >> Defining constant variables...')
 exitType = 0
 rt = ''
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
@@ -32,11 +34,11 @@ LASTWRDFILE = "data/lastword.json"
 lastword = json.load(open(LASTWRDFILE, 'r'))
 SETFILE = "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
-print(' >> Defining functions and objects...', end='\r\n')
+print(' >> Defining functions and objects...')
 
 
 def slog(message: str):
-    print(' >> ' + message, end='\r\n')
+    print(' >> ' + message)
     logger.debug(message)
 
 
@@ -125,12 +127,17 @@ async def on_ready():
         await log('*RUNNING IN EMERGENCY **FIX** MODE!')
     await log('logged in')
     nlog('Loading Extensions...')
-    for cog in cogs:
-        slog(f'Loading {cog}...')
-        bot.load_extension('cogs.' + cog)
-    await log('loaded extensions / cogs')
+    try:
+        for cog in cogs:
+            slog(f'Loading {cog}...')
+            bot.load_extension('cogs.' + cog)
+        await log('loaded extensions / cogs')
+    except Exception:
+        nlog("An error occurred during loading extension, treat bot start as a reconnect")
+        nlog("Reconnected!")
+        return 2
     nlog("Ready!")
-    return
+    return 0
 
 
 @bot.event
@@ -281,9 +288,7 @@ slog('Tidying up...')
 for var in dir():
     if var.startswith('__'):
         continue
-    if var == 'os':
-        continue
-    if var == 'sys':
+    if var in ['os', 'sys', 'multiprocessing']:
         continue
     try:
         del globals()[var]
@@ -294,4 +299,8 @@ for var in dir():
     except KeyError:
         pass
 print('==> Removed all variables\n==> Restarting script...\n\n')
-os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+try:
+    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+except PermissionError as e:
+    print(f"OPERATION FAILED: {str(e)}")
+    sys.exit(2)

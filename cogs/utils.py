@@ -91,7 +91,7 @@ class Utils(commands.Cog):
                 try:
                     ctx = await self.bot.get_context(await channel.fetch_message(msgid))
                     await self.end(ctx=ctx, id=msgid)
-                except discord.NotFound:    continue
+                except discord.NotFound: continue
             return
         msg = await ctx.send('deleting `system32`...')
         if id == '0':       return await msg.edit(content='bruh i need da poll id')

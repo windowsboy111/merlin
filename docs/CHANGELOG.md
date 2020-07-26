@@ -3,6 +3,9 @@
 
 ## [Unreleased]
 ## Added
+- error message will split out if restarting the bot failed
+- if fail to import extension when bot starts, bot treat start as a reconnect
+- build number for bot info
 - better look for `/info bot`
 - `/kick`, `/ban` will now put reason into discord.py
 - `/mute` command now checks if a Muted role exists
@@ -13,6 +16,7 @@
 - track last message from a user with `/quote`
 - `is_sudoers()` moved to imports_share and new `@chk_sudo()`
 ## Changed
+- Dynamic welcome message
 - group `/mc` is now cog `utils`
 - `invite me` command now moved to `/invite`
 ## Removed

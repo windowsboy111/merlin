@@ -1,8 +1,15 @@
-[2020-07-26 01:53:05,513]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
-[2020-07-26 01:53:05,544]INFO - discord.client: logging in using static token
-[2020-07-26 01:53:05,892]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
-[2020-07-26 01:53:05,893]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
-[2020-07-26 01:53:06,041]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-v6mr",{"micros":81749,"calls":["discord-sessions-prd-1-55",{"micros":79163,"calls":["start_session",{"micros":71043,"calls":["api-prd-main-t65x",{"micros":68587,"calls":["get_user",{"micros":20070},"add_authorized_ip",{"micros":1724},"get_guilds",{"micros":5976},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":7,"calls":[]},"presence_connect",{"micros":559,"calls":[]}]}]}] (Session ID: 4b091638867dcce2a07df43c34e1a93d).
-[2020-07-26 01:53:08,063]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in NORMAL mode
-[2020-07-26 01:53:09,002]INFO - discord: Loading Extensions...
-[2020-07-26 01:53:09,871]INFO - discord: Ready!
+[2020-07-26 11:04:24,315]WARNING - discord.client: PyNaCl is not installed, voice will NOT be supported
+[2020-07-26 11:04:24,316]INFO - discord.client: logging in using static token
+[2020-07-26 11:04:25,240]INFO - discord.gateway: Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+[2020-07-26 11:04:25,243]INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+[2020-07-26 11:04:25,508]INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-bmv8",{"micros":53464,"calls":["discord-sessions-prd-1-29",{"micros":50594,"calls":["start_session",{"micros":32359,"calls":["api-prd-main-zp8q",{"micros":29553,"calls":["get_user",{"micros":2660},"add_authorized_ip",{"micros":1588},"get_guilds",{"micros":6219},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":16,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 0b5c59735bb10c7ef3daeaed85f4ae09).
+[2020-07-26 11:04:27,519]INFO - discord: [36mLogged in as Merlin - 690839099648638977 in DEBUG mode
+[2020-07-26 11:04:30,247]INFO - discord: Loading Extensions...
+[2020-07-26 11:04:31,454]INFO - discord: Ready!
+[2020-07-26 11:04:34,662]INFO - discord: windowsboy111#1046 has issued command: [32m/reboot[0m
+[2020-07-26 11:04:48,256]INFO - discord.gateway: Websocket closed with 1000 (), cannot reconnect.
+[2020-07-26 11:04:48,257]INFO - discord.client: Cleaning up tasks.
+[2020-07-26 11:04:48,257]INFO - discord.client: Cleaning up after 1 tasks.
+[2020-07-26 11:04:48,258]INFO - discord.client: All tasks finished cancelling.
+[2020-07-26 11:04:48,258]INFO - discord.client: Closing the event loop.
+[2020-07-26 11:04:48,259]INFO - discord: Logged out
