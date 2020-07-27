@@ -5,6 +5,7 @@ import csv
 import random
 import botmc
 import traceback
+import typing
 from datetime import datetime
 
 
@@ -184,12 +185,36 @@ class Utils(commands.Cog):
         await ctx.send(f.read())
 
     @commands.command(name='invite', help='get server invite link')
-    @commands.guild_only
+    @commands.guild_only()
     async def invite(self, ctx):
         await ctx.send((await ctx.guild.invites())[0].url)
 
-    @commands.command(name='avatar')
-    async def 
+    class ImageFormat(commands.Converter):
+        """return image format (str), intended to be a function argument converter (function annotation)"""
+        formats = ('webp', 'jpeg', 'jpg', 'png', 'gif')
+
+        async def convert(self, ctx, arg: str):
+            if arg not in self.formats:
+                return None
+            return arg
+
+    @commands.command(name='avatar', help='show user avatar', aliases=['pfp', 'icon'])
+    async def pfp(self, ctx, size: typing.Optional[int] = 1024, imageFormat: typing.Optional[ImageFormat] = 'png', user: discord.User = None):
+        user = user or ctx.message.author
+        formats = ('webp', 'jpeg', 'jpg', 'png')
+        if user.is_avatar_animated():
+            formats = ('gif', 'webp', 'jpeg', 'jpg', 'png')
+        else:
+            if imageFormat == 'gif':
+                await ctx.send("I will not **gif**t you discord nitro!")
+                return 2
+        e = discord.Embed(
+            title=f'Avatar of {str(user)}',
+            description=' '.join([f"[{f}]({user.avatar_url_as(size=size, format=f)} \"size: {size}\" )" for f in formats])
+        )
+        e.set_image(url=user.avatar_url_as(format=imageFormat, size=size))
+        e.timestamp = datetime.utcnow()
+        await ctx.send(embed=e)
 
 
 def setup(bot):

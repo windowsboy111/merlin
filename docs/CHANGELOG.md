@@ -3,8 +3,10 @@
 
 ## [Unreleased]
 ### Added
+- `/avatar` command
 - `/res` command to see CPU / RAM usages
 - `/info user`, `/info member`, `/info channel`
+- `/help` command now shows command aliases
 ### Changed
 - `/sandbox` command now belongs to cog debug
 ### Fixed
