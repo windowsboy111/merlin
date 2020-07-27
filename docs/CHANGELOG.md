@@ -2,9 +2,16 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- `/res` command to see CPU / RAM usages
+- `/info user`, `/info member`, `/info channel`
+### Changed
+- `/sandbox` command now belongs to cog debug
 ### Fixed
+- now only can use invite in guild
 - no attribute hint
 - stage is now stable
+- member dm welcome
 
 ## [2.1.0]
 ### Added

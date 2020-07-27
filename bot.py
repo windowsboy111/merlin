@@ -123,7 +123,10 @@ async def on_message(message: discord.Message):
         lastmsg = [message.content.lower(), message.author, 1, False]
     elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
         lastmsg[2] += 1
-        await message.delete()
+        try:
+            await message.delete()
+        except Exception:
+            pass
         ctx = await bot.get_context(message)
         await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
     elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
@@ -168,7 +171,7 @@ async def on_ready():
 @bot.event
 async def on_member_join(member: discord.Member):
     logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
-    await member.send(f'Hi {member.name}, welcome to {member.guild.qualified_name} Discord server!\nBy using the guild, you accept the rules.')
+    await member.send(f'Hi {member.name}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules.')
     print(f"{member} has joined the server.")
 
 

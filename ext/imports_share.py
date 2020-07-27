@@ -13,6 +13,7 @@ def get_prefix(bot: commands.Bot, message):
             prefix = settings['g' + str(message.guild.id)]['prefix']
         except KeyError:
             settings['g' + str(message.guild.id)] = {'prefix': ["/"]}
+            json.dump(settings, open(SETFILE, 'w'))
             prefix = ['/']
         prefixes = prefix.copy()
         prefixes.append('<@690839099648638977> ')
