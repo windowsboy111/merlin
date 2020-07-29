@@ -2,6 +2,10 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- README.md badges
+### Fixed
+- removed print message content
 
 ## [2.1.1]
 ### Added

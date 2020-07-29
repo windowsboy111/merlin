@@ -1,6 +1,6 @@
 # Merlin Python branch
 ### discord bot coded with discord.py
-
+[![Upload Python Package](https://github.com/windowsboy111/merlin-py/workflows/Upload%20Python%20Package/badge.svg)](https://pypi.org/project/Merlin-bot) [![Run on Repl.it](https://repl.it/badge/github/windowsboy111/merlin-py)](https://repl.it/github/windowsboy111/merlin-py)  
 ==info/warning/disclamer==
 
 This bot is coded for the discord server [KCCS Official](https://discord.io/kccs) originally.  
