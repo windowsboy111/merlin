@@ -1,4 +1,4 @@
-# KCCS-Official discord bot
+# Merlin discord.py bot
 > windowsboy111
 
 ## [Unreleased]

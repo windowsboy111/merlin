@@ -238,7 +238,7 @@ async def on_command_error(ctx, error):
         # This tells the issuer that the command cannot be used in DM
         if isinstance(error, commands.errors.NoPrivateMessage):
             try:
-                return await ctx.author.send(f'{ctx.command} cannot be used in Private Messages.')
+                return await ctx.author.send(f':X::lock: {ctx.command} cannot be used in Private Messages.')
             except discord.HTTPException:
                 return
         # This prevents any commands with local handlers being handled here in on_command_error.
@@ -260,10 +260,18 @@ async def on_command_error(ctx, error):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
 
         if isinstance(error, commands.errors.DisabledCommand):
-            return await ctx.send(f'{ctx.command} has been disabled.')
+            return await ctx.send(embed=discord.Embed(
+                title=f'{ctx.command} has been disabled.',
+                description=f':x: `{ctx.message.content}`',
+                color=0xff0000
+            ))
 
         if isinstance(error, commands.errors.CommandInvokeError):
-            await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
+            await ctx.send(embed=discord.Embed(
+                title='uh oh. An exception has occurred during the execution of the command',
+                description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
+                color=0xff0000
+            ))
 
         if isinstance(error, discord.ext.commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
