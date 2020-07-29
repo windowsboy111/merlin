@@ -4,6 +4,7 @@
 ## [Unreleased]
 ### Added
 - README.md badges
+- nightly branch
 ### Changed
 - in detailed `/ping` command
 ### Fixed
