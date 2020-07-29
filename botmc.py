@@ -69,7 +69,7 @@ def chkmcsrvstatus():
 
 
 def mcsrv(embed, args):
-    logger.info("Started botmc.mc()")
+    logger.info("Started botmc.mcsrv()")
     rtrn = ""
     global mcserverarglist  # chk srv arg
     global tmp

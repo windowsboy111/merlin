@@ -1,12 +1,11 @@
-from discord.ext import commands
-from ext.quickpoll import QuickPoll as qp
-import discord
 import csv
 import random
-import botmc
-import traceback
 import typing
 from datetime import datetime
+import discord
+from discord.ext import commands
+import botmc
+from ext.quickpoll import QuickPoll as qp
 
 
 class Utils(commands.Cog):
@@ -40,7 +39,7 @@ class Utils(commands.Cog):
         poll = qp(self.bot)
         await poll.quickpoll(poll, msg=msg, ctx=ctx, question=name, options=options)
         await msg.edit(content='')
-        return
+        return 0
 
     @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
     async def check(self, ctx, *, num='0'):
@@ -174,7 +173,7 @@ class Utils(commands.Cog):
             member = self.bot.get_user(int(rs))
             member = member or ctx.message.author
             await ctx.send(f'{member.display_name} fell out of the world.\nKilled {member.display_name}')
-            return
+            return 0
         except Exception as e:
             await ctx.send('No entity was found')
             print(e)
@@ -215,6 +214,7 @@ class Utils(commands.Cog):
         e.set_image(url=user.avatar_url_as(format=imageFormat, size=size))
         e.timestamp = datetime.utcnow()
         await ctx.send(embed=e)
+        return 0
 
 
 def setup(bot):

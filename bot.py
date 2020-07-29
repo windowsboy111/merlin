@@ -9,9 +9,9 @@ import asyncio
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
+from discord.utils import find
 from ext.consolemod import style
 from ext.logcfg import get_logger, logging
-from discord.utils import find
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 print("Merlin bot written in python by windowsboy111 :)")
@@ -20,7 +20,6 @@ print(' >> Imported libraries...')
 load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
-ret = ''
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
 cogs = []
 for cog in os.listdir('cogs/'):
@@ -44,25 +43,29 @@ logging.addLevelName(HINT_LEVEL_NUM, "HINT")
 
 
 def hint(self, message, *args, **kws):
+    """hint logging level"""
     if self.isEnabledFor(HINT_LEVEL_NUM):
         # Yes, logger takes its '*args' as 'args'.
         self._log(HINT_LEVEL_NUM, message, args, **kws)
 
-
-logging.Logger.hint = hint
+# %%print("hello, world!")
+setattr(logging.Logger, 'hint', hint)
 
 
 def slog(message: str):
+    """sub log"""
     print(' >> ' + message)
     logger.hint(message)
 
 
 def nlog(message: str):
+    """new line long"""
     print('\n==> ' + message)
     logger.info(message)
 
 
 def cmd_handle_log(message: str):
+    """logging function for command handling"""
     print('[CMDHDL]\t' + message)
     cmdHdlLogger.info(message)
 
@@ -74,7 +77,7 @@ def event_log(message: str):
 
 def cmd_handle_warn(message: str):
     print(style.orange + message + style.reset)
-    cmdHdlLogger.warn(message)
+    cmdHdlLogger.warning(message)
 
 
 settings = json.load(open(SETFILE))
@@ -89,6 +92,7 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    print(message.content)
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
@@ -170,8 +174,12 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    logger.info(f"Detected {member.name} joined, welcoming the member in dm...")
-    await member.send(f'Hi {member.name}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules.')
+    eventLogger.info(f"Detected {member} joined, welcoming the member in dm...")
+    try:
+        await member.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules.')
+    except discord.Forbidden:
+        eventLogger.warn(f"Failed to send dm to {member}, fallback server welcome")
+        await member.guild.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules. (Failed to send dm to this user)')
     print(f"{member} has joined the server.")
 
 

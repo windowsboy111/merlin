@@ -3,9 +3,10 @@ from discord.ext import commands
 SETFILE = "data/settings.json"
 
 
-def get_prefix(bot: commands.Bot, message):
+def get_prefix(bot: commands.Bot, message: discord.Message):
+    """Get prefix for guild"""
     if isinstance(message.channel, discord.channel.DMChannel):
-        return ('<@690839099648638977> ', '/')
+        return (f'{bot.user.mention} ', '/')
     with open('data/settings.json', 'r') as f:
         settings = json.load(f)
         prefix = None
@@ -16,7 +17,7 @@ def get_prefix(bot: commands.Bot, message):
             json.dump(settings, open(SETFILE, 'w'))
             prefix = ['/']
         prefixes = prefix.copy()
-        prefixes.append('<@690839099648638977> ')
+        prefixes.append(f'<@!690839099648638977> ')
         return tuple(prefixes)
 
 
