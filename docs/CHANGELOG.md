@@ -4,6 +4,8 @@
 ## [Unreleased]
 ### Added
 - README.md badges
+### Changed
+- in detailed `/ping` command
 ### Fixed
 - removed print message content
 - `/unban` command now will unban the last member banned if no argument is inputted

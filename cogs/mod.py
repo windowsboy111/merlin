@@ -7,6 +7,7 @@ from ext.imports_share import log, chk_sudo
 from exceptions import NoMutedRole
 WARNFILE = 'data/warnings.db'
 muted = dict()
+userid = None
 SETFILE = "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
 settings = json.load(open(SETFILE, 'r'))

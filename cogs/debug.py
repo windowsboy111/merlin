@@ -19,12 +19,26 @@ class Debug(commands.Cog):
     - msgstats
     - sandbox
     """
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')
-    async def ping(self, ctx):
-        await ctx.send(embed=discord.Embed(title="Pong!", description='The latency is {} ms.'.format(self.bot.latency * 1000), color=0x3333ff))
+    async def ping(self, ctx: commands.Context):
+            t = datetime.now()
+            msg = await ctx.send('`Ping!`')
+            sendTime = datetime.now() - t
+            t = datetime.now()
+            await msg.edit(content='`Pong!`')
+            editTime = datetime.now() - t
+            t = datetime.now()
+            await msg.delete()
+            delTime = datetime.now() - t
+            await ctx.send(
+                f"**Client latency**: {self.bot.latency * 1000}ms\n"
+                f"**Send message**: {sendTime.seconds * 1000}ms\n"
+                f"**Edit message**: {editTime.seconds * 1000}ms\n"
+                f"**Del message**: {delTime.seconds * 1000}ms\n"
+            )
 
     @commands.command(name='msgstats', help='info of a message')
     async def msgstats(self, ctx: commands.Context, *, args=''):
