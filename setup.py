@@ -4,6 +4,13 @@ long_description = ''
 cfg = json.load(open('ext/bot_settings.json', 'r'))
 with open("docs/README.md", "r") as fh:
     long_description = fh.read()
+stage = None
+if cfg["stage"] == "stable":
+    stage = 'Development Status :: 5 - Production/Stable'
+elif cfg["stage"] == "beta":
+    stage = 'Development Status :: 4 - Beta'
+elif cfg['stage'] == "alpha":
+    stage = 'Development Status :: 3 - Alpha'
 setup(
     name='Merlin-bot',
     packages=['.'],
@@ -18,7 +25,7 @@ setup(
     download_url=f'https://github.com/windowsboy111/Merlin-bot/archive/{cfg["version"]}.tar.gz',
     keywords=['discord', 'bot', 'discord.py'],
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        stage,
         'Intended Audience :: Developers',
         'Topic :: Communications',
         'License :: OSI Approved :: MIT License',
