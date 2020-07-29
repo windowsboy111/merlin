@@ -7,6 +7,7 @@
 ### Changed
 - in detailed `/ping` command
 ### Fixed
+- `/help` command did not work with commands that does not have aliases
 - removed print message content
 - `/unban` command now will unban the last member banned if no argument is inputted
 
