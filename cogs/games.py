@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import enum
 import random
+import typing
 
 
 class Rps:
@@ -37,8 +38,14 @@ class Games(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['rockpaperscissors', 'rock_paper_scissors', 'rock-paper-scissors'])
-    async def rps(self, ctx, val: Rps):
+    async def rps(self, ctx, val: typing.Union[Rps, discord.Member]):
         """Enjoy your rock paper scissors"""
+        if isinstance(val, discord.Member):
+            pass
+            # # play double
+            # p1 = ctx.author
+            # p2 = val
+            # await p2.send(f'You have been challenged by {p1.mention} to play uhh rock paper scissors. what a boring game. do you wanna proceed?')
         myChoice = random.choice((0, 1, 2))
         embed = None
         desc = f'Me: {Rps.get_emoji(myChoice)}\nYou: {Rps.get_emoji(val)}'
