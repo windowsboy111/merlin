@@ -92,7 +92,6 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
-    print(message.content)
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
