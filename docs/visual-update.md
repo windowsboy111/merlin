@@ -22,3 +22,6 @@
 - command handling command invoke error now uses embed and added link to github new bug issue
 ### Fixed
 - removed print message content
+
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2-a...HEAD
+[2.2-a]:        https://github.com/windowsboy111/Merlin-py/tags/2.2-a
