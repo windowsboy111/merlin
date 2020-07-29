@@ -11,6 +11,8 @@
 
 # Changelog
 ## [Unreleased]
+### Fixed
+- poll title will now show mentions properly
 
 ## [2.2-a]
 ### Added
