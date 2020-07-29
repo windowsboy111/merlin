@@ -33,11 +33,12 @@ class Debug(commands.Cog):
         t = datetime.now()
         await msg.delete()
         delTime = datetime.now() - t
-        await ctx.send(embed=discord.Embed(title=':ping_pong: Pong!').add_field(
-            name='Bot Latency', value=f"{self.bot.latency * 1000}ms").add_field(
-            name='Send Message', value=f"{sendTime.seconds * 1000}ms").add_field(
-            name="Edit Message", value=f"{editTime * 1000}ms").add_field(
-            name="Del Message", value=f"{delTime * 1000}ms")
+        await ctx.send(
+            embed=discord.Embed(title=':ping_pong: Pong!')
+            .add_field(name='Bot Latency', value=f"{self.bot.latency * 1000}ms")
+            .add_field(name='Send Message', value=f"{sendTime.total_seconds() * 1000}ms")
+            .add_field(name="Edit Message", value=f"{editTime.total_seconds() * 1000}ms")
+            .add_field(name="Del Message", value=f"{delTime.total_seconds() * 1000}ms")
         )
 
     @commands.command(name='msgstats', help='info of a message')

@@ -7,6 +7,7 @@ import traceback
 import json
 import asyncio
 import discord
+from datetime import datetime
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord.utils import find
@@ -270,6 +271,7 @@ async def on_command_error(ctx, error):
             await ctx.send(embed=discord.Embed(
                 title='uh oh. An exception has occurred during the execution of the command',
                 description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
+                timestamp=datetime.utcnow(),
                 color=0xff0000
             ))
 

@@ -185,8 +185,12 @@ class Utils(commands.Cog):
 
     @commands.command(name='invite', help='get server invite link')
     @commands.guild_only()
-    async def invite(self, ctx):
-        await ctx.send((await ctx.guild.invites())[0].url)
+    async def invite(self, ctx: discord.Invite):
+        e = discord.Embed(title=f'{len(await ctx.guild.invites())} invite(s) found')
+        for invite in await ctx.guild.invites():
+            e.add_field(name=str(invite.inviter), value=f"[{invite.id}]({invite.url}): {invite.uses}")
+        await ctx.send(embed=e)
+        # await ctx.send((await ctx.guild.invites())[0].url)
 
     class ImageFormat(commands.Converter):
         """return image format (str), intended to be a function argument converter (function annotation)"""

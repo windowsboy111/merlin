@@ -12,6 +12,7 @@
 # Changelog
 ## [Unreleased]
 ## Added
+- detailed invite command
 - ping command using embed
 - little lock :x: emoji for notOwner handle
 - better handling for CommandDisabled

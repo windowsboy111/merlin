@@ -2,7 +2,6 @@ from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
 from ext.imports_share import chk_sudo
-import typing
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
 settings = json.load(open(SETFILE, 'r'))
