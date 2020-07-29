@@ -6,6 +6,7 @@
 - README.md badges
 ### Fixed
 - removed print message content
+- `/unban` command now will unban the last member banned if no argument is inputted
 
 ## [2.1.1]
 ### Added

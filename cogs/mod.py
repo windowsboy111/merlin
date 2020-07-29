@@ -191,12 +191,12 @@ class Mod(commands.Cog):
     @chk_sudo()
     @commands.guild_only()
     async def ban(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
-        global id
+        global userid
         if not member:
             return await ctx.send('Please specify a member.')
         await member.send(f'You have been banned.\nReason: {reason}')
         await member.ban(reason=reason)
-        id = member.id
+        userid = member.id
         await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
             'https://imgur.com/V4TVpbC',
             'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581',
@@ -209,12 +209,12 @@ class Mod(commands.Cog):
     @commands.guild_only()
     async def unban(self, ctx, userID: int = 0):
         if userID == 0:
-            global id
-            if id == 0:
+            global userid
+            if userid == 0:
                 await ctx.send(f'{ctx.message.author.mention} please specify an user id.')
                 return
             else:
-                userID = id
+                userID = userid
         user = await self.bot.fetch_user(userID)
         await ctx.guild.unban(user)
         await ctx.send("Fine. There you go.")
