@@ -2,8 +2,11 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1.2]
 ### Added
 - README.md badges
+- nightly branch
 ### Changed
 - in detailed `/ping` command
 ### Fixed
@@ -155,7 +158,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.1...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.2...HEAD
+[2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
 [2.1.1]:        https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...2.1.1
 [2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...r2.1.0
 [2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
