@@ -57,5 +57,21 @@ class Games(commands.Cog):
             embed = discord.Embed(title="You win!",     description=desc, color=0x00ff00)
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=['coin'])
+    async def coinflip(self, ctx):
+        """flip a coin: head or tail?"""
+        await ctx.send('head' if round(random.random()) == 1 else 'tail')
+        return 0
+
+    @commands.command()
+    async def answer(self, ctx, *, question):
+        """answer a yes / no question"""
+        # the idea of this command comes from the gurb bot in FlytechVideos discord server
+        if not question.endswith(('?', '？')):
+            await ctx.send("A question shall ends with a `?`")
+            return 2
+        await ctx.send(random.choice(['Yes.', 'Absolutely.', 'Nah.', 'Yes? No? Maybe? Can you please repeat the question?', 'Definitely not.', 'Probably.', 'Maybe.', 'Of course.', 'Ask me later.', 'Can you rephrase your question?', 'Damn right yes!', 'WTF NO!']))
+        return 0
+
 def setup(bot):
     bot.add_cog(Games(bot))
