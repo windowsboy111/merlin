@@ -14,6 +14,7 @@ from ext.consolemod import style
 from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
+from ext.chat import chat
 print("Merlin bot written in python by windowsboy111 :)")
 print('==> Starting...')
 print(' >> Imported libraries...')
@@ -99,6 +100,9 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
+        await message.channel.send(chat.response(message.content))
+        return 0
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
