@@ -2,6 +2,11 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- chat system
+- `__init__.py` (as a package)
+- print statements in `bot_imports.py` (prevent PEP8 violation)
+- updated packages
 
 ## [2.1.2]
 ### Added
