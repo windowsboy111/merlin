@@ -1,5 +1,7 @@
 #!/bin/python3
 # bot.py
+# pylint: disable=import-error
+import bot_imports
 import sys
 import os
 import random
@@ -14,9 +16,7 @@ from ext.consolemod import style
 from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
-print("Merlin bot written in python by windowsboy111 :)")
-print('==> Starting...')
-print(' >> Imported libraries...')
+from ext.chat import chat
 load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
@@ -99,6 +99,9 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
+        await message.channel.send(chat.response(message.content))
+        return 0
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
@@ -316,38 +319,43 @@ async def _shutdown(ctx):
     exitType = 2
     await bot.logout()
 
-# login / start services
-slog('Running / logging in...')
-while True:
-    bot.run(TOKEN, bot=True, reconnect=True)
-    if exitType == 0:
-        nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
-        continue
-    else:
-        nlog('Logged out')
-        break
-if exitType == 2:
-    print("\nExiting...")
-    open('discordbot.log', 'w').write('')
-    sys.exit(0)
-slog('Tidying up...')
-for var in dir():
-    if var.startswith('__'):
-        continue
-    if var in ['os', 'sys', 'multiprocessing']:
-        continue
+
+def start(token=None, **kwargs):
+    # login / start services
+    slog('Running / logging in...')
+    token = token or os.environ['DISCORD_TOKEN'] or os.environ['TOKEN']
+    while True:
+        bot.run(token)
+        if exitType == 0:
+            nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
+            continue
+        else:
+            nlog('Logged out')
+            break
+    if exitType == 2:
+        print("\nExiting...")
+        open('discordbot.log', 'w').write('')
+        sys.exit(0)
+    slog('Tidying up...')
+    for var in dir():
+        if var.startswith('__'):
+            continue
+        if var in ['os', 'sys', 'multiprocessing']:
+            continue
+        try:
+            del globals()[var]
+        except KeyError:
+            pass
+        try:
+            del locals()[var]
+        except KeyError:
+            pass
+    print('==> Removed all variables\n==> Restarting script...\n\n')
     try:
-        del globals()[var]
-    except KeyError:
-        pass
-    try:
-        del locals()[var]
-    except KeyError:
-        pass
-print('==> Removed all variables\n==> Restarting script...\n\n')
-try:
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
-except PermissionError as e:
-    print(f"OPERATION FAILED: {str(e)}")
-    open('discordbot.log', 'w').write('')
-    sys.exit(2)
+        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    except PermissionError as e:
+        print(f"OPERATION FAILED: {str(e)}")
+        open('discordbot.log', 'w').write('')
+        sys.exit(2)
+if __name__ == '__main__':
+    start(TOKEN, bot=True, reconnect=True)
