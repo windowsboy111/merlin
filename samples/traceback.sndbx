@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/windowsboy111/Documents/drive/coding/py/Merlin-py/cogs/utils.py", line 201, in sandbox
+    rt = await ctx.invoke(command)
+  File "/usr/lib/python3.8/site-packages/discord/ext/commands/context.py", line 132, in invoke
+    ret = await command.callback(*arguments, **kwargs)
+TypeError: settings_prefix_add() missing 1 required positional argument: 'prefix'
