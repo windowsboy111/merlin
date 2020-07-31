@@ -1,7 +1,6 @@
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer, ChatterBotCorpusTrainer
 import chatterbot
-import chatterbot.comparisons
 import chatterbot.response_selection
 import os
 
