@@ -2,6 +2,7 @@
 > windowsboy111
 
 ## [Unreleased]
+## [2.1.3]
 ### Added
 - chat system
 - `__init__.py` (as a package)
@@ -163,7 +164,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.2...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.3...HEAD
+[2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
 [2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
 [2.1.1]:        https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...2.1.1
 [2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...r2.1.0
