@@ -155,6 +155,15 @@ async def on_message(message: discord.Message):
 @bot.event
 async def on_ready():
     nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
+    nlog('Loading Extensions...')
+    try:
+        for cog in cogs:
+            slog(f'Loading {cog}...')
+            bot.load_extension('cogs.' + cog)
+    except Exception:
+        nlog("An error occurred during loading extension, treat bot start as a reconnect")
+        nlog("Reconnected!")
+        return 2
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
@@ -165,17 +174,6 @@ async def on_ready():
     elif MODE == 'FIX':
         await bot.change_presence(status=discord.Status.dnd)
         await log('*RUNNING IN EMERGENCY **FIX** MODE!')
-    await log('logged in')
-    nlog('Loading Extensions...')
-    try:
-        for cog in cogs:
-            slog(f'Loading {cog}...')
-            bot.load_extension('cogs.' + cog)
-        await log('loaded extensions / cogs')
-    except Exception:
-        nlog("An error occurred during loading extension, treat bot start as a reconnect")
-        nlog("Reconnected!")
-        return 2
     nlog("Ready!")
     return 0
 

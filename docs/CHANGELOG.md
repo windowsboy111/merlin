@@ -2,6 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
+### Optimized
+- chat system now uses multiprocessing
+- startup on_ready now omit "loaded extension" double logging
 ### Fixed
 - dm commands now work
 
