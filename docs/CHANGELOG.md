@@ -2,6 +2,9 @@
 > windowsboy111
 
 ## [Unreleased]
+### Fixed
+- dm commands now work
+
 ## [2.1.3]
 ### Added
 - chat system

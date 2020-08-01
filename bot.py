@@ -99,7 +99,7 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
-    if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
+    if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await message.channel.send(chat.response(message.content))
         return 0
     if message.content.startswith(get_prefix(bot, message)):
