@@ -323,9 +323,9 @@ async def _shutdown(ctx):
 def start(token=None, **kwargs):
     # login / start services
     slog('Running / logging in...')
-    token = token or os.environ['DISCORD_TOKEN'] or os.environ['TOKEN']
+    token = token or os.getenv('DISCORD_TOKEN')
     while True:
-        bot.run(token)
+        bot.run(token, **kwargs)
         if exitType == 0:
             nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
             continue
@@ -357,5 +357,6 @@ def start(token=None, **kwargs):
         print(f"OPERATION FAILED: {str(e)}")
         open('discordbot.log', 'w').write('')
         sys.exit(2)
+
 if __name__ == '__main__':
     start(TOKEN, bot=True, reconnect=True)
