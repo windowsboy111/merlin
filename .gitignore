@@ -147,3 +147,4 @@ data/lastword.json
 data/mcsrvs.csv
 data/pyoutput.txt
 data/warnings.db
+chat/chats.sqlite3
