@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 hi
 how are you
 I am fine
+=======
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 who are you
 I am Merlin and I am a discord bot coded by windowsboy111#1024 with discord.py
 are you a programmer
@@ -25,4 +28,8 @@ The majority of me is coded in python. some are in node.js but they are not main
 can I contribute to you
 Yes! check out my github repo at https://github.com/windowsboy111/Merlin-py
 I want to know more about you
+<<<<<<< HEAD
 run the following command: `/info bot`
+=======
+run the following command: `/info bot`
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537

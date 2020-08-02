@@ -1,6 +1,11 @@
 #!/bin/python3
 # bot.py
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+# pylint: disable=import-error
+import bot_imports
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 =======
 # pylint: disable=import-error
 import bot_imports
@@ -21,6 +26,7 @@ from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
 <<<<<<< HEAD
+<<<<<<< HEAD
 print("Merlin bot written in python by windowsboy111 :)")
 print('==> Starting...')
 print(' >> Imported libraries...')
@@ -29,6 +35,8 @@ print(' >> Defining constant variables...')
 exitType = 0
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
 =======
+=======
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
@@ -40,6 +48,9 @@ statusLs = [
     'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
     'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
 ]
+<<<<<<< HEAD
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
+=======
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 cogs = []
 for cog in os.listdir('cogs/'):
@@ -113,7 +124,11 @@ async def on_message(message: discord.Message):
     if await easteregg.easter(message):
         return
 <<<<<<< HEAD
+<<<<<<< HEAD
     if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
+=======
+    if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 =======
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
@@ -175,8 +190,12 @@ async def on_ready():
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
 <<<<<<< HEAD
+<<<<<<< HEAD
         activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
         await bot.change_presence(status=discord.Status.online, activity=activity)
+=======
+        await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 =======
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
@@ -246,7 +265,11 @@ async def status():
         try:
             if not MODE or MODE == 'NORMAL':
 <<<<<<< HEAD
+<<<<<<< HEAD
                 activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
+=======
+                activity = discord.Game(name=random.choice(statusLs))
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 =======
                 activity = discord.Game(name=random.choice(statusLs))
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
@@ -301,15 +324,21 @@ async def on_command_error(ctx, error):
             await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         if isinstance(error, discord.ext.commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
 =======
+=======
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
         if isinstance(error, commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
         if isinstance(error, commands.errors.ConversionError):
             await ctx.send(
                 'Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
                 'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
+<<<<<<< HEAD
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
+=======
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 
         if isinstance(error, commands.errors.BadArgument):
@@ -351,6 +380,7 @@ async def _shutdown(ctx):
     await bot.logout()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # login / start services
 slog('Running / logging in...          ')
 while True:
@@ -387,6 +417,8 @@ except PermissionError as e:
     open('discordbot.log', 'w').write('')
     sys.exit(2)
 =======
+=======
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 
 def start(token=None, **kwargs):
     # login / start services
@@ -427,5 +459,9 @@ def start(token=None, **kwargs):
         sys.exit(2)
 
 if __name__ == '__main__':
+<<<<<<< HEAD
+    start(TOKEN, bot=True, reconnect=True)
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
+=======
     start(TOKEN, bot=True, reconnect=True)
 >>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537

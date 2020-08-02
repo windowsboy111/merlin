@@ -168,7 +168,13 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 [Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.1...HEAD
+=======
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.3...HEAD
+[2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
+[2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 =======
 [Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.3...HEAD
 [2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
