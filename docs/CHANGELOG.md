@@ -7,6 +7,7 @@
 - startup on_ready now omit "loaded extension" double logging
 ### Fixed
 - dm commands now work
+- [#22]: `/poll end all` will not crash when there are no unended polls
 
 ## [2.1.3]
 ### Added
@@ -182,3 +183,4 @@
 [2.1-a2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-a1...2.1-a2
 [2.1-a1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1a...2.1-a1
 [2.1-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.0.0...2.1a
+[#22]:          https://github.com/windowsboy111/merlin-py/issues/22
