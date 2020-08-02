@@ -147,3 +147,7 @@ data/lastword.json
 data/mcsrvs.csv
 data/pyoutput.txt
 data/warnings.db
+ext/chat/chats.sqlite3
+poetry.lock
+pyproject.toml
+.gitignore

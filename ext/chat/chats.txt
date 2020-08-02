@@ -1,35 +1,34 @@
-<<<<<<< HEAD
 hi
 how are you
 I am fine
-=======
->>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 who are you
 I am Merlin and I am a discord bot coded by windowsboy111#1024 with discord.py
 are you a programmer
 yes
 :)
-how do you program
-i just duckduckgo and suck the suck the results into my little piece of code :P
+happi
+it's a song
+what song
+idk
+just duckduckgo and suck the suck the results into that little piece of code :P
 do you like stackoverflow
 not quite, i actually hate it
+sad to hear
+i agree
+reckon not the best
 merlin how old are you
 if you mean merlin you should ask me when i was born
 merlin when did you born
 2020-03-22
+my birthday :heart:
+~~privacy concern not gonna remember that lol~~
 are you a bot?
 of course
-are you open source
-apparently yes.
-where are your source code
-https://github.com/windowsboy111/Merlin-py
-what programming languages are you coded in
-The majority of me is coded in python. some are in node.js but they are not maintained by windowsboy111 frequently
-can I contribute to you
+huh?
+nothing
+contribute to merlin
 Yes! check out my github repo at https://github.com/windowsboy111/Merlin-py
 I want to know more about you
-<<<<<<< HEAD
 run the following command: `/info bot`
-=======
-run the following command: `/info bot`
->>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
+what does that do
+you ask the wrong guy
