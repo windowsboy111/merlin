@@ -2,11 +2,17 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1.4]
 ### Added
 - better discord status
+- .gitignore added user data stuff
 ### Optimized
 - chat system now uses multiprocessing
 - startup on_ready now omit "loaded extension" double logging
+### Removed
+- poetry.lock
+- pyproject.toml
 ### Fixed
 - dm commands now work
 - [#22]: `/poll end all` will not crash when there are no unended polls
@@ -175,7 +181,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.3...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.4...HEAD
+[2.1.4]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.3...2.1.4
 [2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
 [2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
 [2.1.1]:        https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...2.1.1
