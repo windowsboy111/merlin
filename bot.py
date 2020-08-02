@@ -94,13 +94,17 @@ bot.remove_command('help')
 MODE = os.getenv('MODE')
 
 
+async def response_chat(message: discord.Message):
+    return chat.response(message.content)
+
+
 @bot.event
 async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
     if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
-        await message.channel.send(chat.response(message.content))
+        await message.channel.send(await response_chat(message))
         return 0
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
