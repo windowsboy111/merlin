@@ -2,12 +2,16 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- better discord status
 ### Optimized
 - chat system now uses multiprocessing
 - startup on_ready now omit "loaded extension" double logging
 ### Fixed
 - dm commands now work
 - [#22]: `/poll end all` will not crash when there are no unended polls
+- mention of Merlin was not prefix
+
 
 ## [2.1.3]
 ### Added

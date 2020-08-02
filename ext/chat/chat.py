@@ -22,8 +22,8 @@ def make_bot():
                 "import_path":                  "chatterbot.logic.BestMatch",
                 "statement_comparison_function":"chatterbot.comparisons.levenshtein_distance",
                 "response_selection_method":    chatterbot.response_selection.get_random_response,
-                # 'default_response':             'I am sorry, but I do not understand.',
-                # 'maximum_similarity_threshold': 0.40
+                'default_response':             'I am sorry, but I do not understand.',
+                'maximum_similarity_threshold': 0.10
             },
             # 'chatterbot.logic.TimeLogicAdapter',
             'chatterbot.logic.MathematicalEvaluation',
@@ -43,16 +43,12 @@ def make_bot():
 
 
 def train(bot: ChatBot):
-    trainer = ListTrainer(bot)
+    bot.set_trainer(ListTrainer)
     conversation = open(f'{os.path.dirname(__file__)}/chats.txt','r').readlines()
-    trainer.train(conversation)
+    bot.train(conversation)
 
-    cTrainer = ChatterBotCorpusTrainer(bot)
-    cTrainer.train('chatterbot.corpus.english')
-    try:
-        cTrainer.train('chatterbot.corpus.tchinese')
-    except FileNotFoundError:
-        cTrainer.train('chatterbot.corpus.traditionalchinese')
+    bot.set_trainer(ChatterBotCorpusTrainer)
+    bot.train('chatterbot.corpus.english')
     return 0
 
 try:
@@ -74,7 +70,7 @@ def response(msg: str):
         return "`merlin::`?"
     res = bot.get_response(msg)
     if res != 'I am sorry, but I do not understand.':
-        bot.learn_response(res)
+        bot.learn_response(res, None)
     return res
 
 

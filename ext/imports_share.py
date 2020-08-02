@@ -18,6 +18,7 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
             prefix = ['/']
         prefixes = prefix.copy()
         prefixes.append(f'<@!690839099648638977> ')
+        prefixes.append("<@690839099648638977> ")
         return tuple(prefixes)
 
 
