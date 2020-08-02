@@ -1,5 +1,10 @@
 #!/bin/python3
 # bot.py
+<<<<<<< HEAD
+=======
+# pylint: disable=import-error
+import bot_imports
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 import sys
 import os
 import random
@@ -15,6 +20,7 @@ from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
+<<<<<<< HEAD
 print("Merlin bot written in python by windowsboy111 :)")
 print('==> Starting...')
 print(' >> Imported libraries...')
@@ -22,6 +28,19 @@ load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
 statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
+=======
+load_dotenv()
+print(' >> Defining constant variables...')
+exitType = 0
+statusLs = [
+    '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
+    'Recursion', 'F0rk B0mbs', 'Different 𝗞𝗶𝗻𝗱𝘀 𝘖𝘧 𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛𝚜', 'sudo rm -rf / --no-preserve-root', 'rd/s/q %windir%', 'typing "exit" in linux init=/bin/bash',
+    'Hello, world!', 'Oracle Virtualbox VMs', 'VMware', 'Quick EMUlator (QEMU)', 'Global Information Tracker', 'Goddamn Idiotic Truckload of sh*t',
+    'Arch Linux', 'Manjaro Linux', 'Microsoft Windows 10', 'Canonical Ubuntu', 'Kubuntu and Xubuntu', 'Linux Mint', 'Pop!_OS', 'OpenSUSE', 'Elementry OS', 'MX Linux', 'Debian', 'BSD',
+    'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
+    'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
+]
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 cogs = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
@@ -93,7 +112,11 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+<<<<<<< HEAD
     if message.channel.name == 'merlin-chat' and message.author.id != bot.user.id:
+=======
+    if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
         await message.channel.send(chat.response(message.content))
         return 0
     if message.content.startswith(get_prefix(bot, message)):
@@ -151,8 +174,12 @@ async def on_ready():
     nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
+<<<<<<< HEAD
         activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
         await bot.change_presence(status=discord.Status.online, activity=activity)
+=======
+        await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
         await log('Logged in!')
     elif MODE == 'DEBUG':
         await bot.change_presence(status=discord.Status.idle)
@@ -218,7 +245,11 @@ async def status():
     while True:
         try:
             if not MODE or MODE == 'NORMAL':
+<<<<<<< HEAD
                 activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
+=======
+                activity = discord.Game(name=random.choice(statusLs))
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
                 await bot.change_presence(status=discord.Status.online, activity=activity)
             elif MODE == 'DEBUG':
                 activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
@@ -269,8 +300,17 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
 
+<<<<<<< HEAD
         if isinstance(error, discord.ext.commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
+=======
+        if isinstance(error, commands.errors.NotOwner):
+            return await ctx.send(stringTable['notOwner'])
+        if isinstance(error, commands.errors.ConversionError):
+            await ctx.send(
+                'Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
+                'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 
         if isinstance(error, commands.errors.BadArgument):
             return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
@@ -310,6 +350,7 @@ async def _shutdown(ctx):
     exitType = 2
     await bot.logout()
 
+<<<<<<< HEAD
 # login / start services
 slog('Running / logging in...          ')
 while True:
@@ -345,3 +386,46 @@ except PermissionError as e:
     print(f"OPERATION FAILED: {str(e)}")
     open('discordbot.log', 'w').write('')
     sys.exit(2)
+=======
+
+def start(token=None, **kwargs):
+    # login / start services
+    slog('Running / logging in...')
+    token = token or os.getenv('DISCORD_TOKEN')
+    while True:
+        bot.run(token, **kwargs)
+        if exitType == 0:
+            nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
+            continue
+        else:
+            nlog('Logged out')
+            break
+    if exitType == 2:
+        print("\nExiting...")
+        open('discordbot.log', 'w').write('')
+        sys.exit(0)
+    slog('Tidying up...')
+    for var in dir():
+        if var.startswith('__'):
+            continue
+        if var in ['os', 'sys', 'multiprocessing']:
+            continue
+        try:
+            del globals()[var]
+        except KeyError:
+            pass
+        try:
+            del locals()[var]
+        except KeyError:
+            pass
+    print('==> Removed all variables\n==> Restarting script...\n\n')
+    try:
+        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    except PermissionError as e:
+        print(f"OPERATION FAILED: {str(e)}")
+        open('discordbot.log', 'w').write('')
+        sys.exit(2)
+
+if __name__ == '__main__':
+    start(TOKEN, bot=True, reconnect=True)
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537

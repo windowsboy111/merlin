@@ -26,5 +26,3 @@ can I contribute to you
 Yes! check out my github repo at https://github.com/windowsboy111/Merlin-py
 I want to know more about you
 run the following command: `/info bot`
-bye
-see you later

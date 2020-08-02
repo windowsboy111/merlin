@@ -2,8 +2,20 @@
 > windowsboy111
 
 ## [Unreleased]
+### Fixed
+- dm commands now work
+
+## [2.1.3]
+### Added
+- chat system
+- `__init__.py` (as a package)
+- print statements in `bot_imports.py` (prevent PEP8 violation)
+- updated packages
+
+## [2.1.2]
 ### Added
 - README.md badges
+- nightly branch
 ### Changed
 - in detailed `/ping` command
 ### Fixed
@@ -155,7 +167,13 @@
 - no more verbose mode :O
 
 
+<<<<<<< HEAD
 [Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.1...HEAD
+=======
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.3...HEAD
+[2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
+[2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
+>>>>>>> 9b4c8a24e283b6fc2eee2fde6adb35bc79417537
 [2.1.1]:        https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...2.1.1
 [2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...r2.1.0
 [2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
