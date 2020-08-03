@@ -11,6 +11,8 @@
 
 # Changelog
 ## [Unreleased]
+### Fixed
+- will use 1 space after a full stop as microsoft word now treats 2 spaces after a full stop as an error
 
 ## [2.2-a]
 ### Added

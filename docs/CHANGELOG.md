@@ -6,7 +6,6 @@
 - README.md badges
 ### Fixed
 - removed print message content
-- will use 1 space after a full stop as microsoft word now treats 2 spaces after a full stop as an error
 - the bot mention prefix is now dynamic
 
 ## [2.1.1]
