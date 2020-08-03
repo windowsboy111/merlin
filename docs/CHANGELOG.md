@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+### Removed
+- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 
 ## [2.1.4]
 ### Added
@@ -17,7 +19,6 @@
 - dm commands now work
 - [#22]: `/poll end all` will not crash when there are no unended polls
 - mention of Merlin was not prefix
-
 
 ## [2.1.3]
 ### Added

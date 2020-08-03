@@ -180,39 +180,18 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    eventLogger.info(f"Detected {member} joined, welcoming the member in dm...")
-    try:
-        await member.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules.')
-    except discord.Forbidden:
-        eventLogger.warn(f"Failed to send dm to {member}, fallback server welcome")
-        await member.guild.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules. (Failed to send dm to this user)')
-    print(f"{member} has joined the server.")
+    eventLogger.info(f"{member} has joined {member.guild}")
+    print(f"{member} has joined {member.guild}")
+    return 0
 
 
 @bot.event
 async def on_guild_join(guild):
-    general = find(lambda x: x.name == 'general',  guild.text_channels)
-    if general and general.permissions_for(guild.me).send_messages:
-        await general.send(f'Hello {guild.name}! This is Merlin!\nMy prefix is `/` and `$`.\n'
-                           'You can create a channel called #merlin-py and I can log my own stuff!\n'
-                           'Thanks for supporting! https://github.com/windowsboy111/Merlin-py\n\n'
-                           'If I have permissions, the owner of this guild will be informed to setup. Or else, type `/settings`.')
-        await guild.owner.send("**SETUP**\nBefore using me, let's spend a few minutes setting up Merlin...\n"
-                               "To continue, type (and press enter to send) `y` (300 seconds timeout)")
-
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner and m.content == 'y', timeout=300)
-        await guild.owner.send("type prefix: (timeout 30)")
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=30)
-        gprefix = ret.content
-        await guild.owner.send("type admin roles, seperated with `, ` and send it (don't do `@`, timeout 60)")
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=60)
-        sudoers = ret.content.split(', ')
-        await guild.owner.send("thx! done!")
-        f = json.load(open(SETFILE, 'r'))
-        f[f'g{guild.id}'] = {"prefix": gprefix, "sudoers": sudoers}
-        with open(SETFILE, 'w') as outfile:
-            json.dump(f, outfile)
-    return
+    f = json.load(open(SETFILE, 'r'))
+    f[f'g{guild.id}'] = {"prefix": ['/']}
+    with open(SETFILE, 'w') as outfile:
+        json.dump(f, outfile)
+    return 0
 
 
 # background
