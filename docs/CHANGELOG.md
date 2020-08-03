@@ -3,10 +3,44 @@
 
 ## [Unreleased]
 ### Added
-- README.md badges
+- now using setuptools in `setup.py` and added install requires
+### Removed
+- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 ### Fixed
-- removed print message content
 - the bot mention prefix is now dynamic
+
+## [2.1.4]
+### Added
+- better discord status
+- .gitignore added user data stuff
+### Optimized
+- chat system now uses multiprocessing
+- startup on_ready now omit "loaded extension" double logging
+### Removed
+- poetry.lock
+- pyproject.toml
+### Fixed
+- dm commands now work
+- [#22]: `/poll end all` will not crash when there are no unended polls
+- mention of Merlin was not prefix
+
+## [2.1.3]
+### Added
+- chat system
+- `__init__.py` (as a package)
+- print statements in `bot_imports.py` (prevent PEP8 violation)
+- updated packages
+
+## [2.1.2]
+### Added
+- README.md badges
+- nightly branch
+### Changed
+- in detailed `/ping` command
+### Fixed
+- `/help` command did not work with commands that does not have aliases
+- removed print message content
+- `/unban` command now will unban the last member banned if no argument is inputted
 
 ## [2.1.1]
 ### Added
@@ -152,7 +186,10 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.1...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.4...HEAD
+[2.1.4]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.3...2.1.4
+[2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
+[2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
 [2.1.1]:        https://github.com/windowsboy111/Merlin-py/compare/r2.1.0...2.1.1
 [2.1.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.1-b3...r2.1.0
 [2.1-b3]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-b2...2.1-b3
@@ -162,3 +199,4 @@
 [2.1-a2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-a1...2.1-a2
 [2.1-a1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1a...2.1-a1
 [2.1-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.0.0...2.1a
+[#22]:          https://github.com/windowsboy111/merlin-py/issues/22

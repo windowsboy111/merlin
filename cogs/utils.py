@@ -112,6 +112,8 @@ class Utils(commands.Cog):
         if pollID == 'all':
             ctx = await self.bot.get_context(ctx.message)
             ids = await self.check(num=None, ctx=ctx)
+            if not any(ids):
+                return 0
             for msgid in ids:
                 channel = ctx.message.channel
                 try:

@@ -1,5 +1,7 @@
 #!/bin/python3
 # bot.py
+# pylint: disable=import-error
+import bot_imports
 import sys
 import os
 import random
@@ -15,13 +17,18 @@ from ext.consolemod import style
 from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
-print("Merlin bot written in python by windowsboy111 :)")
-print('==> Starting...')
-print(' >> Imported libraries...')
+from ext.chat import chat
 load_dotenv()
 print(' >> Defining constant variables...')
 exitType = 0
-statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
+statusLs = [
+    '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
+    'Recursion', 'F0rk B0mbs', 'Different 𝗞𝗶𝗻𝗱𝘀 𝘖𝘧 𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛𝚜', 'sudo rm -rf / --no-preserve-root', 'rd/s/q %windir%', 'typing "exit" in linux init=/bin/bash',
+    'Hello, world!', 'Oracle Virtualbox VMs', 'VMware', 'Quick EMUlator (QEMU)', 'Global Information Tracker', 'Goddamn Idiotic Truckload of sh*t',
+    'Arch Linux', 'Manjaro Linux', 'Microsoft Windows 10', 'Canonical Ubuntu', 'Kubuntu and Xubuntu', 'Linux Mint', 'Pop!_OS', 'OpenSUSE', 'Elementry OS', 'MX Linux', 'Debian', 'BSD',
+    'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
+    'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
+]
 cogs = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
@@ -93,6 +100,9 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
+        await message.channel.send(chat.response(message.content))
+        return 0
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
@@ -146,10 +156,18 @@ async def on_message(message: discord.Message):
 @bot.event
 async def on_ready():
     nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
+    nlog('Loading Extensions...')
+    try:
+        for cog in cogs:
+            slog(f'Loading {cog}...')
+            bot.load_extension('cogs.' + cog)
+    except Exception:
+        nlog("An error occurred during loading extension, treat bot start as a reconnect")
+        nlog("Reconnected!")
+        return 2
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
-        activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
-        await bot.change_presence(status=discord.Status.online, activity=activity)
+        await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
         await log('Logged in!')
     elif MODE == 'DEBUG':
         await bot.change_presence(status=discord.Status.idle)
@@ -157,56 +175,24 @@ async def on_ready():
     elif MODE == 'FIX':
         await bot.change_presence(status=discord.Status.dnd)
         await log('*RUNNING IN EMERGENCY **FIX** MODE!')
-    await log('logged in')
-    nlog('Loading Extensions...')
-    try:
-        for cog in cogs:
-            slog(f'Loading {cog}...')
-            bot.load_extension('cogs.' + cog)
-        await log('loaded extensions / cogs')
-    except Exception:
-        nlog("An error occurred during loading extension, treat bot start as a reconnect")
-        nlog("Reconnected!")
-        return 2
     nlog("Ready!")
     return 0
 
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    eventLogger.info(f"Detected {member} joined, welcoming the member in dm...")
-    try:
-        await member.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules.')
-    except discord.Forbidden:
-        eventLogger.warn(f"Failed to send dm to {member}, fallback server welcome")
-        await member.guild.send(f'Hi {member}, welcome to {member.guild.name} Discord server!\nBy using the guild, you accept the rules. (Failed to send dm to this user)')
-    print(f"{member} has joined the server.")
+    eventLogger.info(f"{member} has joined {member.guild}")
+    print(f"{member} has joined {member.guild}")
+    return 0
 
 
 @bot.event
 async def on_guild_join(guild):
-    general = find(lambda x: x.name == 'general',  guild.text_channels)
-    if general and general.permissions_for(guild.me).send_messages:
-        await general.send(f'Hello {guild.name}! This is Merlin!\nMy prefix is `/` and `$`.\n'
-                           'You can create a channel called #merlin-py and I can log my own stuff!\n'
-                           'Thanks for supporting! https://github.com/windowsboy111/Merlin-py\n\n'
-                           'If I have permissions, the owner of this guild will be informed to setup. Or else, type `/settings`.')
-        await guild.owner.send("**SETUP**\nBefore using me, let's spend a few minutes setting up Merlin...\n"
-                               "To continue, type (and press enter to send) `y` (300 seconds timeout)")
-
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner and m.content == 'y', timeout=300)
-        await guild.owner.send("type prefix: (timeout 30)")
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=30)
-        gprefix = ret.content
-        await guild.owner.send("type admin roles, seperated with `, ` and send it (don't do `@`, timeout 60)")
-        ret = await bot.wait_for('message', check=lambda m: m.author == guild.owner, timeout=60)
-        sudoers = ret.content.split(', ')
-        await guild.owner.send("thx! done!")
-        f = json.load(open(SETFILE, 'r'))
-        f[f'g{guild.id}'] = {"prefix": gprefix, "sudoers": sudoers}
-        with open(SETFILE, 'w') as outfile:
-            json.dump(f, outfile)
-    return
+    f = json.load(open(SETFILE, 'r'))
+    f[f'g{guild.id}'] = {"prefix": ['/']}
+    with open(SETFILE, 'w') as outfile:
+        json.dump(f, outfile)
+    return 0
 
 
 # background
@@ -215,7 +201,7 @@ async def status():
     while True:
         try:
             if not MODE or MODE == 'NORMAL':
-                activity = discord.Activity(type=discord.ActivityType(3), name=random.choice(statusLs))
+                activity = discord.Game(name=random.choice(statusLs))
                 await bot.change_presence(status=discord.Status.online, activity=activity)
             elif MODE == 'DEBUG':
                 activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
@@ -275,8 +261,12 @@ async def on_command_error(ctx, error):
                 color=0xff0000
             ))
 
-        if isinstance(error, discord.ext.commands.errors.NotOwner):
+        if isinstance(error, commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
+        if isinstance(error, commands.errors.ConversionError):
+            await ctx.send(
+                'Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
+                'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
 
         if isinstance(error, commands.errors.BadArgument):
             return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
@@ -316,38 +306,44 @@ async def _shutdown(ctx):
     exitType = 2
     await bot.logout()
 
-# login / start services
-slog('Running / logging in...          ')
-while True:
-    bot.run(TOKEN, bot=True, reconnect=True)
-    if exitType == 0:
-        nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
-        continue
-    else:
-        nlog('Logged out')
-        break
-if exitType == 2:
-    print("\nExiting...")
-    open('discordbot.log', 'w').write('')
-    sys.exit(0)
-slog('Tidying up...')
-for var in dir():
-    if var.startswith('__'):
-        continue
-    if var in ['os', 'sys', 'multiprocessing']:
-        continue
+
+def start(token=None, **kwargs):
+    # login / start services
+    slog('Running / logging in...')
+    token = token or os.getenv('DISCORD_TOKEN')
+    while True:
+        bot.run(token, **kwargs)
+        if exitType == 0:
+            nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
+            continue
+        else:
+            nlog('Logged out')
+            break
+    if exitType == 2:
+        print("\nExiting...")
+        open('discordbot.log', 'w').write('')
+        sys.exit(0)
+    slog('Tidying up...')
+    for var in dir():
+        if var.startswith('__'):
+            continue
+        if var in ['os', 'sys', 'multiprocessing']:
+            continue
+        try:
+            del globals()[var]
+        except KeyError:
+            pass
+        try:
+            del locals()[var]
+        except KeyError:
+            pass
+    print('==> Removed all variables\n==> Restarting script...\n\n')
     try:
-        del globals()[var]
-    except KeyError:
-        pass
-    try:
-        del locals()[var]
-    except KeyError:
-        pass
-print('==> Removed all variables\n==> Restarting script...\n\n')
-try:
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
-except PermissionError as e:
-    print(f"OPERATION FAILED: {str(e)}")
-    open('discordbot.log', 'w').write('')
-    sys.exit(2)
+        os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    except PermissionError as e:
+        print(f"OPERATION FAILED: {str(e)}")
+        open('discordbot.log', 'w').write('')
+        sys.exit(2)
+
+if __name__ == '__main__':
+    start(TOKEN, bot=True, reconnect=True)
