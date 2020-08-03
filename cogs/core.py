@@ -123,7 +123,7 @@ class Core(commands.Cog):
             e.add_field(name='Objective',   value=command.help)
             e.add_field(name='Usage',       value=usage)
             e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
-            e.add_field(name='Aliases',     value=', '.join(command.aliases))
+            e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
             if hasattr(command, 'commands'):    # it is a group
                 e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.help}\n" for cmd in command.commands]))
             await ctx.send(embed=e)

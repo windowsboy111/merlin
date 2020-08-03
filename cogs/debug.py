@@ -19,7 +19,7 @@ class Debug(commands.Cog):
     - msgstats
     - sandbox
     """
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')

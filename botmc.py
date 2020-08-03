@@ -1,3 +1,12 @@
+"""
+Copyright 2020 windowsboy111  
+LICENSE: MIT  
+This file / script is part of the Merlin-bot project,  
+you can check it out at both [pypi](https://pypi.org/project/Merlin-bot) and [github](https://github.com/windowsboy111/Merlin-py).
+---
+This library is responsible for fetching minecraft info. in Merlin, it is equivilant to the `/mc srv` command.  
+This is neither a discord.py cog or a discord.py extension. It is only a normal python module.
+"""
 from mcstatus import MinecraftServer
 import discord, csv
 from ext.logcfg import get_logger
