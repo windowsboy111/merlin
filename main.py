@@ -11,7 +11,9 @@ def main(port=8080, host="0.0.0.0"):
     try:
         keep_alive.keep_alive(port=port, host=host)
     except Exception:
-        os.system("pip3 install chatterbot==0.8.7 discord.py flask mcstatus pytablemaker python-dotenv pyparsing==2.4.7 numpy packaging psutil")
+        os.system(
+            "pip3 install chatterbot==0.8.7 discord.py flask mcstatus pytablemaker python-dotenv pyparsing==2.4.7 numpy packaging psutil"
+        )
         print(traceback.format_exc())
         print('Retrying in 5 seconds...')
         time.sleep(5)
