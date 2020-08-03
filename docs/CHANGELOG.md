@@ -4,8 +4,13 @@
 ## [Unreleased]
 ### Added
 - now using setuptools in `setup.py` and added install requires
+- when restart / shutdown it will auto-save changes
+### Optimized
+- compressed bot.py
 ### Removed
 - member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
+### Fixed
+- auto create lastmsg file when it does not exist
 
 ## [2.1.4]
 ### Added
