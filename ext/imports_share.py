@@ -3,14 +3,6 @@ from discord.ext import commands
 SETFILE = "data/settings.json"
 
 
-bot = discord.ext.commands.Bot(
-    command_prefix=get_prefix,
-    description="an awesome discord bot coded in discord.py",
-    owner_id=653086042752286730,
-    case_insensitive=True
-)
-
-
 def get_prefix(bot: commands.Bot, message: discord.Message):
     """Get prefix for guild"""
     if isinstance(message.channel, discord.channel.DMChannel):
@@ -28,6 +20,14 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
         prefixes.append(f'<@!{bot.user.id}> ')
         prefixes.append(f"<@{bot.user.id}> ")
         return tuple(prefixes)
+
+
+bot = discord.ext.commands.Bot(
+    command_prefix=get_prefix,
+    description="an awesome discord bot coded in discord.py",
+    owner_id=653086042752286730,
+    case_insensitive=True
+)
 
 
 async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None):
