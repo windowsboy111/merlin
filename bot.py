@@ -33,18 +33,18 @@ cogs = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         cogs.append(cog[:-3])
-embed = discord.Embed()
 lastmsg = list()
 # token is stored inside ".env"
 TOKEN = os.getenv('DISCORD_TOKEN')
-LASTWRDFILE = "data/lastword.json"
-lastword = json.load(open(LASTWRDFILE, 'r'))
-SETFILE = "data/settings.json"
+LASTWRDFILE, SETFILE = "data/lastword.json", "data/settings.json"
 stringTable = json.load(open('ext/wrds.json', 'r'))
+try:
+    lastword = json.load(open(LASTWRDFILE, 'r'))
+except FileNotFoundError:
+    open(LASTWRDFILE, 'a').close()
+    lastword = dict()
 print(' >> Configuring bot...')
-logger = get_logger('Merlin')
-eventLogger = get_logger('EVENT')
-cmdHdlLogger = get_logger('CMDHDL')
+logger, eventLogger, cmdHdlLogger = get_logger('Merlin'), get_logger('EVENT'), get_logger('CMDHDL')
 logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
 HINT_LEVEL_NUM = 17
 logging.addLevelName(HINT_LEVEL_NUM, "HINT")
@@ -56,7 +56,7 @@ def hint(self, message, *args, **kws):
         # Yes, logger takes its '*args' as 'args'.
         self._log(HINT_LEVEL_NUM, message, args, **kws)
 
-# %%print("hello, world!")
+
 setattr(logging.Logger, 'hint', hint)
 
 
@@ -211,10 +211,8 @@ async def status():
             await asyncio.sleep(30)
         except Exception:
             pass
-try:
-    bot.loop.create_task(status())
-except Exception:
-    pass
+
+bot.loop.create_task(status())
 
 
 @bot.event
