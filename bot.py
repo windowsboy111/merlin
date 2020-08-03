@@ -18,9 +18,8 @@ from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
-load_dotenv()
+load_dotenv(); exitType = 0
 print(' >> Defining constant variables...')
-exitType = 0
 statusLs = [
     '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
     'Recursion', 'F0rk B0mbs', 'Different 𝗞𝗶𝗻𝗱𝘀 𝘖𝘧 𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛𝚜', 'sudo rm -rf / --no-preserve-root', 'rd/s/q %windir%', 'typing "exit" in linux init=/bin/bash',
@@ -29,22 +28,20 @@ statusLs = [
     'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
     'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
 ]
-cogs = []
+cogs = lastmsg = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         cogs.append(cog[:-3])
-embed = discord.Embed()
-lastmsg = list()
 # token is stored inside ".env"
-TOKEN = os.getenv('DISCORD_TOKEN')
-LASTWRDFILE = "data/lastword.json"
-lastword = json.load(open(LASTWRDFILE, 'r'))
-SETFILE = "data/settings.json"
-stringTable = json.load(open('ext/wrds.json', 'r'))
+TOKEN, LASTWRDFILE, SETFILE = os.getenv('DISCORD_TOKEN'), "data/lastword.json", "data/settings.json"
+try:
+    lastword, stringTable = json.load(open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
+except FileNotFoundError:
+    lastword = []
+    open(LASTWRDFILE, 'w').close()
+    stringTable = json.load(open('ext/wrds.json', 'r'))
 print(' >> Configuring bot...')
-logger = get_logger('Merlin')
-eventLogger = get_logger('EVENT')
-cmdHdlLogger = get_logger('CMDHDL')
+logger, eventLogger, cmdHdlLogger = get_logger('Merlin'), get_logger('EVENT'), get_logger('CMDHDL')
 logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
 HINT_LEVEL_NUM = 17
 logging.addLevelName(HINT_LEVEL_NUM, "HINT")
@@ -211,10 +208,8 @@ async def status():
             await asyncio.sleep(30)
         except Exception:
             pass
-try:
-    bot.loop.create_task(status())
-except Exception:
-    pass
+
+bot.loop.create_task(status())
 
 
 @bot.event
@@ -319,30 +314,17 @@ def start(token=None, **kwargs):
         else:
             nlog('Logged out')
             break
+    slog('Writing changes and saving data...')
+    json.dump(lastword, open(LASTWRDFILE, 'w'))
+    json.dump(settings, open(SETFILE, 'w'))
     if exitType == 2:
         print("\nExiting...")
-        open('discordbot.log', 'w').write('')
         sys.exit(0)
-    slog('Tidying up...')
-    for var in dir():
-        if var.startswith('__'):
-            continue
-        if var in ['os', 'sys', 'multiprocessing']:
-            continue
-        try:
-            del globals()[var]
-        except KeyError:
-            pass
-        try:
-            del locals()[var]
-        except KeyError:
-            pass
-    print('==> Removed all variables\n==> Restarting script...\n\n')
+    print('==> Restarting script...\n\n')
     try:
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
     except PermissionError as e:
         print(f"OPERATION FAILED: {str(e)}")
-        open('discordbot.log', 'w').write('')
         sys.exit(2)
 
 if __name__ == '__main__':
