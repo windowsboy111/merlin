@@ -151,3 +151,4 @@ ext/chat/chats.sqlite3
 poetry.lock
 pyproject.toml
 .gitignore
+.replit
