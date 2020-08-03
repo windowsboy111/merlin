@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import json
 long_description = ''
 cfg = json.load(open('ext/bot_settings.json', 'r'))
@@ -24,6 +24,7 @@ setup(
     url='https://github.com/windowsboy111/Merlin-bot/',
     download_url=f'https://github.com/windowsboy111/Merlin-bot/archive/{cfg["version"]}.tar.gz',
     keywords=['discord', 'bot', 'discord.py'],
+    install_requires=['pytablemaker', 'discord.py', 'chatterbot==0.8.7', 'mcstatus', 'flask', 'python-dotenv', 'numpy', 'psutil'],
     classifiers=[
         stage,
         'Intended Audience :: Developers',

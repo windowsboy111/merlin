@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+### Added
+- now using setuptools in `setup.py` and added install requires
 ### Removed
 - member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 
