@@ -17,14 +17,7 @@ from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
-print("Merlin bot written in python by windowsboy111 :)")
-print('==> Starting...')
-print(' >> Imported libraries...')
 load_dotenv()
-print(' >> Defining constant variables...')
-exitType = 0
-statusLs = ['windowsboy111 coding...', 'vincintelligent searching for ***nhub videos', 'Useless_Alone._.007 playing with file systems', 'cat, win, vin, sir!']
-load_dotenv(); exitType = 0
 print(' >> Defining constant variables...')
 statusLs = [
     '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
