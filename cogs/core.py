@@ -39,6 +39,21 @@ class Core(commands.Cog):
             e.add_field(name='Moderating roles (sudoers)', value=', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers]))
             await ctx.send(embed=e)
 
+    @settings.command(help='Change settings about error handling')
+    async def settings_errorhandle(self, ctx, toggle):
+        if toggle is None:
+            res = ''
+            for k, v in settings[f'g{ctx.guild.id}']['cmdHdl'].items():
+                res += f'{k}: {v}\n'
+            await ctx.send(res)
+            return 0
+        if toggle in settings[f'g{ctx.guild.id}']['cmdHdl']:
+            newValue = 1 if settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] == 0 else 0
+            settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] = newValue
+            json.dump(settings, open(SETFILE, 'w'))
+            await ctx.send(f"{toggle} has been changed to {newValue}.")
+            return 0
+
     @settings.group(name='prefix', help='edit prefix list')
     @chk_sudo()
     async def settings_prefix(self, ctx):

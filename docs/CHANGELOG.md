@@ -5,11 +5,14 @@
 ### Added
 - now using setuptools in `setup.py` and added install requires
 - when restart / shutdown it will auto-save changes
+- now by default it will not say that command not found
 ### Optimized
 - compressed bot.py
 ### Removed
+- spamming detection system
 - member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 ### Fixed
+- the bot mention prefix is now dynamic
 - auto create lastmsg file when it does not exist
 
 ## [2.1.4]

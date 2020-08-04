@@ -127,26 +127,26 @@ async def on_message(message: discord.Message):
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    if (message.author.bot):
-        return
-    if lastmsg == []:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
-        lastmsg[2] += 1
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        ctx = await bot.get_context(message)
-        await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
-    elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
-        lastmsg[2] += 1
-        if lastmsg[2] == 4:
-            lastmsg[3] = True
-    else:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    with open(LASTWRDFILE, 'w') as f:
-        json.dump(lastword, f)
+    # if (message.author.bot):
+    #     return
+    # if lastmsg == []:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
+    #     lastmsg[2] += 1
+    #     try:
+    #         await message.delete()
+    #     except Exception:
+    #         pass
+    #     ctx = await bot.get_context(message)
+    #     await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
+    # elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
+    #     lastmsg[2] += 1
+    #     if lastmsg[2] == 4:
+    #         lastmsg[3] = True
+    # else:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # with open(LASTWRDFILE, 'w') as f:
+    #     json.dump(lastword, f)
 
 
 @bot.event
@@ -234,7 +234,9 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
-            return await ctx.send("Welp, I've no idea. Command not found!")
+            if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
+                await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            return 2
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
         if isinstance(error, commands.BadArgument):
