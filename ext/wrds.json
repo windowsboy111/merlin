@@ -1,9 +1,9 @@
 {
     "noPerms":  "You do not have permissions!",
     "notOwner": "Hey bud, you have dug too deep into how the bot works! The command you have just ran is for the bot owner only :P you cannot do that!",
-    "CommandInvokeError": ":x: `{content}`\n:warning: Usually this means you invoke the command in an unintended way. \n:information_source: If you think there's a problem / issue with the command, please [open a new bug issue on github](https://github.com/windowsboy111/merlin-py/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%2FISSUE%5D).\n:bulb: create a #merlin-py channel, Merlin will log messages there!",
+    "CommandInvokeError": "<:err:740034702743830549> `{content}`\n:warning: Usually this means you invoke the command in an unintended way. \n:information_source: If you think there's a problem / issue with the command, please [open a new bug issue on github](https://github.com/windowsboy111/merlin-py/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%2FISSUE%5D).\n:bulb: create a #merlin-py channel, Merlin will log messages there!",
     "core": {
-        "guildSettingsNotFound": "During the execution of the command, a `KeyError` exception occurred. I think we are missing settings from this discord server, and we are fixing this issue. Please wait.",
+        "guildSettingsNotFound": "During the execution of the command, a `KeyError` exception occurred. I think I am missing settings from this discord server, and we are fixing this issue. Please wait.",
         "guildSettingsFixed": "We have just replaced your guild (discord server) settings with the default values. My prefix is now `/`. Good to go now, huh? Run `/settings` again now. :)"
     }
 }

@@ -38,6 +38,21 @@ class Core(commands.Cog):
             e.add_field(name='Moderating roles (sudoers)', value=', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers]))
             await ctx.send(embed=e)
 
+    @settings.command(help='Change settings about error handling')
+    async def settings_errorhandle(self, ctx, toggle):
+        if toggle is None:
+            res = ''
+            for k, v in settings[f'g{ctx.guild.id}']['cmdHdl'].items():
+                res += f'{k}: {v}\n'
+            await ctx.send(res)
+            return 0
+        if toggle in settings[f'g{ctx.guild.id}']['cmdHdl']:
+            newValue = 1 if settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] == 0 else 0
+            settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] = newValue
+            json.dump(settings, open(SETFILE, 'w'))
+            await ctx.send(f"{toggle} has been changed to {newValue}.")
+            return 0
+
     @settings.group(name='prefix', help='edit prefix list')
     @chk_sudo()
     async def settings_prefix(self, ctx):
@@ -48,7 +63,7 @@ class Core(commands.Cog):
     async def settings_prefix_add(self, ctx, prefix: str):
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix in prefixes:
-            return ctx.send('That prefix already exists!')
+            return ctx.send(':octagonal_sign: That prefix already exists!')
         settings[f"g{ctx.guild.id}"]['prefix'].append(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
@@ -58,7 +73,7 @@ class Core(commands.Cog):
     async def settings_prefix_remove(self, ctx, prefix: str):
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix not in prefixes:
-            return await ctx.send('The specified prefix does not exist in the list!')
+            return await ctx.send(':octagonal_sign: The specified prefix does not exist in the list!')
         settings[f'g{ctx.guild.id}']['prefix'].remove(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
@@ -90,7 +105,7 @@ class Core(commands.Cog):
     async def settings_error(self, ctx, error):
         if isinstance(error, KeyError):
             await ctx.send(stringTable['core']['guildSettingsNotFound'])
-            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": []}
+            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": [], "cmdHdl": {"cmdNotFound": 0}}
             with open(SETFILE, 'w') as outfile:
                 json.dump(settings, outfile)
             await ctx.send(stringTable['core']['guildSettingsFixed'])
@@ -276,9 +291,14 @@ class Core(commands.Cog):
 
     @commands.command(name='eval', help='it is eval', hidden=True)
     @commands.is_owner()
-    async def _eval(self, ctx, *, code='"bruh wat to eval"'):
+    async def _eval(self, ctx: commands.Context, *, code='"bruh wat to eval"'):
         try: await ctx.send(eval(code))
-        except Exception: await ctx.send('uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
+        except Exception:
+            await ctx.message.add_reaction(self.bot.get_emoji(739837264405725246))
+            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
+            return 'no-rm'
+        await ctx.message.add_reaction(':white_check_mark:')
+        return 0
 
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
@@ -287,6 +307,7 @@ class Core(commands.Cog):
         if cmd is not None:
             module = cmd.cog.name.lower()
         self.bot.reload_extension(f'cogs.{module}')
+        return 'no-rm'
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
@@ -296,6 +317,7 @@ class Core(commands.Cog):
             self.bot.unload_extension(f"cogs.{module}")
         else:
             self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
+        return 'no-rm'
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
@@ -305,6 +327,7 @@ class Core(commands.Cog):
             self.bot.load_extension(f"cogs.{module}")
         else:
             self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
+        return 'no-rm'
 
 
 def setup(bot):

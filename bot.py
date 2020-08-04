@@ -109,18 +109,23 @@ async def on_message(message: discord.Message):
         except AttributeError:
             pass
         try:
-            await bot.process_commands(message)
-            try:
-                await message.delete()
-            except Exception:
-                pass
-            finally:
-                return
+            result = await bot.process_commands(message)
+            if result:
+                try:
+                    if int(result) != 0:
+                        return int(result)
+                except Exception:
+                    pass
+                if isinstance(result, str) and result == 'no-rm':
+                    return 0
+            await message.delete()
+            return 0
         except discord.ext.commands.errors.CommandNotFound:
-            return
+            return 2
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
+            return 1
     if isinstance(message.channel, discord.channel.DMChannel):
         return 0
     try:
@@ -128,26 +133,26 @@ async def on_message(message: discord.Message):
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    if (message.author.bot):
-        return
-    if lastmsg == []:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
-        lastmsg[2] += 1
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        ctx = await bot.get_context(message)
-        await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
-    elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
-        lastmsg[2] += 1
-        if lastmsg[2] == 4:
-            lastmsg[3] = True
-    else:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    with open(LASTWRDFILE, 'w') as f:
-        json.dump(lastword, f)
+    # if (message.author.bot):
+    #     return
+    # if lastmsg == []:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
+    #     lastmsg[2] += 1
+    #     try:
+    #         await message.delete()
+    #     except Exception:
+    #         pass
+    #     ctx = await bot.get_context(message)
+    #     await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
+    # elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
+    #     lastmsg[2] += 1
+    #     if lastmsg[2] == 4:
+    #         lastmsg[3] = True
+    # else:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # with open(LASTWRDFILE, 'w') as f:
+    #     json.dump(lastword, f)
 
 
 @bot.event
@@ -220,9 +225,10 @@ async def on_command_error(ctx, error):
         # This tells the issuer that the command cannot be used in DM
         if isinstance(error, commands.errors.NoPrivateMessage):
             try:
-                return await ctx.author.send(f':X::lock: {ctx.command} cannot be used in Private Messages.')
+                await ctx.author.send(f':x::lock: {ctx.command} cannot be used in Private Messages.')
+                return 3
             except discord.HTTPException:
-                return
+                return 3
         # This prevents any commands with local handlers being handled here in on_command_error.
         if hasattr(ctx.command, 'on_error'):
             return
@@ -235,41 +241,46 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
-            return await ctx.send("Welp, I've no idea. Command not found!")
+            if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
+                await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            return 2
         if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-        if isinstance(error, commands.BadArgument):
-            return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-
+            await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+            return 4
         if isinstance(error, commands.errors.DisabledCommand):
-            return await ctx.send(embed=discord.Embed(
-                title=f'{ctx.command} has been disabled.',
+            await ctx.send(embed=discord.Embed(
+                title=f'{ctx.command} has been disabled. :lock:',
                 description=f':x: `{ctx.message.content}`',
                 color=0xff0000
             ))
+            return 5
 
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send(embed=discord.Embed(
-                title='uh oh. An exception has occurred during the execution of the command',
+                title=':octagonal_sign: uh oh. An exception has occurred during the execution of the command',
                 description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
                 timestamp=datetime.utcnow(),
                 color=0xff0000
             ))
 
         if isinstance(error, commands.errors.NotOwner):
-            return await ctx.send(stringTable['notOwner'])
+            await ctx.send(stringTable['notOwner'])
+            return 6
         if isinstance(error, commands.errors.ConversionError):
             await ctx.send(
-                'Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
+                ':bangbang: Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
                 'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
+            return 4
 
         if isinstance(error, commands.errors.BadArgument):
-            return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
-                                  'That member / channel / other kinds of object might not exist because I cannot find it.')
-        # discord.ext.commands.errors.ConversionError
+            await ctx.send(
+                ':grey_question: Whoops. The discord special expression you have specified when issuing that command is invalid.'
+                ':mag: This error occurrs usually because of the bot fails to find the object.')
+            return 4
 
         # All other Errors not returned come here. And we can just print the default TraceBack.
         await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
+        return 1
 
 slog("Adding bot commands...")
 
@@ -280,7 +291,7 @@ async def _reboot(ctx):
     global exitType
     print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
     await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will restart in 10 seconds.')
+    await ctx.send(':arrows_counterclockwise: Bot will restart in 10 seconds.')
     await asyncio.sleep(10)
     await ctx.send('Logging out...')
     await log('Logging out...')
@@ -295,7 +306,7 @@ async def _shutdown(ctx):
     global exitType
     nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
     await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will shutdown in 10 seconds.')
+    await ctx.send(':octagonal_sign: Bot will shutdown in 10 seconds.')
     await asyncio.sleep(10)
     await ctx.send('Logging out...')
     await log('Logging out...')

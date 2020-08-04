@@ -164,7 +164,7 @@ class Utils(commands.Cog):
         output.timestamp = datetime.utcnow()
         for key in tally.keys():
             output.add_field(name=opt_dict[key], value=tally[key])
-            output.set_footer(text='Poll ID: {}'.format(id))
+            output.set_footer(text=pollID)
         await msg.edit(embed=output, content='')
         edited = discord.Embed(title=embed.title, description='Poll ended', color=0xFFC300)
         edited.set_footer(text=f"Result id: {msg.id}")
@@ -188,14 +188,14 @@ class Utils(commands.Cog):
         try:
             embed = botmc.mcsrv(embed, args)
         except botmc.InvalidArgument as e:
-            rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
+            rtrn = ":octagonal_sign: Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
             rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
             rtc = 2
         except botmc.OfflineServer as e:
-            rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
+            rtrn = ":octagonal_sign: Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
             rtc = 3
         except Exception as e:
-            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtrn = ":octagonal_sign: Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
             rtc = 1
         if rtc != 0:
             embed = discord.Embed(title="ERROR", description=str(rtrn), color=0xFF0000)
