@@ -122,6 +122,8 @@ async def on_message(message: discord.Message):
             return 0
         except discord.ext.commands.errors.CommandNotFound:
             return
+        except discord.errors.NotFound:
+            return
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
@@ -239,8 +241,11 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
-            if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
-                await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            try:
+                if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
+                    await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            except KeyError:
+                await ctx.send(":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n<:warn:739838316374917171> something went wrong, please run `/settings`")
             return 2
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)

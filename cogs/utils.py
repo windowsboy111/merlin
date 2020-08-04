@@ -188,14 +188,14 @@ class Utils(commands.Cog):
         try:
             embed = botmc.mcsrv(embed, args)
         except botmc.InvalidArgument as e:
-            rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
-            rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
+            rtrn = "<:err:740034702743830549> Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
+            rtrn += "2 get da usage, invoke da \"help\" cmd, aka `/help mc`"
             rtc = 2
         except botmc.OfflineServer as e:
-            rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
+            rtrn = "<:err:740034702743830549> Panic 4: OfflineServer.  Details: {}\n".format(str(e))
             rtc = 3
         except Exception as e:
-            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtrn = "<:err:740034702743830549> Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
             rtc = 1
         if rtc != 0:
             embed = discord.Embed(title="ERROR", description=str(rtrn), color=0xFF0000)

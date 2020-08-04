@@ -43,8 +43,6 @@ class Mod(commands.Cog):
     async def create(self, ctx, *, rolename):
         role = await ctx.guild.create_role(name=rolename)
         await ctx.send(f':new: :white_check_mark: {role.mention} created successfully. (Requested by {ctx.message.author.mention})')
-        await ctx.send(f'Failed to create role {rolename} because the requester {ctx.message.author.mention} has missing permissions.  '
-                       f'Administrative privileges are required.\nError message: {e}')
         return 0
 
     @role.command(name='delete', aliases=['del'], help='Delete a role (remove from all users)')
@@ -243,7 +241,7 @@ class Mod(commands.Cog):
     @mute.error
     async def mute_error(self, ctx, error):
         if isinstance(error, NoMutedRole):
-            await ctx.send("That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+            await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
 
 def setup(bot):
