@@ -11,6 +11,8 @@
 
 # Changelog
 ## [Unreleased]
+
+## [2.2-b]
 ### Fixed
 - will use 1 space after a full stop as microsoft word now treats 2 spaces after a full stop as an error
 
@@ -25,5 +27,6 @@
 ### Fixed
 - removed print message content
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2-a...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2-b...HEAD
+[2.2-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.a...2.2-b
 [2.2-a]:        https://github.com/windowsboy111/Merlin-py/tags/2.2-a

@@ -30,12 +30,13 @@ class Core(commands.Cog):
 
     @commands.group(name='settings', help='settings about everything')
     async def settings(self, ctx):
+        cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
             e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
             e.add_field(name='Prefix', value=', '.join(prefix))
-            e.add_field(name='Moderating roles (sudoers)', value=', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers]))
+            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
     @settings.command(help='Change settings about error handling')
@@ -67,7 +68,7 @@ class Core(commands.Cog):
         settings[f"g{ctx.guild.id}"]['prefix'].append(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        await ctx.send("Prefixes now avaliable: " + ', '.join(settings[f'g{ctx.guild.id}']['prefix']))
+        await ctx.send("<:info:739842268881485935> Prefixes now avaliable: " + ', '.join(settings[f'g{ctx.guild.id}']['prefix']))
 
     @settings_prefix.command(name='remove', help='remove a prefix for this server', aliases=['del', 'delete', 'rm'])
     async def settings_prefix_remove(self, ctx, prefix: str):
@@ -77,7 +78,7 @@ class Core(commands.Cog):
         settings[f'g{ctx.guild.id}']['prefix'].remove(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send("Removed the specified prefix")
+        return await ctx.send("<:info:739842268881485935> Removed the specified prefix")
 
     @settings.group(name='mods', help='set roles that are moderators / admins', aliases=['mod', 'admin', 'admins'])
     @chk_sudo()
@@ -103,13 +104,14 @@ class Core(commands.Cog):
 
     @settings.error
     async def settings_error(self, ctx, error):
-        if isinstance(error, KeyError):
+        if "KeyError" in str(error):
             await ctx.send(stringTable['core']['guildSettingsNotFound'])
             settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": [], "cmdHdl": {"cmdNotFound": 0}}
             with open(SETFILE, 'w') as outfile:
                 json.dump(settings, outfile)
             await ctx.send(stringTable['core']['guildSettingsFixed'])
             return 2
+        await ctx.send(f"<:err:740034702743830549> Something went wrong: {str(error)}")
 
     @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
     async def help(self, ctx, *, cmdName: str = None):
@@ -294,7 +296,7 @@ class Core(commands.Cog):
     async def _eval(self, ctx: commands.Context, *, code='"bruh wat to eval"'):
         try: await ctx.send(eval(code))
         except Exception:
-            await ctx.message.add_reaction(self.bot.get_emoji(739837264405725246))
+            await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
             await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
             return 'no-rm'
         await ctx.message.add_reaction(':white_check_mark:')
