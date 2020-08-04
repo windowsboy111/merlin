@@ -18,7 +18,7 @@ from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
-load_dotenv(); exitType = 0
+load_dotenv()
 print(' >> Defining constant variables...')
 statusLs = [
     '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
@@ -109,13 +109,17 @@ async def on_message(message: discord.Message):
         except AttributeError:
             pass
         try:
-            await bot.process_commands(message)
-            try:
-                await message.delete()
-            except Exception:
-                pass
-            finally:
-                return
+            result = await bot.process_commands(message)
+            if result:
+                try:
+                    if int(result) != 0:
+                        return int(result)
+                except Exception:
+                    pass
+                if isinstance(result, str) and result == 'no-rm':
+                    return 0
+            await message.delete()
+            return 0
         except discord.ext.commands.errors.CommandNotFound:
             return
         except Exception:
@@ -128,26 +132,26 @@ async def on_message(message: discord.Message):
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    if (message.author.bot):
-        return
-    if lastmsg == []:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
-        lastmsg[2] += 1
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        ctx = await bot.get_context(message)
-        await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
-    elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
-        lastmsg[2] += 1
-        if lastmsg[2] == 4:
-            lastmsg[3] = True
-    else:
-        lastmsg = [message.content.lower(), message.author, 1, False]
-    with open(LASTWRDFILE, 'w') as f:
-        json.dump(lastword, f)
+    # if (message.author.bot):
+    #     return
+    # if lastmsg == []:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
+    #     lastmsg[2] += 1
+    #     try:
+    #         await message.delete()
+    #     except Exception:
+    #         pass
+    #     ctx = await bot.get_context(message)
+    #     await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
+    # elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
+    #     lastmsg[2] += 1
+    #     if lastmsg[2] == 4:
+    #         lastmsg[3] = True
+    # else:
+    #     lastmsg = [message.content.lower(), message.author, 1, False]
+    # with open(LASTWRDFILE, 'w') as f:
+    #     json.dump(lastword, f)
 
 
 @bot.event
@@ -235,7 +239,9 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
-            return await ctx.send("Welp, I've no idea. Command not found!")
+            if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
+                await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            return 2
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
         if isinstance(error, commands.BadArgument):

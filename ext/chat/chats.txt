@@ -1,3 +1,6 @@
+hi
+how are you
+I am fine
 who are you
 I am Merlin and I am a discord bot coded by windowsboy111#1024 with discord.py
 are you a programmer

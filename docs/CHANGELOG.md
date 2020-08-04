@@ -2,12 +2,16 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1.5]
 ### Added
 - now using setuptools in `setup.py` and added install requires
 - when restart / shutdown it will auto-save changes
+- now by default it will not say that command not found
 ### Optimized
 - compressed bot.py
 ### Removed
+- spamming detection system
 - member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 ### Fixed
 - the bot mention prefix is now dynamic
@@ -25,7 +29,8 @@
 - pyproject.toml
 ### Fixed
 - dm commands now work
-- [#22]: `/poll end all` will not crash when there are no unended polls
+- #22: `/poll end all` will not crash when there are no unended polls
+- #23
 - mention of Merlin was not prefix
 
 ## [2.1.3]
@@ -190,7 +195,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.4...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.5...HEAD
+[2.1.5]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.4...2.1.5
 [2.1.4]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.3...2.1.4
 [2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
 [2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
@@ -203,4 +209,3 @@
 [2.1-a2]:       https://github.com/windowsboy111/Merlin-py/compare/2.1-a1...2.1-a2
 [2.1-a1]:       https://github.com/windowsboy111/Merlin-py/compare/2.1a...2.1-a1
 [2.1-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.0.0...2.1a
-[#22]:          https://github.com/windowsboy111/merlin-py/issues/22
