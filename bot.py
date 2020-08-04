@@ -18,7 +18,7 @@ from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
 from ext.chat import chat
-load_dotenv(); exitType = 0
+load_dotenv()
 print(' >> Defining constant variables...')
 statusLs = [
     '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
