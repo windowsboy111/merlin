@@ -2,6 +2,8 @@
 > windowsboy111
 
 ## [Unreleased]
+
+## [2.1.5]
 ### Added
 - now using setuptools in `setup.py` and added install requires
 - when restart / shutdown it will auto-save changes
@@ -193,7 +195,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.4...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.5...HEAD
+[2.1.5]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.4...2.1.5
 [2.1.4]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.3...2.1.4
 [2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3
 [2.1.2]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.1...2.1.2
