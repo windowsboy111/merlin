@@ -108,13 +108,17 @@ async def on_message(message: discord.Message):
         except AttributeError:
             pass
         try:
-            await bot.process_commands(message)
-            try:
-                await message.delete()
-            except Exception:
-                pass
-            finally:
-                return
+            result = await bot.process_commands(message)
+            if result:
+                try:
+                    if int(result) != 0:
+                        return int(result)
+                except Exception:
+                    pass
+                if isinstance(result, str) and result == 'no-rm':
+                    return 0
+            await message.delete()
+            return 0
         except discord.ext.commands.errors.CommandNotFound:
             return
         except Exception:
