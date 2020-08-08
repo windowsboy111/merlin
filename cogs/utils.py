@@ -31,7 +31,23 @@ class Utils(commands.Cog):
             return
 
     @vote.command(name='create', help='Create a vote: /vote create <name> <choices>', aliases=['make', 'mk', 'new'])
-    async def create(self, ctx, name='', *options: str):
+    async def create(self, ctx: commands.Context, name='', *options: str):
+        msg = ctx.message
+        if msg.mentions > 0:
+            for mention in msg.mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "@" + mention.display_name + name[(index+len(mention.mention)):]
+        if msg.channel_mentions > 0:
+            for mention in msg.channel_mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "#" + mention.name + name[(index+len(mention.mention)):]
+        if msg.role_mentions > 0:
+            for mention in msg.role_mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "@" + mention.name + name[(index+len(mention.mention)):]
         if name == '':
             await ctx.send('Bruh, wuts da title of the poll?')
             return 2

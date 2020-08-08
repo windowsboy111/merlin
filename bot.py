@@ -302,9 +302,8 @@ def start(token=None, **kwargs):
         if exitType == 0:
             nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
             continue
-        else:
-            nlog('Logged out')
-            break
+        nlog('Logged out')
+        break
     slog('Writing changes and saving data...')
     json.dump(lastword, open(LASTWRDFILE, 'w'))
     json.dump(settings, open(SETFILE, 'w'))
