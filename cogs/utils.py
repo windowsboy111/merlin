@@ -4,8 +4,8 @@ import typing
 from datetime import datetime
 import discord
 from discord.ext import commands
-import botmc
-from ext.quickpoll import QuickPoll as qp
+import botmc  # pylint: disable=import-error
+from ext import base_encoding  # pylint: disable=import-error
 
 
 class Utils(commands.Cog):
@@ -34,60 +34,82 @@ class Utils(commands.Cog):
     async def create(self, ctx, name='', *options: str):
         if name == '':
             await ctx.send('Bruh, wuts da title of the poll?')
-            return
+            return 2
         msg = await ctx.send('Once apon a time, there was a poll, that YOU SHOULDN\'T SEE DIS MESSAGE! OR ELSE DISCORD IS LAGGY!')
-        poll = qp(self.bot)
-        await poll.quickpoll(poll, msg=msg, ctx=ctx, question=name, options=options)
-        await msg.edit(content='')
+        if len(options) <= 1:
+            options = ('yes', 'no')
+        if len(options) > 26:
+            await msg.edit(content='You cannot make a poll for more than 26 things!')
+            return 3
+
+        if len(options) == 2 and options[0].lower() == 'yes' and options[1].lower() == 'no':
+            reactions = ['✅', '❌']
+        elif len(options) <= 10:
+            reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
+        else:
+            reactions = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿', '0️⃣', '1️⃣', '2️⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
+        description = []
+        # form the output embed
+        for x, option in enumerate(options):
+            description += '\n {} {}'.format(reactions[x], option)
+        embed = discord.Embed(title=name, description=''.join(description), color=0x00FFBB)
+        embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar_url)
+        await msg.edit(embed=embed)
+        i = 0
+        # add reactions
+        for reaction in reactions[:len(options)]:
+            if i == 20: msg = await ctx.send('And more reactions...')
+            await msg.add_reaction(reaction)
+            i += 1
+        # change footer
+        text = f'Poll ID: {base_encoding.IntEncoder.encode_base64(msg.id)}'
+        if i > 10:
+            text = "Can't tally this poll :("
+        embed.set_footer(text=text)
+        embed.timestamp = datetime.utcnow()
+        await msg.edit(embed=embed, content='')
         return 0
 
     @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
     async def check(self, ctx, *, num='0'):
-        if num == '0':
-            num = 0xFFFFFF
-        result = ''
-        result2 = list()
-        id = list()
+        num = 0xffffff if num == '0' else num
+        result, messages = '', None; result2 = pollID = list()
         msg = await ctx.send('You have forgotten something...')
-        messages = None
         if not num:
             messages = await ctx.message.channel.history(limit=0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).flatten()
         else:
             messages = await ctx.message.channel.history(limit=int(num)).flatten()
         for message in messages:
-            if message.author != ctx.message.guild.me:
-                continue
-            if not message.embeds:
+            if message.author != ctx.message.guild.me or not message.embeds:
                 continue
             embed = message.embeds[0]
             try:
-                if 'Poll ID: ' not in embed.footer.text:
+                if 'Poll ID: ' not in embed.footer.text or embed.title.startswith('Results of the poll for "'):
                     continue
             except Exception:
                 continue
-            if embed.title.startswith('Results of the poll for "'): continue
             if embed.description != 'Poll ended':
                 link = f'[{message.created_at}]({message.jump_url})\n'
                 result += link
                 result2.append(embed.title)
-                id.append(message.id)
+                pollID.append(message.id)
         if result == '':
             await msg.edit(content='No unended polls detected.')
             return
         rs = result.split('\n')
         embed = discord.Embed(title='Running polls')
-        loopCount = 0
-        for r in rs:
-            if loopCount == len(result2):
+        for loop, r in enumerate(rs):
+            if loop == len(result2):
                 break
-            embed.add_field(name=result2[loopCount], value=r)
-            loopCount += 1
+            embed.add_field(name=result2[loop], value=r)
+        embed.timestamp = datetime.utcnow()
         await msg.edit(content='Results: ' + str(len(result2)), embed=embed)
-        return id
+        return pollID
 
     @vote.command(name='end', help='End a vote or poll')
-    async def end(self, ctx, *, id='0'):
-        if id == 'all':
+    async def end(self, ctx, *, pollID='0'):
+        # pre processing: checks
+        if pollID == 'all':
             ctx = await self.bot.get_context(ctx.message)
             ids = await self.check(num=None, ctx=ctx)
             if not any(ids):
@@ -96,15 +118,58 @@ class Utils(commands.Cog):
                 channel = ctx.message.channel
                 try:
                     ctx = await self.bot.get_context(await channel.fetch_message(msgid))
-                    await self.end(ctx=ctx, id=msgid)
+                    await self.end(ctx=ctx, pollID=msgid)
                 except discord.NotFound: continue
-            return
+            return 0
         msg = await ctx.send('deleting `system32`...')
-        if id == '0':       return await msg.edit(content='bruh i need da poll id')
-        poll = qp(self.bot)
-        await poll.tally(poll, msg=msg, ctx=ctx, id=id)
-        try:                return await msg.edit(content='')
-        except Exception:   return
+        if pollID == '0':       return await msg.edit(content='bruh i need da poll id')
+
+        # get the message
+        try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, int(pollID))
+        except Exception:
+            try:
+                poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, base_encoding.IntEncoder.decode_base64(pollID))
+            except Exception:
+                return await ctx.send(":x: Failed to get message with the given id :L")
+        if not poll_message.embeds:
+            await msg.edit(content=':question: No embeds have been found')
+            return 2
+        embed = poll_message.embeds[0]
+        if poll_message.author != ctx.message.guild.me: return 2
+
+        # process the content
+        try: embed.description.split('\n')
+        except Exception: return 1
+        unformatted_options = [x.strip() for x in embed.description.split('\n')]
+        opt_dict = {x[:2]: x[3:] for x in unformatted_options} if unformatted_options[0][0] == '1' \
+            else {x[:1]: x[2:] for x in unformatted_options}
+        # check if we're using numbers for the poll, or x/checkmark, parse accordingly
+        voters = [ctx.message.guild.me.id]  # add the bot's ID to the list of voters to exclude it's votes
+
+        tally = {x: 0 for x in opt_dict.keys()}
+        for reaction in poll_message.reactions:
+            if reaction.emoji in opt_dict.keys():
+                reactions = poll_message.reactions
+                for reaction in reactions:
+                    async for reactor in reaction.users():
+                        if reactor.id not in voters:
+                            try:
+                                tally[reaction.emoji] += 1
+                            except KeyError:
+                                continue
+                            voters.append(reactor.id)
+
+        # make result
+        output = discord.Embed(title='Results of the poll for "{}":\n'.format(embed.title), color=0xb6ff00)
+        output.timestamp = datetime.utcnow()
+        for key in tally.keys():
+            output.add_field(name=opt_dict[key], value=tally[key])
+            output.set_footer(text='Poll ID: {}'.format(id))
+        await msg.edit(embed=output, content='')
+        edited = discord.Embed(title=embed.title, description='Poll ended', color=0xFFC300)
+        edited.set_footer(text=f"Result id: {msg.id}")
+        await poll_message.edit(embed=edited)
+        return 0
 
     @commands.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
     async def mc(self, ctx):
@@ -123,14 +188,14 @@ class Utils(commands.Cog):
         try:
             embed = botmc.mcsrv(embed, args)
         except botmc.InvalidArgument as e:
-            rtrn = "Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
-            rtrn += "2 get da usage, includ da \"help\" args, i.e. `/mc help`\n"
+            rtrn = "<:err:740034702743830549> Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
+            rtrn += "2 get da usage, invoke da \"help\" cmd, aka `/help mc`"
             rtc = 2
         except botmc.OfflineServer as e:
-            rtrn = "Panic 4: OfflineServer.  Details: {}\n2 get da usage, includ da \"help\" args, i.e. `/mc help`\n".format(str(e))
+            rtrn = "<:err:740034702743830549> Panic 4: OfflineServer.  Details: {}\n".format(str(e))
             rtc = 3
         except Exception as e:
-            rtrn = "Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
+            rtrn = "<:err:740034702743830549> Panic 1: Unknun Era.  Program kthxbai.\nDetails:  " + str(e) + "\n"
             rtc = 1
         if rtc != 0:
             embed = discord.Embed(title="ERROR", description=str(rtrn), color=0xFF0000)
@@ -187,8 +252,12 @@ class Utils(commands.Cog):
 
     @commands.command(name='invite', help='get server invite link')
     @commands.guild_only()
-    async def invite(self, ctx):
-        await ctx.send((await ctx.guild.invites())[0].url)
+    async def invite(self, ctx: discord.Invite):
+        e = discord.Embed(title=f'{len(await ctx.guild.invites())} invite(s) found')
+        for invite in await ctx.guild.invites():
+            e.add_field(name=str(invite.inviter), value=f"[{invite.id}]({invite.url}): {invite.uses}")
+        await ctx.send(embed=e)
+        # await ctx.send((await ctx.guild.invites())[0].url)
 
     class ImageFormat(commands.Converter):
         """return image format (str), intended to be a function argument converter (function annotation)"""
