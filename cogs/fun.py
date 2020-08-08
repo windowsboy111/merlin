@@ -131,7 +131,6 @@ class Fun(commands.Cog):
     @commands.command(name='quote', help='last message of that guy')
     async def quote(self, ctx, members: commands.Greedy[discord.Member]):
         lastword = json.load(open(LASTWRDFILE, 'r'))
-        result = ''
         for member in members:
             try:
                 lastmsg = await discord.TextChannel.fetch_message(ctx.message.channel, lastword[f'g{ctx.guild.id}'][str(member.id)])
@@ -139,7 +138,13 @@ class Fun(commands.Cog):
                 result += f'Last message by {member.mention}: {lastmsg.jump_url}\n> {quoteResult}\n\n'
             except Exception:
                 result += f"Cannot find last message by {member.mention}\n"
+        assert result != "", "no result"
         return await ctx.send(result)
+    
+    @quote.error
+    async def quote_error(self, ctx, error):
+        if isinstance(error, AssertionError) and str(error) == "no result":
+            await ctx.send("ｃｈｅｃｋ　ｔｈｅ　ｕｓａｇｅ！！！")
 
 
 def setup(bot):
