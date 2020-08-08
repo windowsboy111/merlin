@@ -2,6 +2,12 @@
 > windowsboy111
 
 ## [Unreleased]
+### Removed
+- spamming detection system
+- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
+### Fixed
+- Pypi upload is now markdown
+- `/quote` command
 
 ## [2.1.5]
 ### Added
@@ -10,9 +16,6 @@
 - now by default it will not say that command not found
 ### Optimized
 - compressed bot.py
-### Removed
-- spamming detection system
-- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 ### Fixed
 - the bot mention prefix is now dynamic
 - auto create lastmsg file when it does not exist

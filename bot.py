@@ -96,6 +96,11 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except KeyError:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await message.channel.send(chat.response(message.content))
         return 0
@@ -126,31 +131,6 @@ async def on_message(message: discord.Message):
             print(traceback.format_exc())
     if isinstance(message.channel, discord.channel.DMChannel):
         return 0
-    try:
-        global lastword
-        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-    except KeyError:
-        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    # if (message.author.bot):
-    #     return
-    # if lastmsg == []:
-    #     lastmsg = [message.content.lower(), message.author, 1, False]
-    # elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
-    #     lastmsg[2] += 1
-    #     try:
-    #         await message.delete()
-    #     except Exception:
-    #         pass
-    #     ctx = await bot.get_context(message)
-    #     await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
-    # elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
-    #     lastmsg[2] += 1
-    #     if lastmsg[2] == 4:
-    #         lastmsg[3] = True
-    # else:
-    #     lastmsg = [message.content.lower(), message.author, 1, False]
-    # with open(LASTWRDFILE, 'w') as f:
-    #     json.dump(lastword, f)
 
 
 @bot.event
