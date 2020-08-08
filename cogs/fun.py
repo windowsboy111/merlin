@@ -130,7 +130,7 @@ class Fun(commands.Cog):
     
     @commands.command(name='quote', help='last message of that guy')
     async def quote(self, ctx, members: commands.Greedy[discord.Member]):
-        lastword = json.load(open(LASTWRDFILE, 'r'))
+        lastword, result = json.load(open(LASTWRDFILE, 'r')), ""
         for member in members:
             try:
                 lastmsg = await discord.TextChannel.fetch_message(ctx.message.channel, lastword[f'g{ctx.guild.id}'][str(member.id)])
