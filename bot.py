@@ -102,6 +102,7 @@ async def on_message(message: discord.Message):
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
+    json.dump(lastword, open(LASTWRDFILE, 'w'))
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await message.channel.send(chat.response(message.content))
         return 0
