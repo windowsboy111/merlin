@@ -97,12 +97,6 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
-    try:
-        global lastword
-        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-    except KeyError:
-        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    json.dump(lastword, open(LASTWRDFILE, 'w'))
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await message.channel.send(chat.response(message.content))
         return 0
@@ -127,12 +121,18 @@ async def on_message(message: discord.Message):
             await message.delete()
             return 0
         except discord.ext.commands.errors.CommandNotFound:
-            return
+            pass
         except discord.errors.NotFound:
-            return
+            pass
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except KeyError:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
+    json.dump(lastword, open(LASTWRDFILE, 'w'))
     if isinstance(message.channel, discord.channel.DMChannel):
         return 0
 
