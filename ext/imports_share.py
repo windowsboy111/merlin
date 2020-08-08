@@ -18,7 +18,7 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
             prefix = ['/']
         prefixes = prefix.copy()
         prefixes.append(f'<@!{bot.user.id}> ')
-        prefixes.append(f"<@{bot.user.id}> ")
+        prefixes.append(f'<@{bot.user.id}> ')
         return tuple(prefixes)
 
 

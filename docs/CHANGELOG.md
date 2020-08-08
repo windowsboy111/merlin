@@ -1,23 +1,47 @@
-# KCCS-Official discord bot
+# Merlin discord.py bot
 > windowsboy111
 
-## [Unreleased]
 
-## [2.1.5]
+## [2.2-b1] - 2020-08-08
+### Added
+- if options for `/poll create` is less than 2 then it will fall back to yes and no
+### Removed
+- spamming detection system
+- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
+### Fixed
+- `/poll create` now shows mentions properly
+- Pypi upload is now markdown
+- `/quote` command
+
+## [2.2-b] - 2020-08-04
+### Added
+- more visual changes
+### Fixed
+- will use 1 space after a full stop as microsoft word now treats 2 spaces after a full stop as an error
+
+## [2.2-a] - 2020-07-29
+### Added
+- detailed invite command
+- ping command using embed
+- little lock :x: emoji for notOwner handle
+- better handling for CommandDisabled
+### Changed
+- command handling command invoke error now uses embed and added link to github new bug issue
+### Fixed
+- removed print message content
+
+## [2.1.5] - 2020-08-04
 ### Added
 - now using setuptools in `setup.py` and added install requires
 - when restart / shutdown it will auto-save changes
 - now by default it will not say that command not found
 ### Optimized
 - compressed bot.py
-### Removed
-- spamming detection system
-- member welcoming and bot setup, cuz they are annoying tbh with you, and they are optional for the bot to work
 ### Fixed
 - the bot mention prefix is now dynamic
 - auto create lastmsg file when it does not exist
 
-## [2.1.4]
+## [2.1.4] - 2020-08-02
 ### Added
 - better discord status
 - .gitignore added user data stuff
@@ -33,14 +57,14 @@
 - #23
 - mention of Merlin was not prefix
 
-## [2.1.3]
+## [2.1.3] - 2020-07-31
 ### Added
 - chat system
 - `__init__.py` (as a package)
 - print statements in `bot_imports.py` (prevent PEP8 violation)
 - updated packages
 
-## [2.1.2]
+## [2.1.2] - 2020-07-29
 ### Added
 - README.md badges
 - nightly branch
@@ -51,7 +75,7 @@
 - removed print message content
 - `/unban` command now will unban the last member banned if no argument is inputted
 
-## [2.1.1]
+## [2.1.1] - 2020-07-29
 ### Added
 - `/avatar` command
 - `/res` command to see CPU / RAM usages
@@ -67,7 +91,7 @@
 - spam detecion system now won't crash randomly cannot delete the message
 - `@Merlin` prefix now works
 
-## [2.1.0]
+## [2.1.0] - 2020-07-26
 ### Added
 - hint logging level
 - added description for bot_settings, also changed the description for imports_share
@@ -77,7 +101,7 @@
 - consolemod styles are now str, not function
 - help command now if have sub-command will have details
 
-## [2.1-b3]
+## [2.1-b3] - 2020-07-26
 ### Added
 - error message will split out if restarting the bot failed
 - if fail to import extension when bot starts, bot treat start as a reconnect
@@ -105,14 +129,14 @@
 - couldn't use commands via dm
 - it shows that it is in loop with stdout even the loop does not exist in the first place
 
-## [2.1-b2]
+## [2.1-b2] - 2020-07-20
 ### Added
 - descriptions for many things (see them with `help()`)
 - now a module
 ### Fixed
 - mute command might break
 
-## [2.1-b1]
+## [2.1-b1] - 2020-07-15
 ### Added
 - \*load commands now accept command name as argument
 - can run Merlin-py as a module
@@ -195,7 +219,10 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.1.5...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...HEAD
+[2.2-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.2-b...2.2-b1
+[2.2-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.a...2.2-b
+[2.2-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.5...2.2-a
 [2.1.5]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.4...2.1.5
 [2.1.4]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.3...2.1.4
 [2.1.3]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.2...2.1.3

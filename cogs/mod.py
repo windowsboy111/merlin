@@ -2,13 +2,10 @@ from discord.ext import commands
 from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
-from ext.dbctrl import close_connection, close_cursor
-from ext.imports_share import log, chk_sudo
+from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
+from ext.imports_share import log, chk_sudo  # pylint: disable=import-error
 from exceptions import NoMutedRole
-WARNFILE = 'data/warnings.db'
-muted = dict()
-userid = None
-SETFILE = "data/settings.json"
+WARNFILE, SETFILE = 'data/warnings.db', 'data/settings.json'; muted = dict()
 stringTable = json.load(open('ext/wrds.json', 'r'))
 settings = json.load(open(SETFILE, 'r'))
 
@@ -28,64 +25,35 @@ class Mod(commands.Cog):
     async def assign(self, ctx, role: discord.Role, member: discord.Member = None):
         member = member or ctx.message.author
         if role is None:
-            await ctx.send(f'Failed to get the role.  Probably role {role} is not a thing.  {ctx.message.author.mention}, please make sure you got it right.')
-            return
+            await ctx.send(f':x: Failed to get the role. {ctx.message.author.mention}, please make sure you got it right.')
+            return 2
         await member.add_roles(role)
-        await ctx.send(f'Role {role} has been added to {member.mention} by {ctx.message.author.mention}.')
+        await ctx.send(f':u6709: Role {role.mention} has been added to {member.mention} by {ctx.message.author.mention}.')
 
     @role.command(name='remove', aliases=['rm', 'revoke'], help='Possible rolename: 2a, 1b, friends, etc.', pass_context=True)
-    async def remove(self, ctx, rolename='', member: discord.Member = None):
+    async def remove(self, ctx, role: discord.Role, member: discord.Member = None):
         member = member or ctx.message.author
-        if rolename == '':
-            await ctx.send('apparently this function requires 2 parameters.')
-            await ctx.message.delete()
-            return
-        try:
-            role = get(ctx.guild.roles, name=rolename)
-            if role is None:
-                await ctx.send(f'Failed to get the role.  Probably role {rolename} is not a thing.  '
-                               f'{ctx.message.author.mention}, please make sure you got it right.')
-                await ctx.message.delete()
-                return
-            await member.remove_roles(role)
-            await ctx.send(f'Role {rolename} has been removed from {member.mention} by {ctx.message.author.mention}.')
-        except Exception as e:
-            await ctx.send(f'failed to remove role {rolename} from {member} (requested by {ctx.message.author.mention}) with error message:\n{e}')
-        await ctx.message.delete()
-        return
+        if role is None:
+            await ctx.send(f':x: Failed to get the role. {ctx.message.author.mention}, please make sure you got it right.')
+            return 2
+        await member.remove_roles(role)
+        await ctx.send(f':u7981: Role {role.mention} has been removed from {member.mention} by {ctx.message.author.mention}.')
 
     @role.command(name='create', aliases=['make', 'mk'], help='Create a new role.')
-    async def create(self, ctx, *, rolename=''):
-        if rolename == '':
-            await ctx.send('apparently this function requires 2 parameters.')
-            await ctx.message.delete()
-            return
-        try:
-            await ctx.guild.create_role(name=rolename)
-            await ctx.send(f'Role {rolename} created successfully. (Requested by {ctx.message.author.mention})')
-        except discord.Forbidden as e:
-            await ctx.send(f'Failed to create role {rolename} because the requester {ctx.message.author.mention} has missing permissions.  '
-                           f'Administrative privileges are required.\nError message: {e}')
-        except Exception as e:
-            await ctx.send(f'Failed to create role {rolename} (requested by {ctx.message.author.mention}).\nError message: {e}')
-        await ctx.message.delete()
-        return
+    async def create(self, ctx, *, rolename):
+        role = await ctx.guild.create_role(name=rolename)
+        await ctx.send(f':new: :white_check_mark: {role.mention} created successfully. (Requested by {ctx.message.author.mention})')
+        return 0
 
     @role.command(name='delete', aliases=['del'], help='Delete a role (remove from all users)')
     async def delete(self, ctx, *, role: discord.Role):
         if role:
-            try:
-                await role.delete()
-                await ctx.send(f'Role {role.name} deleted successfully. (Requested by {ctx.message.author.mention})')
-            except discord.Forbidden as e:
-                await ctx.send(f'Failed to delete role {role.name} because the requester {ctx.message.author.mention} '
-                               f'has missing permissions.  Administrative privileges are required.\nError message: {e}')
-            except Exception as e:
-                await ctx.send(f'Failed to create role {role.name} (requested by {ctx.message.author.mention}).\nError message: {e}')
-        else:
-            await ctx.send(f'Failed to get the role.  Probably role {role.name} is not a thing.  '
-                           f'{ctx.message.author.mention}, please make sure you got it right.')
-        return
+            name = role.name
+            await role.delete()
+            await ctx.send(f'Role {name} deleted successfully. (Requested by {ctx.message.author.mention})')
+            return 0
+        await ctx.send(f'Failed to get the role. {ctx.message.author.mention}, please make sure you got it right.')
+        return 2
 
     @commands.command(name='warn', help='Warn a person: /warn @person reason', aliases=['warning'])
     @chk_sudo()
@@ -192,12 +160,12 @@ class Mod(commands.Cog):
     @chk_sudo()
     @commands.guild_only()
     async def ban(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
-        global userid
+        global oldID
         if not member:
             return await ctx.send('Please specify a member.')
         await member.send(f'You have been banned.\nReason: {reason}')
         await member.ban(reason=reason)
-        userid = member.id
+        oldID = member.id
         await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
             'https://imgur.com/V4TVpbC',
             'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581',
@@ -210,12 +178,12 @@ class Mod(commands.Cog):
     @commands.guild_only()
     async def unban(self, ctx, userID: int = 0):
         if userID == 0:
-            global userid
-            if userid == 0:
+            global oldID
+            if oldID == 0:
                 await ctx.send(f'{ctx.message.author.mention} please specify an user id.')
                 return
             else:
-                userID = userid
+                userID = oldID
         user = await self.bot.fetch_user(userID)
         await ctx.guild.unban(user)
         await ctx.send("Fine. There you go.")
@@ -273,7 +241,7 @@ class Mod(commands.Cog):
     @mute.error
     async def mute_error(self, ctx, error):
         if isinstance(error, NoMutedRole):
-            await ctx.send("That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+            await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
 
 def setup(bot):

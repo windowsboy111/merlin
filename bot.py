@@ -9,6 +9,7 @@ import traceback
 import json
 import asyncio
 import discord
+from datetime import datetime
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord.utils import find
@@ -96,6 +97,11 @@ async def on_message(message: discord.Message):
     global lastmsg
     if await easteregg.easter(message):
         return
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except KeyError:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await message.channel.send(chat.response(message.content))
         return 0
@@ -121,36 +127,13 @@ async def on_message(message: discord.Message):
             return 0
         except discord.ext.commands.errors.CommandNotFound:
             return
+        except discord.errors.NotFound:
+            return
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
     if isinstance(message.channel, discord.channel.DMChannel):
         return 0
-    try:
-        global lastword
-        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-    except KeyError:
-        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    # if (message.author.bot):
-    #     return
-    # if lastmsg == []:
-    #     lastmsg = [message.content.lower(), message.author, 1, False]
-    # elif lastmsg[2] == 4 and message.content.lower() == lastmsg[0] and message.author == lastmsg[1] and lastmsg[3]:
-    #     lastmsg[2] += 1
-    #     try:
-    #         await message.delete()
-    #     except Exception:
-    #         pass
-    #     ctx = await bot.get_context(message)
-    #     await ctx.invoke(bot.get_command('warn'), person=lastmsg[1], reason='spamming')
-    # elif lastmsg[0] == message.content.lower() and lastmsg[1] == message.author:
-    #     lastmsg[2] += 1
-    #     if lastmsg[2] == 4:
-    #         lastmsg[3] = True
-    # else:
-    #     lastmsg = [message.content.lower(), message.author, 1, False]
-    # with open(LASTWRDFILE, 'w') as f:
-    #     json.dump(lastword, f)
 
 
 @bot.event
@@ -223,7 +206,7 @@ async def on_command_error(ctx, error):
         # This tells the issuer that the command cannot be used in DM
         if isinstance(error, commands.errors.NoPrivateMessage):
             try:
-                return await ctx.author.send(f'{ctx.command} cannot be used in Private Messages.')
+                return await ctx.author.send(f':X::lock: {ctx.command} cannot be used in Private Messages.')
             except discord.HTTPException:
                 return
         # This prevents any commands with local handlers being handled here in on_command_error.
@@ -238,8 +221,11 @@ async def on_command_error(ctx, error):
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
-            if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
-                await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            try:
+                if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
+                    await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+            except KeyError:
+                await ctx.send(":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n<:warn:739838316374917171> something went wrong, please run `/settings`")
             return 2
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
@@ -247,10 +233,20 @@ async def on_command_error(ctx, error):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
 
         if isinstance(error, commands.errors.DisabledCommand):
-            return await ctx.send(f'{ctx.command} has been disabled.')
+            return await ctx.send(embed=discord.Embed(
+                title=f'{ctx.command} has been disabled.',
+                description=f':x: `{ctx.message.content}`',
+                color=0xff0000
+            ))
 
         if isinstance(error, commands.errors.CommandInvokeError):
-            await ctx.send('uh oh. An exception has occurred during the execution of the command. Check the log for more details.')
+            await ctx.send(embed=discord.Embed(
+                title='uh oh. An exception has occurred during the execution of the command',
+                description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
+                timestamp=datetime.utcnow(),
+                color=0xff0000
+            ))
+
         if isinstance(error, commands.errors.NotOwner):
             return await ctx.send(stringTable['notOwner'])
         if isinstance(error, commands.errors.ConversionError):
@@ -306,9 +302,8 @@ def start(token=None, **kwargs):
         if exitType == 0:
             nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
             continue
-        else:
-            nlog('Logged out')
-            break
+        nlog('Logged out')
+        break
     slog('Writing changes and saving data...')
     json.dump(lastword, open(LASTWRDFILE, 'w'))
     json.dump(settings, open(SETFILE, 'w'))
