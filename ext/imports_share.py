@@ -1,5 +1,6 @@
 import discord, datetime, json
 from discord.ext import commands
+import exceptions
 SETFILE = "data/settings.json"
 
 
@@ -77,5 +78,8 @@ def chk_sudo():
     The command will only be able to be executed by the author if the author is owner or have permissions  
     """
     async def predicate(ctx):
-        return is_sudoers(ctx.author)
+        if is_sudoers(ctx.author):
+            return True
+        else:
+            raise exceptions.NotMod(f"{ctx.author} is not a moderator / administrator in the given guild")
     return commands.check(predicate)

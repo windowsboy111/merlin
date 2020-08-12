@@ -17,6 +17,7 @@ from ext.consolemod import style
 from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
 import easteregg
+import exceptions
 from ext.chat import chat
 load_dotenv()
 print(' >> Defining constant variables...')
@@ -258,6 +259,8 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.errors.BadArgument):
             return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
                                   'That member / channel / other kinds of object might not exist because I cannot find it.')
+        if isinstance(error, exceptions.NotMod):
+            return await ctx.send(str(error))
         # All other Errors not returned come here. And we can just print the default TraceBack.
         await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
 

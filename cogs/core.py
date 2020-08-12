@@ -31,6 +31,7 @@ class Core(commands.Cog):
     @commands.group(name='settings', help='settings about everything')
     async def settings(self, ctx):
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
+        tmp = cmdHdl['cmdNotFound']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
@@ -39,7 +40,7 @@ class Core(commands.Cog):
             e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
-    @settings.command(help='Change settings about error handling')
+    @settings.command(name='errorhandle', help='Change settings about error handling')
     async def settings_errorhandle(self, ctx, toggle):
         if toggle is None:
             res = ''
@@ -106,7 +107,7 @@ class Core(commands.Cog):
     async def settings_error(self, ctx, error):
         if "KeyError" in str(error):
             await ctx.send(stringTable['core']['guildSettingsNotFound'])
-            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": [], "cmdHdl": {}}
+            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": [], "cmdHdl": {"cmdNotFound": 0}}
             with open(SETFILE, 'w') as outfile:
                 json.dump(settings, outfile)
             await ctx.send(stringTable['core']['guildSettingsFixed'])

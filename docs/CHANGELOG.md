@@ -2,6 +2,10 @@
 > windowsboy111
 
 
+## [Unreleased]
+### Added
+- error messages when one don't have perms to issue a command
+
 ## [2.2-b1] - 2020-08-08
 ### Added
 - if options for `/poll create` is less than 2 then it will fall back to yes and no
