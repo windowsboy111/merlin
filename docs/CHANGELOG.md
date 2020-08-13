@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- it now tries to stop webserver if start with main script
 - search command
 - error messages when one don't have perms to issue a command
 
