@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 import botmc  # pylint: disable=import-error
 from ext import base_encoding  # pylint: disable=import-error
+import duckduckgo
 
 
 class Utils(commands.Cog):
@@ -20,6 +21,7 @@ class Utils(commands.Cog):
     - mc
     - invite
     - avatar
+    - search
     """
     def __init__(self, bot):
         self.bot = bot
@@ -302,6 +304,26 @@ class Utils(commands.Cog):
         e.timestamp = datetime.utcnow()
         await ctx.send(embed=e)
         return 0
+    
+    @commands.command()
+    async def search(self, ctx, *, question: str):
+        """give ya search results from the internet"""
+        if question.startswith("!!"):
+            await ctx.send(duckduckgo.get_zci(question[2:]))
+            return 0
+        res = duckduckgo.query(question)
+        e = discord.Embed(title=f"{len(res.results)} results and {len(res.related)} related", description=f'Answers about {question}')
+        e.add_field(name='answer', value=f"{res.answer.type}: {res.answer.text}", inline=False)
+        e.add_field(name='type', value=res.type, inline=False)
+        if len(res.results) > 0:
+            e.add_field(name='best result', value=f'[{res.results[0].text}]({res.results[0].url} "1st result")')
+        if len(res.related) > 0:
+            e.add_field(name='best related', value=f'[{res.related[0].text}]({res.related[0].url} "1st related")')
+        e.add_field(name='Abstract', value=f'[{res.abstract.text}]({res.abstract.url} "{res.abstract.source}")')
+        e.timestamp = datetime.utcnow()
+        e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        e.set_footer(text="Results from DuckDuckGo", icon_url='https://cdn.discordapp.com/emojis/739863899674902578.png')
+        await ctx.send(embed=e)
 
 
 def setup(bot):

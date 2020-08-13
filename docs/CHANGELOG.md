@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- search command
 - error messages when one don't have perms to issue a command
 
 ## [2.2-b1] - 2020-08-08
