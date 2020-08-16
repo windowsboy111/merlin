@@ -32,8 +32,13 @@ class Utils(commands.Cog):
             await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
             return
 
-    @vote.command(name='create', help='Create a vote: /vote create <name> <choices>', aliases=['make', 'mk', 'new'])
+    @vote.command(name='create', aliases=['make', 'mk', 'new'])
     async def create(self, ctx: commands.Context, name='', *options: str):
+        """
+        Create a new poll
+        Add your choice by reacting to the message
+        end a poll with /poll end <id>
+        """
         msg = ctx.message
         if len(msg.mentions) > 0:
             for mention in msg.mentions:
@@ -124,8 +129,15 @@ class Utils(commands.Cog):
         await msg.edit(content='Results: ' + str(len(result2)), embed=embed)
         return pollID
 
-    @vote.command(name='end', help='End a vote or poll')
+    @vote.command(name='end')
     async def end(self, ctx, *, pollID='0'):
+        """
+        End a poll
+        start a poll with `/poll create`
+        the id of a poll is either the 64 based encoded form of message id or the original message id
+        you can right click to get the message id if you have developer option enabled
+        If one voted for multiple choices, only the first choice counts, others will be ignored
+        """
         # pre processing: checks
         if pollID == 'all':
             ctx = await self.bot.get_context(ctx.message)
@@ -189,10 +201,10 @@ class Utils(commands.Cog):
         await poll_message.edit(embed=edited)
         return 0
 
-    @commands.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
+    @commands.group(name='mc', help="MINECRAFT", aliases=['minecraft'])
     async def mc(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
+            await ctx.send(":octagonal_sign: 2 bed idk wat u r toking 'bout, but wut?")
             return
 
     @mc.command(name='srv', help='list servers', aliases=['server'])
@@ -307,7 +319,11 @@ class Utils(commands.Cog):
     
     @commands.command()
     async def search(self, ctx, *, question: str):
-        """give ya search results from the internet"""
+        """
+        give ya search results from the internet
+        Using duckduckgo API
+        `python3 -m pip install duckduckgo3`
+        """
         if question.startswith("!!"):
             await ctx.send(duckduckgo.get_zci(question[2:]))
             return 0
