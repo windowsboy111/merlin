@@ -2,13 +2,7 @@
 # bot.py
 # pylint: disable=import-error
 import bot_imports
-import sys
-import os
-import random
-import traceback
-import json
-import asyncio
-import discord
+import sys, os, traceback, random, json, asyncio, discord
 from datetime import datetime
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -16,7 +10,7 @@ from discord.utils import find
 from ext.consolemod import style
 from ext.logcfg import get_logger, logging
 from ext.imports_share import log, bot, get_prefix
-import easteregg
+import easteregg, exceptions
 from ext.chat import chat
 load_dotenv()
 print(' >> Defining constant variables...')
@@ -28,12 +22,13 @@ statusLs = [
     'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
     'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
 ]
-cogs = lastmsg = []
+cogs = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         cogs.append(cog[:-3])
 # token is stored inside ".env"
 TOKEN, LASTWRDFILE, SETFILE = os.getenv('DISCORD_TOKEN'), "data/lastword.json", "data/settings.json"
+lastword = stringTable = None
 try:
     lastword, stringTable = json.load(open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
 except FileNotFoundError:
@@ -53,7 +48,6 @@ def hint(self, message, *args, **kws):
         # Yes, logger takes its '*args' as 'args'.
         self._log(HINT_LEVEL_NUM, message, args, **kws)
 
-# %%print("hello, world!")
 setattr(logging.Logger, 'hint', hint)
 
 
@@ -91,15 +85,95 @@ settings = json.load(open(SETFILE))
 bot.remove_command('help')
 MODE = os.getenv('MODE')
 
+slog("Adding bot commands...")
 
+
+# ---------
+# background tasks
+async def status():
+    await bot.wait_until_ready()
+    while True:
+        try:
+            if not MODE or MODE == 'NORMAL':
+                activity = discord.Game(name=random.choice(statusLs))
+                await bot.change_presence(status=discord.Status.online, activity=activity)
+            elif MODE == 'DEBUG':
+                activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
+                await bot.change_presence(status=discord.Status.idle, activity=activity)
+            elif MODE == 'FIX':
+                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
+            await asyncio.sleep(30)
+        except Exception:
+            pass
+
+
+async def update():
+    global settings, stringTable, lastword
+    lastword, stringTable = json.load(open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
+    settings.update(json.load(open(SETFILE, 'r')))
+    json.dump(settings, open(SETFILE, 'w'))
+
+
+async def task_update():
+    await update()
+    await asyncio.sleep(60)
+
+bot.loop.create_task(status())
+bot.loop.create_task(task_update())
+
+
+@bot.command(name='reboot', aliases=['restart'], hidden=True)
+@commands.is_owner()
+async def cmd_reboot(ctx):
+    global exitType
+    print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
+    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
+    await ctx.send('Bot will restart in 10 seconds.')
+    await asyncio.sleep(10)
+    await ctx.send('Logging out...')
+    await log('Logging out...')
+    print('Logging out...')
+    exitType = 1
+    await bot.logout()
+
+
+@bot.command(name='shutdown', aliases=['stop', 'sdwn', 'kthxbai', 'halt'], hidden=True)
+@commands.is_owner()
+async def cmd_shutdown(ctx):
+    global exitType
+    nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
+    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
+    await ctx.send('Bot will shutdown in 10 seconds.')
+    await asyncio.sleep(10)
+    await ctx.send('Logging out...')
+    await log('Logging out...')
+    nlog('Logging out...')
+    exitType = 2
+    await bot.logout()
+
+
+@bot.command(name='update', hidden=True)
+@commands.is_owner()
+async def cmd_update(ctx):
+    await update()
+
+
+# ------
+# events
 @bot.event
 async def on_message(message: discord.Message):
-    global lastmsg
     if await easteregg.easter(message):
         return
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except Exception:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
-        await message.channel.send(chat.response(message.content))
-        return 0
+        async with message.channel.typing():
+            await message.channel.send(chat.response(message.content))
+            return 0
+    await update()
     if message.content.startswith(get_prefix(bot, message)):
         msgtoSend = f'{message.author} has issued command: '
         print(msgtoSend + style.green + message.content + style.reset)
@@ -125,6 +199,7 @@ async def on_message(message: discord.Message):
         except discord.errors.NotFound:
             pass
         except Exception:
+<<<<<<< HEAD
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
     try:
@@ -135,6 +210,9 @@ async def on_message(message: discord.Message):
     json.dump(lastword, open(LASTWRDFILE, 'w'))
     if isinstance(message.channel, discord.channel.DMChannel):
         return 0
+=======
+            print(traceback.format_exc(), file=sys.stderr)
+>>>>>>> nightly
 
 
 @bot.event
@@ -179,24 +257,6 @@ async def on_guild_join(guild):
     return 0
 
 
-# background
-async def status():
-    await bot.wait_until_ready()
-    while True:
-        try:
-            if not MODE or MODE == 'NORMAL':
-                activity = discord.Game(name=random.choice(statusLs))
-                await bot.change_presence(status=discord.Status.online, activity=activity)
-            elif MODE == 'DEBUG':
-                activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
-                await bot.change_presence(status=discord.Status.idle, activity=activity)
-            elif MODE == 'FIX':
-                await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
-            await asyncio.sleep(30)
-        except Exception:
-            pass
-
-bot.loop.create_task(status())
 
 
 @bot.event
@@ -207,7 +267,7 @@ async def on_command_error(ctx, error):
         # This tells the issuer that the command cannot be used in DM
         if isinstance(error, commands.errors.NoPrivateMessage):
             try:
-                return await ctx.author.send(f':X::lock: {ctx.command} cannot be used in Private Messages.')
+                return await ctx.author.send(f':x::lock: {ctx.command} cannot be used in Private Messages.')
             except discord.HTTPException:
                 return
         # This prevents any commands with local handlers being handled here in on_command_error.
@@ -215,10 +275,8 @@ async def on_command_error(ctx, error):
             return
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
-        cog = ctx.cog
-        if cog:
-            if cog._get_overridden_method(cog.cog_command_error) is not None:
-                return
+        if ctx.cog and ctx.cog._get_overridden_method(ctx.cog.cog_command_error) is not None:
+            return
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, commands.errors.CommandNotFound):
@@ -235,14 +293,14 @@ async def on_command_error(ctx, error):
 
         if isinstance(error, commands.errors.DisabledCommand):
             return await ctx.send(embed=discord.Embed(
-                title=f'{ctx.command} has been disabled.',
+                title=f':no_entry: {ctx.command} has been disabled.',
                 description=f':x: `{ctx.message.content}`',
                 color=0xff0000
             ))
 
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send(embed=discord.Embed(
-                title='uh oh. An exception has occurred during the execution of the command',
+                title='<:err:740034702743830549> uh oh. An exception has occurred during the execution of the command',
                 description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
                 timestamp=datetime.utcnow(),
                 color=0xff0000
@@ -252,50 +310,21 @@ async def on_command_error(ctx, error):
             return await ctx.send(stringTable['notOwner'])
         if isinstance(error, commands.errors.ConversionError):
             await ctx.send(
-                'Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
+                ':arrow_heading_down: Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
                 'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
 
         if isinstance(error, commands.errors.BadArgument):
-            return await ctx.send('Whoops. The discord special expression you have specified when issuing that command is invalid. '
+            return await ctx.send(':mag: Whoops. The discord special expression you have specified when issuing that command is invalid. '
                                   'That member / channel / other kinds of object might not exist because I cannot find it.')
+        if isinstance(error, exceptions.NotMod):
+            return await ctx.send(str(error))
         # All other Errors not returned come here. And we can just print the default TraceBack.
-        await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
-
-slog("Adding bot commands...")
-
-
-@bot.command(name='reboot', aliases=['restart'], hidden=True)
-@commands.is_owner()
-async def _reboot(ctx):
-    global exitType
-    print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will restart in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    print('Logging out...')
-    exitType = 1
-    await bot.logout()
-
-
-@bot.command(name='shutdown', aliases=['stop', 'sdwn', 'kthxbai', 'halt'], hidden=True)
-@commands.is_owner()
-async def _shutdown(ctx):
-    global exitType
-    nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will shutdown in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    nlog('Logging out...')
-    exitType = 2
-    await bot.logout()
+        await log(f'Ignoring exception in command `{ctx.message.content}`:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
 
 
 def start(token=None, **kwargs):
     # login / start services
+    global exitType
     slog('Running / logging in...')
     token = token or os.getenv('DISCORD_TOKEN')
     while True:

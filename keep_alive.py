@@ -15,3 +15,4 @@ def run(port=8080, host="0.0.0.0"):
 def keep_alive(port=8080, host="0.0.0.0"):
     server = Thread(target=run, args=(port, host))
     server.start()
+    return server

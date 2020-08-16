@@ -41,10 +41,6 @@ class Debug(commands.Cog):
             .add_field(name="Del Message", value=f"{delTime.total_seconds() * 1000}ms")
         )
 
-    @commands.command(name='msgstats', help='info of a message')
-    async def msgstats(self, ctx: commands.Context, *, args=''):
-        await ctx.send(f'Length: {len(args)}\nAuthor id: {ctx.author.id}\nGuild id: {ctx.guild.id}')
-
     @commands.command(name='sandbox', help='check if a command runs properly')
     async def sandbox(self, ctx, *, commandName: str):
         command = None

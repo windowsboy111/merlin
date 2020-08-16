@@ -1,9 +1,9 @@
 {
     "name":         "Merlin",
     "description":  "an awesome discord bot coded in discord.py",
-    "version":      "2.2-b1",
-    "stage":        "beta",
-    "build":        "2008.111",
+    "version":      "2.2.0",
+    "stage":        "stable",
+    "build":        "2008.117",
     "unreleased":   "None",
     "author name":  "windowsboy111",
     "author disc":  "windowsboy111#1046",

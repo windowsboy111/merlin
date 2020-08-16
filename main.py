@@ -9,8 +9,9 @@ os.system("pip3 install chatterbot==0.8.7 discord.py flask mcstatus pytablemaker
 
 
 def main(port=8080, host="0.0.0.0"):
+    t = None
     try:
-        keep_alive.keep_alive(port=port, host=host)
+        t = keep_alive.keep_alive(port=port, host=host)
     except Exception:
         os.system(
             "pip3 install chatterbot==0.8.7 discord.py flask mcstatus pytablemaker python-dotenv pyparsing==2.4.7 numpy packaging psutil"
@@ -27,6 +28,10 @@ def main(port=8080, host="0.0.0.0"):
         print('Retrying in 5 seconds...')
         time.sleep(5)
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    print(end=" Trying to stop webserver...\r")
+    t._stop()
+    print(" Waiting for it to finish...")
+    t.join()
 
 
 if __name__ == '__main__':
