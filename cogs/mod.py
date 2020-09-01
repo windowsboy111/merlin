@@ -4,9 +4,10 @@ from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
 from ext.imports_share import log, chk_sudo  # pylint: disable=import-error
-from exceptions import NoMutedRole
-WARNFILE, SETFILE = 'data/warnings.db', 'data/settings.json'; muted = dict()
-stringTable = json.load(open('ext/wrds.json', 'r'))
+from ext.excepts import NoMutedRole
+from ext.const import WARNFILE, SETFILE, STRFILE
+muted = dict()
+stringTable = json.load(open(STRFILE, 'r'))
 settings = json.load(open(SETFILE, 'r'))
 
 

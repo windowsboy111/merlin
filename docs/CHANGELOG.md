@@ -3,8 +3,18 @@
 
 
 ## [Unreleased]
+### Optimized
+- code organization
+### Added
+- diagnose script in ext/init
+- emoji command to peek emojis from other servers
+- tutorial command
+### Removed
+- since removing issue command affect specific features, issue command will be left
+### Fixed
+- help command now identifies optional params correctly
 
-## [2.2.0]
+## [2.2.0] - 2020-08-15
 ### Added
 - some commands now contains multi-line help messages
 - help command now supports multi-line help messages

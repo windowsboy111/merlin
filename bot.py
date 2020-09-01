@@ -1,82 +1,46 @@
 #!/bin/python3
 # bot.py
-# pylint: disable=import-error
+
+# python libs
 import bot_imports
-import sys, os, traceback, random, json, asyncio, discord
+import sys
+import os
+import traceback
+import random
+import json
+import asyncio
 from datetime import datetime
+# additional libs
+import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord.utils import find
-from ext.consolemod import style
-from ext.logcfg import get_logger, logging
+# python external files
 from ext.imports_share import log, bot, get_prefix
-import easteregg, exceptions
+from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
+from ext import excepts
+import easteregg
 from ext.chat import chat
 load_dotenv()
-print(' >> Defining constant variables...')
-statusLs = [
-    '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
-    'Recursion', 'F0rk B0mbs', 'Different 𝗞𝗶𝗻𝗱𝘀 𝘖𝘧 𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛𝚜', 'sudo rm -rf / --no-preserve-root', 'rd/s/q %windir%', 'typing "exit" in linux init=/bin/bash',
-    'Hello, world!', 'Oracle Virtualbox VMs', 'VMware', 'Quick EMUlator (QEMU)', 'Global Information Tracker', 'Goddamn Idiotic Truckload of sh*t',
-    'Arch Linux', 'Manjaro Linux', 'Microsoft Windows 10', 'Canonical Ubuntu', 'Kubuntu and Xubuntu', 'Linux Mint', 'Pop!_OS', 'OpenSUSE', 'Elementry OS', 'MX Linux', 'Debian', 'BSD',
-    'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
-    'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
-]
 cogs = []
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         cogs.append(cog[:-3])
 # token is stored inside ".env"
-TOKEN, LASTWRDFILE, SETFILE = os.getenv('DISCORD_TOKEN'), "data/lastword.json", "data/settings.json"
+TOKEN = os.getenv('DISCORD_TOKEN')
 lastword = stringTable = None
 try:
-    lastword, stringTable = json.load(open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
-except FileNotFoundError:
-    lastword = []
-    open(LASTWRDFILE, 'w').close()
+    lastword    = json.load(open(LASTWRDFILE, 'r'))
+    stringTable = json.load(open(STRFILE, 'r'))
+except json.JSONDecodeError:
+    lastword = {}
+    f = open(LASTWRDFILE, 'w')
+    f.write("{}")
+    f.close()
     stringTable = json.load(open('ext/wrds.json', 'r'))
-print(' >> Configuring bot...')
-logger, eventLogger, cmdHdlLogger = get_logger('Merlin'), get_logger('EVENT'), get_logger('CMDHDL')
-logging.basicConfig(filename='discordbot.log', level=15, format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
-HINT_LEVEL_NUM = 17
-logging.addLevelName(HINT_LEVEL_NUM, "HINT")
 
-
-def hint(self, message, *args, **kws):
-    """hint logging level"""
-    if self.isEnabledFor(HINT_LEVEL_NUM):
-        # Yes, logger takes its '*args' as 'args'.
-        self._log(HINT_LEVEL_NUM, message, args, **kws)
 
 setattr(logging.Logger, 'hint', hint)
-
-
-def slog(message: str):
-    """sub log"""
-    print(' >> ' + message)
-    logger.hint(message)
-
-
-def nlog(message: str):
-    """new line long"""
-    print('\n==> ' + message)
-    logger.info(message)
-
-
-def cmd_handle_log(message: str):
-    """logging function for command handling"""
-    print('[CMDHDL]\t' + message)
-    cmdHdlLogger.info(message)
-
-
-def event_log(message: str):
-    print('[EVENT]\t' + message)
-    eventLogger.info(message)
-
-
-def cmd_handle_warn(message: str):
-    print(style.orange + message + style.reset)
-    cmdHdlLogger.warning(message)
 
 
 settings = json.load(open(SETFILE))
@@ -98,7 +62,8 @@ async def status():
                 activity = discord.Game(name=random.choice(statusLs))
                 await bot.change_presence(status=discord.Status.online, activity=activity)
             elif MODE == 'DEBUG':
-                activity = discord.Activity(type=discord.ActivityType(3), name="windowsboy111 debugging me")
+                activity = discord.Activity(type=discord.ActivityType(
+                    3), name="windowsboy111 debugging me")
                 await bot.change_presence(status=discord.Status.idle, activity=activity)
             elif MODE == 'FIX':
                 await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType(3), name="windowsboy111 fixing me"))
@@ -109,7 +74,8 @@ async def status():
 
 async def update():
     global settings, stringTable, lastword
-    lastword, stringTable = json.load(open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
+    lastword, stringTable = json.load(
+        open(LASTWRDFILE, 'r')), json.load(open(STRFILE, 'r'))
     settings.update(json.load(open(SETFILE, 'r')))
     json.dump(settings, open(SETFILE, 'w'))
 
@@ -183,16 +149,7 @@ async def on_message(message: discord.Message):
         except AttributeError:
             pass
         try:
-            result = await bot.process_commands(message)
-            if result:
-                try:
-                    if int(result) != 0:
-                        return int(result)
-                except Exception:
-                    pass
-                if isinstance(result, str) and result == 'no-rm':
-                    return 0
-            await message.delete()
+            await bot.process_commands(message)
             return 0
         except discord.ext.commands.errors.CommandNotFound:
             return
@@ -236,14 +193,17 @@ async def on_member_join(member: discord.Member):
 
 
 @bot.event
-async def on_guild_join(guild):
+async def on_guild_join(guild: discord.Guild):
+    sudoers = []
+    for name in [role.name for role in guild.owner.roles]:
+        if ['admin', 'mod', 'owner'] in name.lower():
+            sudoers.append(name)
     f = json.load(open(SETFILE, 'r'))
-    f[f'g{guild.id}'] = {"prefix": ['/']}
+    f[f'g{guild.id}'] = {"prefix": ['/'],
+                         "cmdHdl": {"cmdNotFound": 0}, "sudoers": sudoers}
     with open(SETFILE, 'w') as outfile:
         json.dump(f, outfile)
     return 0
-
-
 
 
 @bot.event
@@ -273,9 +233,7 @@ async def on_command_error(ctx, error):
             except KeyError:
                 await ctx.send(":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n<:warn:739838316374917171> something went wrong, please run `/settings`")
             return 2
-        if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
-        if isinstance(error, commands.BadArgument):
+        if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
 
         if isinstance(error, commands.errors.DisabledCommand):
@@ -288,7 +246,8 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send(embed=discord.Embed(
                 title='<:err:740034702743830549> uh oh. An exception has occurred during the execution of the command',
-                description=stringTable['CommandInvokeError'].format(content=ctx.message.content),
+                description=stringTable['CommandInvokeError'].format(
+                    content=ctx.message.content),
                 timestamp=datetime.utcnow(),
                 color=0xff0000
             ))
@@ -303,7 +262,7 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.errors.BadArgument):
             return await ctx.send(':mag: Whoops. The discord special expression you have specified when issuing that command is invalid. '
                                   'That member / channel / other kinds of object might not exist because I cannot find it.')
-        if isinstance(error, exceptions.NotMod):
+        if isinstance(error, excepts.NotMod):
             return await ctx.send(str(error))
         # All other Errors not returned come here. And we can just print the default TraceBack.
         await log(f'Ignoring exception in command `{ctx.message.content}`:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
@@ -311,7 +270,7 @@ async def on_command_error(ctx, error):
 
 def start(token=None, **kwargs):
     # login / start services
-    global exitType
+    global exitType, settings, stringTable, lastword
     slog('Running / logging in...')
     token = token or os.getenv('DISCORD_TOKEN')
     while True:
@@ -322,7 +281,9 @@ def start(token=None, **kwargs):
         nlog('Logged out')
         break
     slog('Writing changes and saving data...')
-    json.dump(lastword, open(LASTWRDFILE, 'w'))
+    lastword, stringTable = json.load(
+        open(LASTWRDFILE, 'r')), json.load(open('ext/wrds.json', 'r'))
+    settings.update(json.load(open(SETFILE, 'r')))
     json.dump(settings, open(SETFILE, 'w'))
     if exitType == 2:
         print("\nExiting...")
@@ -333,6 +294,7 @@ def start(token=None, **kwargs):
     except PermissionError as e:
         print(f"OPERATION FAILED: {str(e)}")
         sys.exit(2)
+
 
 if __name__ == '__main__':
     start(TOKEN, bot=True, reconnect=True)
