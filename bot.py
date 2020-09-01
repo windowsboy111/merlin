@@ -40,10 +40,6 @@ except json.JSONDecodeError:
     stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> nightly
 setattr(logging.Logger, 'hint', hint)
 
 
