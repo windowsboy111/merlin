@@ -278,36 +278,6 @@ async def on_command_error(ctx, error):
 slog("Adding bot commands...")
 
 
-@bot.command(name='reboot', aliases=['restart'], hidden=True)
-@commands.is_owner()
-async def _reboot(ctx):
-    global exitType
-    print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send(':arrows_counterclockwise: Bot will restart in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    print('Logging out...')
-    exitType = 1
-    await bot.logout()
-
-
-@bot.command(name='shutdown', aliases=['stop', 'sdwn', 'kthxbai', 'halt'], hidden=True)
-@commands.is_owner()
-async def _shutdown(ctx):
-    global exitType
-    nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send(':octagonal_sign: Bot will shutdown in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    nlog('Logging out...')
-    exitType = 2
-    await bot.logout()
-
-
 def start(token=None, **kwargs):
     # login / start services
     global exitType, settings, stringTable, lastword
