@@ -3,9 +3,12 @@
 
 
 ## [Unreleased]
+
+## [2.2.1] - 2020-09-01
 ### Optimized
 - code organization
 ### Added
+- games
 - diagnose script in ext/init
 - emoji command to peek emojis from other servers
 - tutorial command
@@ -246,7 +249,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2.0...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2.1...HEAD
+[2.2.1]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.0...2.2.1
 [2.2.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...2.2.0
 [2.2-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.2-b...2.2-b1
 [2.2-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.a...2.2-b
