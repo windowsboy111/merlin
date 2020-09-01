@@ -152,11 +152,20 @@ async def on_message(message: discord.Message):
             await bot.process_commands(message)
             return 0
         except discord.ext.commands.errors.CommandNotFound:
-            return 2
+            pass
         except discord.errors.NotFound:
-            return 2
+            pass
         except Exception:
-            print(traceback.format_exc(), file=sys.stderr)
+            await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
+            print(traceback.format_exc())
+    try:
+        global lastword
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except KeyError:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
+    json.dump(lastword, open(LASTWRDFILE, 'w'))
+    if isinstance(message.channel, discord.channel.DMChannel):
+        return 0
 
 
 @bot.event
@@ -243,7 +252,6 @@ async def on_command_error(ctx, error):
                 description=f':x: `{ctx.message.content}`',
                 color=0xff0000
             ))
-            return 5
 
         if isinstance(error, commands.errors.CommandInvokeError):
             await ctx.send(embed=discord.Embed(

@@ -17,7 +17,7 @@
 ### Fixed
 - help command now identifies optional params correctly
 
-## [2.2.0] - 2020-08-15
+## [2.2.0] - 2020-08-16
 ### Added
 - some commands now contains multi-line help messages
 - help command now supports multi-line help messages
