@@ -65,7 +65,7 @@ class Core(commands.Cog):
     async def settings_prefix_add(self, ctx, prefix: str):
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix in prefixes:
-            return ctx.send(':warning: That prefix already exists!')
+            return ctx.send(':octagonal_sign: That prefix already exists!')
         settings[f"g{ctx.guild.id}"]['prefix'].append(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
@@ -75,7 +75,7 @@ class Core(commands.Cog):
     async def settings_prefix_remove(self, ctx, prefix: str):
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix not in prefixes:
-            return await ctx.send(':warning: The specified prefix does not exist in the list!')
+            return await ctx.send(':octagonal_sign: The specified prefix does not exist in the list!')
         settings[f'g{ctx.guild.id}']['prefix'].remove(prefix)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
@@ -129,7 +129,7 @@ class Core(commands.Cog):
             e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(path + '\n' + command.description or "<no description>"),color=0x0000ff)
             usage = prefix + command.qualified_name + ' '
             for key, val in command.clean_params.items():
-                if val.default == val.default:
+                if val.default:
                     usage += f'<{val.name}>'
                 else:
                     usage += f'<[{val.name}]>'
@@ -291,8 +291,8 @@ class Core(commands.Cog):
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
             await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
             return 'no-rm'
-        await ctx.message.add_reaction(':white_check_mark:')
-        return 0
+        await ctx.message.add_reaction('✅')
+        return 'no-rm'
     
     @commands.command(name='exec', help='Execute python', hidden=True)
     @commands.is_owner()
@@ -303,8 +303,8 @@ class Core(commands.Cog):
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
             await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
             return 'no-rm'
-        await ctx.message.add_reaction(":white_check_mark:")
-        return 0
+        await ctx.message.add_reaction("✅")
+        return 'no-rm'
 
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
@@ -313,6 +313,7 @@ class Core(commands.Cog):
         if cmd is not None:
             module = cmd.cog.name.lower()
         self.bot.reload_extension(f'cogs.{module}')
+        await ctx.message.add_reaction("✅")
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
@@ -322,6 +323,7 @@ class Core(commands.Cog):
             self.bot.unload_extension(f"cogs.{module}")
         else:
             self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
+        await ctx.message.add_reaction("✅")
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
@@ -331,6 +333,7 @@ class Core(commands.Cog):
             self.bot.load_extension(f"cogs.{module}")
         else:
             self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
+        await ctx.message.add_reaction("✅")
 
 
 def setup(bot):

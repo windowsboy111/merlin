@@ -6,7 +6,10 @@ import discord
 from discord.ext import commands
 import botmc  # pylint: disable=import-error
 from ext import base_encoding  # pylint: disable=import-error
+from ext.const import STRFILE
+import json
 import duckduckgo
+stringTable = json.load(open(STRFILE, 'r'))
 
 
 class Utils(commands.Cog):
@@ -194,7 +197,7 @@ class Utils(commands.Cog):
         output.timestamp = datetime.utcnow()
         for key in tally.keys():
             output.add_field(name=opt_dict[key], value=tally[key])
-            output.set_footer(text='Poll ID: {}'.format(id))
+            output.set_footer(text=pollID)
         await msg.edit(embed=output, content='')
         edited = discord.Embed(title=embed.title, description='Poll ended', color=0xFFC300)
         edited.set_footer(text=f"Result id: {msg.id}")
@@ -340,6 +343,51 @@ class Utils(commands.Cog):
         e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         e.set_footer(text="Results from DuckDuckGo", icon_url='https://cdn.discordapp.com/emojis/739863899674902578.png')
         await ctx.send(embed=e)
+
+    def get_matching_emote(self, guild, emote_name):
+        """
+        Gets a matching emote from the given guild.
+        :param guild: The guild to search.
+        :type guild: discord.Guild
+        :param emote: The full emote string to look for.
+        :type emote: str
+        :return:
+        :rtype: discord.Emoji
+        """
+        matching_emote = []
+        for emote in guild.emojis:
+            if emote_name in emote.name:
+                matching_emote.append(emote)
+        return matching_emote
+
+    @commands.command(name="emoji", aliases=["emojis"])
+    async def emoji(self, ctx, name: str):
+        """peek emoji from other servers"""
+        emotes = []
+        for guild in self.bot.guilds:
+            emotes.extend(self.get_matching_emote(guild, name))
+        if any(emotes):
+            await ctx.send("\n".join([f"{emote} `{emote}` {emote.id}" for emote in emotes]))
+        else:
+            await ctx.send("broke my :mag:, maybe you should rephrase it?")
+        return 0
+    
+    @commands.group(name="tutorial", aliases=['tut'])
+    async def tutorial(self, ctx):
+        """how to use merlin?"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("This command helps you to understand how to use this bot correctly. get the usage of this command with `/help tut`.")
+            return 0
+
+    @tutorial.command(name='help', aliases=['?'])
+    async def tutorial_help(self, ctx):
+        await ctx.send(stringTable['tut']['help'])
+        return 0
+    
+    @tutorial.command(name='embed', aliases=['e'])
+    async def tutorial_embed(self, ctx):
+        await ctx.send(stringTable['tut']['embed'])
+        return 0
 
 
 def setup(bot):

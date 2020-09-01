@@ -1,6 +1,6 @@
 import discord, datetime, json
 from discord.ext import commands
-import exceptions
+import ext.excepts
 SETFILE = "data/settings.json"
 
 

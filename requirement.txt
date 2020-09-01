@@ -1,0 +1,9 @@
+pytablemaker
+discord.py
+chatterbot==0.8.7
+mcstatus
+flask
+python-dotenv
+numpy
+psutil
+duckduckgo3
