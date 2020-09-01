@@ -2,6 +2,33 @@
 > windowsboy111
 
 
+## [Unreleased]
+### Optimized
+- code organization
+### Added
+- diagnose script in ext/init
+- emoji command to peek emojis from other servers
+- tutorial command
+### Removed
+- since removing issue command affect specific features, issue command will be left
+### Fixed
+- help command now identifies optional params correctly
+
+## [2.2.0] - 2020-08-15
+### Added
+- some commands now contains multi-line help messages
+- help command now supports multi-line help messages
+- bot now tries to stop webserver if start with main script
+- search command
+- error messages when one don't have perms to issue a command
+### Changed
+- help command now gets more features
+### Removed
+- `/msgstats`
+### Fixed
+- if exit not properly, will try to restart
+- lastword didn't work when join new server
+
 ## [2.2-b1] - 2020-08-08
 ### Added
 - if options for `/poll create` is less than 2 then it will fall back to yes and no
@@ -219,7 +246,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2.0...HEAD
+[2.2.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...2.2.0
 [2.2-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.2-b...2.2-b1
 [2.2-b]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.a...2.2-b
 [2.2-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.1.5...2.2-a

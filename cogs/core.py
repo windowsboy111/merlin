@@ -28,9 +28,10 @@ class Core(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(name='settings', help='settings about everything')
+    @commands.group(name='settings', help='settings about everything', aliases=['set'])
     async def settings(self, ctx):
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
+        tmp = cmdHdl['cmdNotFound']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
@@ -39,7 +40,7 @@ class Core(commands.Cog):
             e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
-    @settings.command(help='Change settings about error handling')
+    @settings.command(name='errorhandle', help='Change settings about error handling')
     async def settings_errorhandle(self, ctx, toggle):
         if toggle is None:
             res = ''
@@ -115,8 +116,6 @@ class Core(commands.Cog):
 
     @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
     async def help(self, ctx, *, cmdName: str = None):
-        try: await ctx.message.delete()
-        except Exception: pass
         prefix = None
         prefixes = settings[f"g{ctx.guild.id}"]["prefix"]
         for p in prefixes:
@@ -125,35 +124,29 @@ class Core(commands.Cog):
                 break
         if cmdName:
             command = self.bot.get_command(cmdName)
-            if not command or command.hidden: return await ctx.send('Command not found, please try again.')
-            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(command.description or "<no description>"), color=0x0000ff)
+            if not command or command.hidden: return await ctx.send(':mag: Command not found, please try again.')
+            path = "/" + (command.cog.qualified_name if command.cog else "None") + "/" + "/".join(command.full_parent_name.split(" "))
+            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(path + '\n' + command.description or "<no description>"),color=0x0000ff)
             usage = prefix + command.qualified_name + ' '
-            for param in command.clean_params:
-                if type(param) is str:
-                    usage += f'<{param}> '
-                    continue
-                if param.default == param.default:
-                    usage += f'<{param.name}>'
+            for key, val in command.clean_params.items():
+                if val.default:
+                    usage += f'<{val.name}>'
                 else:
-                    usage += f'<[{param.name}]>'
+                    usage += f'<[{val.name}]>'
                 usage += ' '
             e.add_field(name='Objective',   value=command.help)
             e.add_field(name='Usage',       value=usage)
-            e.add_field(name='Cog',         value="No cogs" if not command.cog else command.cog.qualified_name)
+            e.add_field(name='Cog',         value="<No cog>" if not command.cog else command.cog.qualified_name)
             e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
             if hasattr(command, 'commands'):    # it is a group
-                e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.help}\n" for cmd in command.commands]))
+                e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}\n" for cmd in command.commands]))
             await ctx.send(embed=e)
             return
-
-        all_cmds = self.bot.commands
-        e = discord.Embed(title='Command list', description='wd: <GLOBAL>', color=0x0000ff)
-        count = 1
-        for cmd in all_cmds:
+        e = discord.Embed(title='Command list', description='wd: `/`', color=0x0000ff)
+        for cmd in self.bot.commands:
             if cmd.hidden:
                 continue
-            e.add_field(name=cmd.name, value=cmd.help or "<no help>")
-            count += 1
+            e.add_field(name=cmd.name, value=cmd.short_doc or "<no help>")
         await ctx.send(embed=e)
 
     @commands.group(name='info', help='info about everything')
@@ -272,8 +265,7 @@ class Core(commands.Cog):
         embed.add_field(name='System channel', value=ctx.guild.system_channel.mention if ctx.guild.system_channel else "Not set")
         embed.add_field(name='Region', value=str(ctx.guild.region) if ctx.guild.region else "Not set / found")
         embed.add_field(name='afk', value=f"{ctx.guild.afk_timeout or '<no afk timeout>'} sec / {ctx.guild.afk_channel.name if ctx.guild.afk_channel else '<no afk channel>'}")
-        # embed.add_field(name='Public updates channel', value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
-        # new in discord.py version 1.4
+        embed.add_field(name='Public updates channel', value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
         None if not ctx.guild.icon_url else embed.set_image(url=ctx.guild.icon_url)
         embed.add_field(name='Owner', value=ctx.guild.owner.mention)
         embed.set_footer(text="Created on")
@@ -299,8 +291,20 @@ class Core(commands.Cog):
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
             await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
             return 'no-rm'
-        await ctx.message.add_reaction(':white_check_mark:')
-        return 0
+        await ctx.message.add_reaction('✅')
+        return 'no-rm'
+    
+    @commands.command(name='exec', help='Execute python', hidden=True)
+    @commands.is_owner()
+    async def _exec(self, ctx: commands.Context, *, code='return "???????"'):
+        try:
+            exec(code, globals(), locals())
+        except Exception:
+            await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
+            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
+            return 'no-rm'
+        await ctx.message.add_reaction("✅")
+        return 'no-rm'
 
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
@@ -309,7 +313,7 @@ class Core(commands.Cog):
         if cmd is not None:
             module = cmd.cog.name.lower()
         self.bot.reload_extension(f'cogs.{module}')
-        return 'no-rm'
+        await ctx.message.add_reaction("✅")
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
@@ -319,7 +323,7 @@ class Core(commands.Cog):
             self.bot.unload_extension(f"cogs.{module}")
         else:
             self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
-        return 'no-rm'
+        await ctx.message.add_reaction("✅")
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
@@ -329,7 +333,7 @@ class Core(commands.Cog):
             self.bot.load_extension(f"cogs.{module}")
         else:
             self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
-        return 'no-rm'
+        await ctx.message.add_reaction("✅")
 
 
 def setup(bot):

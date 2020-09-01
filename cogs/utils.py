@@ -6,6 +6,10 @@ import discord
 from discord.ext import commands
 import botmc  # pylint: disable=import-error
 from ext import base_encoding  # pylint: disable=import-error
+from ext.const import STRFILE
+import json
+import duckduckgo
+stringTable = json.load(open(STRFILE, 'r'))
 
 
 class Utils(commands.Cog):
@@ -20,6 +24,7 @@ class Utils(commands.Cog):
     - mc
     - invite
     - avatar
+    - search
     """
     def __init__(self, bot):
         self.bot = bot
@@ -30,8 +35,13 @@ class Utils(commands.Cog):
             await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
             return
 
-    @vote.command(name='create', help='Create a vote: /vote create <name> <choices>', aliases=['make', 'mk', 'new'])
+    @vote.command(name='create', aliases=['make', 'mk', 'new'])
     async def create(self, ctx: commands.Context, name='', *options: str):
+        """
+        Create a new poll
+        Add your choice by reacting to the message
+        end a poll with /poll end <id>
+        """
         msg = ctx.message
         if len(msg.mentions) > 0:
             for mention in msg.mentions:
@@ -122,8 +132,15 @@ class Utils(commands.Cog):
         await msg.edit(content='Results: ' + str(len(result2)), embed=embed)
         return pollID
 
-    @vote.command(name='end', help='End a vote or poll')
+    @vote.command(name='end')
     async def end(self, ctx, *, pollID='0'):
+        """
+        End a poll
+        start a poll with `/poll create`
+        the id of a poll is either the 64 based encoded form of message id or the original message id
+        you can right click to get the message id if you have developer option enabled
+        If one voted for multiple choices, only the first choice counts, others will be ignored
+        """
         # pre processing: checks
         if pollID == 'all':
             ctx = await self.bot.get_context(ctx.message)
@@ -187,10 +204,10 @@ class Utils(commands.Cog):
         await poll_message.edit(embed=edited)
         return 0
 
-    @commands.group(name='mc', help="Same as kccsofficial.exe mc <args>\nUsage: /mc srv hypixel", pass_context=True, aliases=['minecraft'])
+    @commands.group(name='mc', help="MINECRAFT", aliases=['minecraft'])
     async def mc(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send("2 bed idk wat u r toking 'bout, but wut?")
+            await ctx.send(":octagonal_sign: 2 bed idk wat u r toking 'bout, but wut?")
             return
 
     @mc.command(name='srv', help='list servers', aliases=['server'])
@@ -301,6 +318,75 @@ class Utils(commands.Cog):
         e.set_image(url=user.avatar_url_as(format=imageFormat, size=size))
         e.timestamp = datetime.utcnow()
         await ctx.send(embed=e)
+        return 0
+    
+    @commands.command()
+    async def search(self, ctx, *, question: str):
+        """
+        give ya search results from the internet
+        Using duckduckgo API
+        `python3 -m pip install duckduckgo3`
+        """
+        if question.startswith("!!"):
+            await ctx.send(duckduckgo.get_zci(question[2:]))
+            return 0
+        res = duckduckgo.query(question)
+        e = discord.Embed(title=f"{len(res.results)} results and {len(res.related)} related", description=f'Answers about {question}')
+        e.add_field(name='answer', value=f"{res.answer.type}: {res.answer.text}", inline=False)
+        e.add_field(name='type', value=res.type, inline=False)
+        if len(res.results) > 0:
+            e.add_field(name='best result', value=f'[{res.results[0].text}]({res.results[0].url} "1st result")')
+        if len(res.related) > 0:
+            e.add_field(name='best related', value=f'[{res.related[0].text}]({res.related[0].url} "1st related")')
+        e.add_field(name='Abstract', value=f'[{res.abstract.text}]({res.abstract.url} "{res.abstract.source}")')
+        e.timestamp = datetime.utcnow()
+        e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        e.set_footer(text="Results from DuckDuckGo", icon_url='https://cdn.discordapp.com/emojis/739863899674902578.png')
+        await ctx.send(embed=e)
+
+    def get_matching_emote(self, guild, emote_name):
+        """
+        Gets a matching emote from the given guild.
+        :param guild: The guild to search.
+        :type guild: discord.Guild
+        :param emote: The full emote string to look for.
+        :type emote: str
+        :return:
+        :rtype: discord.Emoji
+        """
+        matching_emote = []
+        for emote in guild.emojis:
+            if emote_name in emote.name:
+                matching_emote.append(emote)
+        return matching_emote
+
+    @commands.command(name="emoji", aliases=["emojis"])
+    async def emoji(self, ctx, name: str):
+        """peek emoji from other servers"""
+        emotes = []
+        for guild in self.bot.guilds:
+            emotes.extend(self.get_matching_emote(guild, name))
+        if any(emotes):
+            await ctx.send("\n".join([f"{emote} `{emote}` {emote.id}" for emote in emotes]))
+        else:
+            await ctx.send("broke my :mag:, maybe you should rephrase it?")
+        return 0
+    
+    @commands.group(name="tutorial", aliases=['tut'])
+    async def tutorial(self, ctx):
+        """how to use merlin?"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("This command helps you to understand how to use this bot correctly. get the usage of this command with `/help tut`.")
+            return 0
+
+    @tutorial.command(name='help', aliases=['?'])
+    async def tutorial_help(self, ctx):
+        await ctx.send(stringTable['tut']['help'])
+        return 0
+    
+    @tutorial.command(name='embed', aliases=['e'])
+    async def tutorial_embed(self, ctx):
+        await ctx.send(stringTable['tut']['embed'])
         return 0
 
 

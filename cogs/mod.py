@@ -4,9 +4,10 @@ from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
 from ext.imports_share import log, chk_sudo  # pylint: disable=import-error
-from exceptions import NoMutedRole
-WARNFILE, SETFILE = 'data/warnings.db', 'data/settings.json'; muted = dict()
-stringTable = json.load(open('ext/wrds.json', 'r'))
+from ext.excepts import NoMutedRole
+from ext.const import WARNFILE, SETFILE, STRFILE
+muted = dict()
+stringTable = json.load(open(STRFILE, 'r'))
 settings = json.load(open(SETFILE, 'r'))
 
 
@@ -77,14 +78,14 @@ class Mod(commands.Cog):
                                   '(no modification has been made to the db, which is unintended...)')
         cursor.execute("COMMIT;")
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
-        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.message.channel.guild)
+        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
     @chk_sudo()
     @commands.guild_only()
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
         if not person:
-            await ctx.send('No member has been specified.')
+            await ctx.send(':octagonal_sign: No member has been specified.')
             return
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
@@ -95,7 +96,7 @@ class Mod(commands.Cog):
         cursor.execute("COMMIT;")
         close_cursor(cursor)
         close_connection(connection)
-        return await ctx.send('Okay!')
+        return await ctx.send(f'Removed warning(s) from {person.mention}.')
 
     @commands.command(name='chkwrn', aliases=['checkwarn', 'checkwarns', 'checkwarnings', 'ckwn', "chkwn"], help='Show warnings of member')
     @commands.guild_only()
@@ -107,7 +108,7 @@ class Mod(commands.Cog):
         if rows == []:
             close_cursor(cursor)
             close_connection(connection)
-            return await ctx.send(f"Member {member.mention} does not have any warnings.")
+            return await ctx.send(f":octagonal_sign: Member {member.mention} does not have any warnings.")
         if raw == 'raw':
             t = pyTableMaker.onelineTable(cellwrap=25)
             t.new_column('Warn No.')
@@ -142,12 +143,12 @@ class Mod(commands.Cog):
     async def kick(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         try:
             if not member:
-                await ctx.send('Please specify a member.')
+                await ctx.send(':octagonal_sign: Please specify a member.')
                 return
-            await member.send(f'You have been kicked.\nReason: {reason}')
+            await member.send(f':wave: You have been kicked.\nReason: {reason}')
             await member.kick(reason=reason)
             await ctx.send(
-                f'{ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n'
+                f':wave: {ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n'
                 + random.choice([
                     'https://tenor.com/view/kung-fu-panda-karate-kick-gif-15261593',
                     'https://tenor.com/view/strong-kick-hammer-down-fatal-blow-scarlet-johnny-cage-gif-13863296'])
@@ -162,11 +163,11 @@ class Mod(commands.Cog):
     async def ban(self, ctx, member: discord.Member = None, reason: str = 'Not specified'):
         global oldID
         if not member:
-            return await ctx.send('Please specify a member.')
-        await member.send(f'You have been banned.\nReason: {reason}')
+            return await ctx.send(':octagonal_sign: Please specify a member.')
+        await member.send(f'<:banhammer:743429852279079023> You have been banned.\nReason: {reason}')
         await member.ban(reason=reason)
         oldID = member.id
-        await ctx.send(f'{ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
+        await ctx.send(f'<:banhammer:743429852279079023> {ctx.message.author.mention} has banned {member.mention}.\nReason: {reason}\n' + random.choice([
             'https://imgur.com/V4TVpbC',
             'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581',
             'https://tenor.com/view/cat-red-hammer-bongo-cat-bang-hammer-gif-15733820'
@@ -180,7 +181,7 @@ class Mod(commands.Cog):
         if userID == 0:
             global oldID
             if oldID == 0:
-                await ctx.send(f'{ctx.message.author.mention} please specify an user id.')
+                await ctx.send(f':octagonal_sign: {ctx.message.author.mention} please specify an user id.')
                 return
             else:
                 userID = oldID
@@ -206,8 +207,8 @@ class Mod(commands.Cog):
             try:
                 t = int(mute_time)
             except Exception:
-                await ctx.send("time should ends with `m`, `h`, `d`, `w`, or no postfix.")
-                return
+                await ctx.send(":octagonal_sign: time should ends with `m`, `h`, `d`, `w`, or no postfix.")
+                return 2
 
         role = discord.utils.get(ctx.guild.roles, name="Muted")
         if role is None:
