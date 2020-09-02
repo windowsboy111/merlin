@@ -3,6 +3,11 @@
 
 
 ## [Unreleased]
+### Added
+- warnings are now stored for each server
+- added choice for enabling deleting issue cmd `/settings cmdhdl delIssue`
+### Fixed
+- `/settings cmdhdl` now works
 
 ## [2.2.1] - 2020-09-01
 ### Optimized

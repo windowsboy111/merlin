@@ -1,5 +1,6 @@
 from ext.logcfg import get_logger, logging
 from ext.consolemod import style
+import discord, json
 
 
 statusLs = [
@@ -57,3 +58,18 @@ def event_log(message: str):
 def cmd_handle_warn(message: str):
     print(style.orange + message + style.reset)
     cmdHdlLogger.warning(message)
+
+DEFAULT_SETTINGS = {
+    "prefix": ["/"],
+    "sudoers": [],
+    "cmdHdl": {
+        "cmdNotFound": 0,
+        "delIssue": 0
+    }
+}
+
+def fix_settings(guild: discord.Guild):
+    settings = json.load(open(SETFILE, 'r'))
+    settings[f'g{guild.id}'] = DEFAULT_SETTINGS
+    with open(SETFILE, 'w') as outfile:
+        json.dump(settings, outfile)

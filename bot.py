@@ -9,6 +9,8 @@ import traceback
 import random
 import json
 import asyncio
+import sqlite3
+from contextlib import closing
 from datetime import datetime
 # additional libs
 import discord
@@ -17,7 +19,7 @@ from discord.ext import commands
 from discord.utils import find
 # python external files
 from ext.imports_share import log, bot, get_prefix
-from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
+from ext.const import statusLs, WARNFILE, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style, fix_settings
 from ext import excepts
 import easteregg
 from ext.chat import chat
@@ -98,7 +100,7 @@ async def cmd_reboot(ctx):
     await asyncio.sleep(10)
     await ctx.send('Logging out...')
     await log('Logging out...')
-    print('Logging out...')
+    nlog('Logging out...')
     exitType = 1
     await bot.logout()
 
@@ -128,10 +130,10 @@ async def cmd_update(ctx):
 # events
 @bot.event
 async def on_message(message: discord.Message):
+    global lastword
     if await easteregg.easter(message):
         return
     try:
-        global lastword
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
     except Exception:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
@@ -150,22 +152,18 @@ async def on_message(message: discord.Message):
             pass
         try:
             await bot.process_commands(message)
+            if settings[f'g{message.guild.id}']['cmdHdl']['delIssue']:
+                await message.delete()
             return 0
         except discord.ext.commands.errors.CommandNotFound:
             pass
         except discord.errors.NotFound:
             pass
+        except KeyError:
+            pass
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
-    try:
-        global lastword
-        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-    except KeyError:
-        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-    json.dump(lastword, open(LASTWRDFILE, 'w'))
-    if isinstance(message.channel, discord.channel.DMChannel):
-        return 0
 
 
 @bot.event
@@ -212,6 +210,23 @@ async def on_guild_join(guild: discord.Guild):
                          "cmdHdl": {"cmdNotFound": 0}, "sudoers": sudoers}
     with open(SETFILE, 'w') as outfile:
         json.dump(f, outfile)
+    # warn db
+    conn = sqlite3.connect(WARNFILE)
+    curs = conn.cursor()
+    curs.executemany(
+        f"""
+        CREATE TABLE g{guild.id} (
+            ID int,
+            Person int,
+            Reason varchar(255),
+            Moderator varchar(255),
+            WarnedDate DATE
+        );
+        COMMIT;
+        """
+    )
+    closing(curs)
+    closing(conn)
     return 0
 
 
@@ -241,7 +256,7 @@ async def on_command_error(ctx, error):
                 if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
                     await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
             except KeyError:
-                await ctx.send(":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n<:warn:739838316374917171> something went wrong, please run `/settings`")
+                fix_settings(ctx.guild)
             return 2
         if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
             return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
