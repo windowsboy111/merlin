@@ -1,8 +1,7 @@
 #!/bin/python3
 # bot.py
-
 # python libs
-import bot_imports
+import ext.bot_imports
 import sys
 import os
 import traceback
@@ -16,11 +15,11 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from discord.utils import find
 # python external files
-from ext.imports_share import log, bot, get_prefix
+from ext.const import log, bot, get_prefix
 from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
 from ext import excepts
 import easteregg
-from ext.chat import chat
+from modules.chat import chat
 load_dotenv()
 cogs = []
 for cog in os.listdir('cogs/'):
@@ -46,7 +45,6 @@ setattr(logging.Logger, 'hint', hint)
 settings = json.load(open(SETFILE))
 
 # init
-bot.remove_command('help')
 MODE = os.getenv('MODE')
 
 slog("Adding bot commands...")

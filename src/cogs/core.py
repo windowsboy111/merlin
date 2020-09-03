@@ -1,8 +1,7 @@
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
-from ext.imports_share import chk_sudo
-BOTSETFILE = "ext/bot_settings.json"
+from ext.const import chk_sudo, SETFILE, BOTSETFILE
 SETFILE = "data/settings.json"
 settings = json.load(open(SETFILE, 'r'))
 stringTable = json.load(open('ext/wrds.json', 'r'))
@@ -337,4 +336,5 @@ class Core(commands.Cog):
 
 
 def setup(bot):
+    bot.remove_command('help')
     bot.add_cog(Core(bot))

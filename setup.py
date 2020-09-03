@@ -13,7 +13,7 @@ elif cfg['stage'] == "alpha":
     stage = 'Development Status :: 3 - Alpha'
 setup(
     name='Merlin-bot',
-    packages=['.'],
+    packages=['src'],
     version=cfg['version'],
     license='MIT',
     description=cfg['description'],
