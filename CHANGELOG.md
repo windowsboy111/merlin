@@ -8,6 +8,8 @@
 ### Added
 - setup script
 - added customization for on_message
+### Fixed
+- can force terminate now
 
 ## [2.2.1] - 2020-09-01
 ### Optimized

@@ -18,6 +18,7 @@ from discord.utils import find
 from ext.const import log, bot, get_prefix
 from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
 from ext import excepts
+exitType = 0
 load_dotenv()
 cogs = []
 for cog in os.listdir('cogs/'):
@@ -134,8 +135,8 @@ def start(token=None, **kwargs):
     while True:
         bot.run(token, **kwargs)
         if exitType == 0:
-            nlog("Uh oh whoops, that's awkward... Bot has logged out unexpectedly. trying to relog in...")
-            continue
+            nlog("Force terminating...")
+            os._exit(sys.exit(1))
         nlog('Logged out')
         break
     slog('Writing changes and saving data...')
@@ -151,7 +152,7 @@ def start(token=None, **kwargs):
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
     except PermissionError as e:
         print(f"OPERATION FAILED: {str(e)}")
-        sys.exit(2)
+        sys.exit(3)
 
 
 if __name__ == '__main__':
