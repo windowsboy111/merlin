@@ -3,6 +3,8 @@
 
 
 ## [Unreleased]
+### Optimized
+- fs organization
 
 ## [2.2.1] - 2020-09-01
 ### Optimized

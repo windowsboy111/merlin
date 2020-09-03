@@ -56,7 +56,7 @@ def main():
         import duckduckgo
         import psutil
         import dotenv
-        import pytablemaker
+        import pyTableMaker
         import chatterbot
         import chatterbot_corpus
         import mcstatus

@@ -1,7 +1,7 @@
 #!/bin/python3
 # bot.py
 # python libs
-import ext.bot_imports
+import ext.startup
 import sys
 import os
 import traceback
