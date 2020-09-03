@@ -5,6 +5,8 @@
 ## [Unreleased]
 ### Optimized
 - fs organization
+### Added
+- added customization for on_message
 
 ## [2.2.1] - 2020-09-01
 ### Optimized

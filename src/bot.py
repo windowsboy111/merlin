@@ -18,7 +18,7 @@ from discord.utils import find
 from ext.const import log, bot, get_prefix
 from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
 from ext import excepts
-import easteregg
+import special
 from modules.chat import chat
 load_dotenv()
 cogs = []
@@ -29,7 +29,7 @@ for cog in os.listdir('cogs/'):
 TOKEN = os.getenv('DISCORD_TOKEN')
 lastword = stringTable = None
 try:
-    lastword    = json.load(open(LASTWRDFILE, 'r'))
+    lastword = json.load(open(LASTWRDFILE, 'r'))
     stringTable = json.load(open(STRFILE, 'r'))
 except json.JSONDecodeError:
     lastword = {}
@@ -39,14 +39,10 @@ except json.JSONDecodeError:
     stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
-setattr(logging.Logger, 'hint', hint)
-
-
-settings = json.load(open(SETFILE))
-
-# init
+# configs (post startup)
 MODE = os.getenv('MODE')
-
+setattr(logging.Logger, 'hint', hint)
+settings = json.load(open(SETFILE))
 slog("Adding bot commands...")
 
 
@@ -127,7 +123,7 @@ async def cmd_update(ctx):
 @bot.event
 async def on_message(message: discord.Message):
     global lastword
-    if await easteregg.easter(message):
+    if await special.pre_on_message(message):
         return
     try:
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
@@ -156,6 +152,7 @@ async def on_message(message: discord.Message):
         except Exception:
             await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
             print(traceback.format_exc())
+    special.post_on_message(message)
 
 
 @bot.event
