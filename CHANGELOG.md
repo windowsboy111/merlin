@@ -6,6 +6,7 @@
 ### Optimized
 - fs organization
 ### Added
+- setup script
 - added customization for on_message
 
 ## [2.2.1] - 2020-09-01

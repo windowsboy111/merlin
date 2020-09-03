@@ -98,7 +98,7 @@ async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None
         for guild in bot.guilds:
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
-                    await channel.send(f"[{datetime.datetime.now()}] {message}")
+                    await channel.send(f"[{datetime.now()}] {message}")
         return
     else:
         if not guild and guild_id:
@@ -108,7 +108,7 @@ async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None
                 return 1
         for channel in guild.channels:
             if channel.name == 'merlin-py':
-                await channel.send(f"[{datetime.datetime.now()}] {message}")
+                await channel.send(f"[{datetime.now()}] {message}")
     return
 
 
