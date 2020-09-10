@@ -2,8 +2,8 @@ from discord.ext import commands
 from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
-from ext.dbctrl import close_connection, close_cursor
-from ext.const import log, chk_sudo
+from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
+from ext.imports_share import log, chk_sudo  # pylint: disable=import-error
 from ext.excepts import NoMutedRole
 from ext.const import WARNFILE, SETFILE, STRFILE
 muted = dict()
@@ -66,17 +66,19 @@ class Mod(commands.Cog):
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
         rc = cursor.rowcount
-        rows = cursor.execute("SELECT MAX(ID) AS len FROM warnings WHERE Person=?;", (str(person.id), )).fetchall()
+        rows = cursor.execute(f"SELECT MAX(ID) AS len FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), )).fetchall()
         if rows == [] or not rows[0][0]:
-            cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (1,?,?,?,?);", (
+            cursor.execute(f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (1,?,?,?,?);", (
                            str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
         else:
-            cursor.execute("INSERT INTO warnings (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (
+            cursor.execute(f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (
                            str(rows[0][0] + 1), str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
         if rc == cursor.rowcount:
             return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened '
                                   '(no modification has been made to the db, which is unintended...)')
         cursor.execute("COMMIT;")
+        close_cursor(cursor)
+        close_connection(connection)
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
         await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.guild)
 
@@ -90,9 +92,9 @@ class Mod(commands.Cog):
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
         if num == 0:
-            cursor.execute("DELETE FROM warnings WHERE Person=?;", (str(person.id), ))
+            cursor.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), ))
         else:
-            cursor.execute("DELETE FROM warnings WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+            cursor.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=? AND ID=?;", (str(person.id), str(num)))
         cursor.execute("COMMIT;")
         close_cursor(cursor)
         close_connection(connection)
@@ -104,7 +106,7 @@ class Mod(commands.Cog):
         member = member or ctx.message.author
         connection = sqlite3.connect(WARNFILE)
         cursor = connection.cursor()
-        rows = cursor.execute("SELECT ID,Moderator,Reason,WarnedDate FROM warnings WHERE Person=?;", (str(member.id), )).fetchall()
+        rows = cursor.execute(f"SELECT ID,Moderator,Reason,WarnedDate FROM g{ctx.guild.id} WHERE Person=?;", (str(member.id), )).fetchall()
         if rows == []:
             close_cursor(cursor)
             close_connection(connection)
@@ -244,6 +246,26 @@ class Mod(commands.Cog):
         if isinstance(error, NoMutedRole):
             await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
+    async def warn_error(self, ctx, error):
+        conn = sqlite3.connect(WARNFILE)
+        curs = conn.cursor()
+        curs.execute(
+            f"""
+            CREATE TABLE g{ctx.guild.id} (
+                ID int,
+                Person int,
+                Reason varchar(255),
+                Moderator varchar(255),
+                WarnedDate DATE
+            );
+            """
+        )
+        close_cursor(curs)
+        close_connection(conn)
+        await ctx.send("something went wrong, please try again")
+    warn.error(warn_error)
+    rmwn.error(warn_error)
+    chkwrn.error(warn_error)
 
 def setup(bot):
     bot.add_cog(Mod(bot))
