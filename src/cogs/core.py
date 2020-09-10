@@ -1,8 +1,8 @@
+import asyncio
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
-from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SET
-SETFILE = "data/settings.json"
+from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, fix_settings, chk_sudo
 settings = json.load(open(SETFILE, 'r'))
 stringTable = json.load(open('ext/wrds.json', 'r'))
 
@@ -29,6 +29,7 @@ class Core(commands.Cog):
 
     @commands.group(name='settings', help='settings about everything', aliases=['set'])
     async def settings(self, ctx):
+        assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(DEFAULT_SETTINGS['cmdHdl'])
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
         tmp = cmdHdl['cmdNotFound']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
@@ -39,8 +40,8 @@ class Core(commands.Cog):
             e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
-    @settings.command(name='cmdhdl', help='Change settings about cmd handling', aliases=['cmdctl'])
-    async def settings_errorhandle(self, ctx, toggle):
+    @settings.command(name='cmdhdl', help='Change settings about error handling', aliases=['cmdctl'])
+    async def settings_cmdhdl(self, ctx, toggle=None):
         if toggle is None:
             res = ''
             for k, v in settings[f'g{ctx.guild.id}']['cmdHdl'].items():
@@ -92,7 +93,7 @@ class Core(commands.Cog):
         sudoers.append(str(role))
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description=', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
 
     @settings_mods.command(name='remove', help='remove a moderating role', aliases=['del', 'rm', 'delete'])
     async def setings_mod_remove(self, ctx, role: discord.Role):
@@ -100,19 +101,17 @@ class Core(commands.Cog):
         sudoers.remove(str(role))
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description=', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
 
     @settings.error
     async def settings_error(self, ctx, error):
-        if "KeyError" in str(error):
-            await ctx.send(stringTable['core']['guildSettingsNotFound'])
-            default = DEFAULT_SET.copy()
-            default.update(settings[f"g{ctx.guild.id}"])
-            settings[f'g{ctx.guild.id}'] = default
-            with open(SETFILE, 'w') as outfile:
-                json.dump(settings, outfile)
-            await ctx.send(stringTable['core']['guildSettingsFixed'])
-            return 2
+        global settings
+        if "AssertionError"in str(error) or "KeyError" in str(error):
+            json.dump(settings, open(SETFILE, 'w'))
+            fix_settings(ctx.guild)
+            settings = json.load(open(SETFILE, 'r'))
+            await ctx.send("Fixed corrupted settings")
+            return 0
         await ctx.send(f"<:err:740034702743830549> Something went wrong: {str(error)}")
 
     @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
@@ -337,6 +336,13 @@ class Core(commands.Cog):
         await ctx.message.add_reaction("✅")
 
 
-def setup(bot):
+async def task_update_settings():
+    while True:
+        await asyncio.sleep(10)
+        settings.update(json.load(open(SETFILE, 'r')))
+
+
+def setup(bot: discord.ext.commands.Bot):
     bot.remove_command('help')
     bot.add_cog(Core(bot))
+    bot.loop.create_task(task_update_settings())

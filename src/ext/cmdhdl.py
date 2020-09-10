@@ -7,7 +7,7 @@ import asyncio
 from discord.ext import commands
 from modules.chat import chat
 import special
-from ext.const import SETFILE, STRFILE, LASTWRDFILE, get_prefix, style, cmdHdlLogger, log, DEFAULT_SET
+from ext.const import SETFILE, STRFILE, LASTWRDFILE, get_prefix, style, cmdHdlLogger, log, DEFAULT_SETTINGS, fix_settings
 from datetime import datetime
 from ext import excepts
 import traceback
@@ -42,11 +42,7 @@ def set_on_message(bot: commands.Bot):
             settings["cmdHdl"]['improveExp']
         except Exception:
             # fix guild settings
-            default = DEFAULT_SET.copy()
-            default.update(settings[f"g{message.guild.id}"])
-            settings[f'g{message.guild.id}'] = default
-            with open(SETFILE, 'w') as outfile:
-                json.dump(settings, outfile)
+            fix_settings(message.guild)
         try:
             lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
         except Exception:

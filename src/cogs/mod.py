@@ -3,9 +3,8 @@ from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
 from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
-from ext.imports_share import log, chk_sudo  # pylint: disable=import-error
 from ext.excepts import NoMutedRole
-from ext.const import WARNFILE, SETFILE, STRFILE
+from ext.const import WARNFILE, SETFILE, STRFILE, log, chk_sudo
 muted = dict()
 stringTable = json.load(open(STRFILE, 'r'))
 settings = json.load(open(SETFILE, 'r'))

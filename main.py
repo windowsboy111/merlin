@@ -1,2 +1,3 @@
 import os
-os.system("cd src && python3 main.py")
+os.chdir("src/")
+os.system("python3 main.py")

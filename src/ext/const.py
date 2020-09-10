@@ -22,6 +22,8 @@ LASTWRDFILE = "data/lastword.json"
 SETFILE     = "data/settings.json"
 WARNFILE    = "data/warnings.db"
 STRFILE     = "ext/wrds.json"
+BOTSETFILE = "ext/bot_settings.json"
+SETFILE = "data/settings.json"
 
 
 logger, eventLogger, cmdHdlLogger = get_logger(
@@ -147,7 +149,7 @@ def chk_sudo():
     return commands.check(predicate)
 
 
-DEFAULT_SET = {
+DEFAULT_SETTINGS = {
     "prefix": ["/"],
     "sudoers": [],
     "cmdHdl": {
@@ -156,3 +158,12 @@ DEFAULT_SET = {
         "improveExp": 0
     }
 }
+
+
+def fix_settings(guild: discord.Guild):
+    settings = json.load(open(SETFILE, 'r'))
+    default = DEFAULT_SETTINGS.copy()
+    default.update(settings[f"g{guild.id}"])
+    settings[f'g{guild.id}'] = default
+    with open(SETFILE, 'w') as outfile:
+        json.dump(settings, outfile)

@@ -9,12 +9,15 @@
 - setup script
 - added customization for on_message
 - error messages when user is not a mod and the user runs commands that requires being a mod
+- warnings are now stored for each server
+- added choice for enabling deleting issue cmd `/settings cmdhdl delIssue`
 ### Changed
 - `/reload` now requires full path and can access `ext`
 - when add moderators embed will now be outputed instead
 ### Fixed
 - can force terminate now
 - settings didn't work when there are no prefix except mentioning
+- `/settings cmdhdl` now works
 
 ## [2.2.1] - 2020-09-01
 ### Optimized
