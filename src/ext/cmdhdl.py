@@ -7,7 +7,7 @@ import asyncio
 from discord.ext import commands
 from modules.chat import chat
 import special
-from ext.const import SETFILE, STRFILE, LASTWRDFILE, get_prefix, style, cmdHdlLogger, log
+from ext.const import SETFILE, STRFILE, LASTWRDFILE, get_prefix, style, cmdHdlLogger, log, DEFAULT_SET
 from datetime import datetime
 from ext import excepts
 import traceback
@@ -31,9 +31,22 @@ async def task_update():
 
 def set_on_message(bot: commands.Bot):
     async def on_message(message: discord.Message):
+        # pre: load
+        settings = json.load(open(SETFILE, 'r'))
         lastword = json.load(open(LASTWRDFILE, 'r'))
+        # run pre-cmd hooks
         if await special.pre_on_message(message):
-            return
+            return 0
+        try:
+            # test if entry presents
+            settings["cmdHdl"]['improveExp']
+        except Exception:
+            # fix guild settings
+            default = DEFAULT_SET.copy()
+            default.update(settings[f"g{message.guild.id}"])
+            settings[f'g{message.guild.id}'] = default
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
         try:
             lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
         except Exception:
@@ -42,7 +55,11 @@ def set_on_message(bot: commands.Bot):
             async with message.channel.typing():
                 await message.channel.send(chat.response(message.content))
             return 0
+        elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings["cmdHdl"]["improveExp"]:
+            msgs = await message.channel.history(limit=2).flatten()
+            await chat.save(message.content, msgs[1])
         await update()
+        print("test")
         if message.content.startswith(get_prefix(bot, message)):
             msgtoSend = f'{message.author} has issued command: '
             print(msgtoSend + style.green + message.content + style.reset)
@@ -53,6 +70,8 @@ def set_on_message(bot: commands.Bot):
                 pass
             try:
                 await bot.process_commands(message)
+                if settings["cmdHdl"]["delIssue"]:
+                    await message.delete()
                 return 0
             except discord.ext.commands.errors.CommandNotFound:
                 pass
@@ -61,7 +80,7 @@ def set_on_message(bot: commands.Bot):
             except Exception:
                 await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
                 print(traceback.format_exc())
-        await special.post_on_message(message)
+        await special.post_on_message(message) # run post-cmd hooks
     return on_message
 
 
@@ -80,8 +99,6 @@ def set_on_cmd_err(bot: commands.Bot):
                 except discord.HTTPException:
                     return 3
             # This prevents any commands with local handlers being handled here in on_command_error.
-            if hasattr(ctx.command, 'on_error'):
-                return
 
             # This prevents any cogs with an overwritten cog_command_error being handled here.
             if ctx.cog and ctx.cog._get_overridden_method(ctx.cog.cog_command_error) is not None:
@@ -104,6 +121,12 @@ def set_on_cmd_err(bot: commands.Bot):
                     description=f':x: `{ctx.message.content}`',
                     color=0xff0000
                 ))
+
+            if isinstance(error, excepts.NotMod):
+                await ctx.send(f"`{ctx.author} is not in the sudoers file.  This incident will be reported.`")
+
+            if hasattr(ctx.command, 'on_error'):
+                return
 
             if isinstance(error, commands.errors.CommandInvokeError):
                 await ctx.send(embed=discord.Embed(

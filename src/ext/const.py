@@ -145,3 +145,14 @@ def chk_sudo():
         else:
             raise excepts.NotMod(f"{ctx.author} is not a moderator / administrator in the given guild")
     return commands.check(predicate)
+
+
+DEFAULT_SET = {
+    "prefix": ["/"],
+    "sudoers": [],
+    "cmdHdl": {
+        "cmdNotFound": 0,
+        "delIssue": 0,
+        "improveExp": 0
+    }
+}

@@ -14,7 +14,8 @@ reTrain = False
 
 
 def make_bot():
-    return ChatBot(
+    global bot
+    bot = ChatBot(
         'Merlin',
         storage_adapter='chatterbot.storage.SQLStorageAdapter',
         logic_adapters=[
@@ -40,6 +41,7 @@ def make_bot():
         # read_only=True,
         database_uri=f'sqlite:///{os.path.dirname(__file__)}/chats.sqlite3'
     )
+    return bot
 
 
 def train(bot: ChatBot):
@@ -72,6 +74,10 @@ def response(msg: str):
     if res != 'I am sorry, but I do not understand.':
         bot.learn_response(res, None)
     return res
+
+
+async def save(msg: str, prev: str):
+    bot.learn_response(msg, prev)
 
 
 def init_train(bot: ChatBot):

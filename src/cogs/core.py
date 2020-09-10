@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
-from ext.const import chk_sudo, SETFILE, BOTSETFILE
+from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SET
 SETFILE = "data/settings.json"
 settings = json.load(open(SETFILE, 'r'))
 stringTable = json.load(open('ext/wrds.json', 'r'))
@@ -35,11 +35,11 @@ class Core(commands.Cog):
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
             e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
-            e.add_field(name='Prefix', value=', '.join(prefix))
+            e.add_field(name='Prefix', value=(', '.join(prefix) if any(prefix) else "<No prefixes>"))
             e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
-    @settings.command(name='errorhandle', help='Change settings about error handling')
+    @settings.command(name='cmdhdl', help='Change settings about cmd handling', aliases=['cmdctl'])
     async def settings_errorhandle(self, ctx, toggle):
         if toggle is None:
             res = ''
@@ -92,7 +92,7 @@ class Core(commands.Cog):
         sudoers.append(str(role))
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send("Moderators roles: " + ', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers]))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description=', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
 
     @settings_mods.command(name='remove', help='remove a moderating role', aliases=['del', 'rm', 'delete'])
     async def setings_mod_remove(self, ctx, role: discord.Role):
@@ -100,13 +100,15 @@ class Core(commands.Cog):
         sudoers.remove(str(role))
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send("Moderators roles: " + ', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers]))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description=', '.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
 
     @settings.error
     async def settings_error(self, ctx, error):
         if "KeyError" in str(error):
             await ctx.send(stringTable['core']['guildSettingsNotFound'])
-            settings[f'g{ctx.guild.id}'] = {"prefix": ["/"], "sudoers": [], "cmdHdl": {"cmdNotFound": 0}}
+            default = DEFAULT_SET.copy()
+            default.update(settings[f"g{ctx.guild.id}"])
+            settings[f'g{ctx.guild.id}'] = default
             with open(SETFILE, 'w') as outfile:
                 json.dump(settings, outfile)
             await ctx.send(stringTable['core']['guildSettingsFixed'])
@@ -310,8 +312,8 @@ class Core(commands.Cog):
     async def _reload(self, ctx, module: str):
         cmd = self.bot.get_command(module)
         if cmd is not None:
-            module = cmd.cog.name.lower()
-        self.bot.reload_extension(f'cogs.{module}')
+            module = "cogs." + cmd.cog.name.lower()
+        self.bot.reload_extension(module)
         await ctx.message.add_reaction("✅")
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
@@ -319,7 +321,7 @@ class Core(commands.Cog):
     async def _unload(self, ctx, module: str):
         cmd = self.bot.get_command(module)
         if cmd is None:
-            self.bot.unload_extension(f"cogs.{module}")
+            self.bot.unload_extension(module)
         else:
             self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
         await ctx.message.add_reaction("✅")
@@ -329,7 +331,7 @@ class Core(commands.Cog):
     async def _load(self, ctx, module: str):
         cmd = self.bot.get_command(module)
         if cmd is None:
-            self.bot.load_extension(f"cogs.{module}")
+            self.bot.load_extension(module)
         else:
             self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
         await ctx.message.add_reaction("✅")
