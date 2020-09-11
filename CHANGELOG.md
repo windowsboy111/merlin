@@ -3,14 +3,17 @@
 
 
 ## [Unreleased]
+### Fixed
+- will now fill settings for missing guild
 
 ## [3.0-a]
 ### Optimized
+- better chat system by allowing the bot to read other chats from other channels when `/settings cmdhdl improveExp` is 1
 - fs organization
 ### Added
 - chatterbot-corpus is a requirement
 - setup script
-- added customization for on_message
+- added customization for `on_message`
 - error messages when user is not a mod and the user runs commands that requires being a mod
 - warnings are now stored for each server
 - added choice for enabling deleting issue cmd `/settings cmdhdl delIssue`
