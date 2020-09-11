@@ -140,15 +140,14 @@ cython_debug/
 
 # User defined
 .vscode/
-easteregg.py
+src/special.py
 pyproject.toml
 poetry.lock
-data/lastword.json
-data/mcsrvs.csv
-data/pyoutput.txt
-data/warnings.db
-ext/chat/chats.sqlite3
-poetry.lock
-pyproject.toml
+src/data/lastword.json
+src/data/mcsrvs.csv
+src/data/pyoutput.txt
+src/data/warnings.db
+src/ext/chat/chats.sqlite3
+src/samples/traceback.sndbx
 .gitignore
 .replit

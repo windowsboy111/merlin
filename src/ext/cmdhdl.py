@@ -1,35 +1,15 @@
-"""
-This file is a discord extension. Load it on startup (both pre and post is okay).
-Contains command handling
-"""
-import discord, sys
-import asyncio
+import discord, json, traceback, sys
 from discord.ext import commands
-from modules.chat import chat
+from ext.const import SETFILE, LASTWRDFILE, STRFILE, fix_settings, get_prefix, cmdHdlLogger, log
 import special
-from ext.const import SETFILE, STRFILE, LASTWRDFILE, get_prefix, style, cmdHdlLogger, log, DEFAULT_SETTINGS, fix_settings
-from datetime import datetime
 from ext import excepts
-import traceback
-import json
+from modules.chat import chat
+from datetime import datetime
+from modules.consolemod import style
 
 
-# ---------
-# background tasks
-async def update():
-    global stringTable, lastword
-    lastword, stringTable = json.load(
-        open(LASTWRDFILE, 'r')), json.load(open(STRFILE, 'r'))
-    # settings.update(json.load(open(SETFILE, 'r')))
-    # json.dump(settings, open(SETFILE, 'w'))
-
-
-async def task_update():
-    await update()
-    await asyncio.sleep(60)
-
-
-def set_on_message(bot: commands.Bot):
+def setup(bot: commands.Bot):
+    @bot.event
     async def on_message(message: discord.Message):
         # pre: load
         settings = json.load(open(SETFILE, 'r'))
@@ -41,21 +21,13 @@ def set_on_message(bot: commands.Bot):
             # test if entry presents
             settings["cmdHdl"]['improveExp']
         except Exception:
-            # fix guild settings
-            fix_settings(message.guild)
+            fix_settings(message.guild)  # fix guild settings
+            settings = json.load(open(SETFILE, 'r'))  # reload settings again
         try:
             lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
         except Exception:
             lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-        if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
-            async with message.channel.typing():
-                await message.channel.send(chat.response(message.content))
-            return 0
-        elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings["cmdHdl"]["improveExp"]:
-            msgs = await message.channel.history(limit=2).flatten()
-            await chat.save(message.content, msgs[1])
-        await update()
-        if message.content.startswith(get_prefix(bot, message)):
+        if message.content.startswith(get_prefix(bot, message)) and message.channel.name != 'merlin-chat':
             msgtoSend = f'{message.author} has issued command: '
             print(msgtoSend + style.green + message.content + style.reset, file=sys.stdout)
             cmdHdlLogger.info(msgtoSend + message.content)
@@ -65,7 +37,7 @@ def set_on_message(bot: commands.Bot):
                 pass
             try:
                 await bot.process_commands(message)
-                if settings["cmdHdl"]["delIssue"]:
+                if settings[f'g{message.guild.id}']["cmdHdl"]["delIssue"]:
                     await message.delete()
                 return 0
             except discord.ext.commands.errors.CommandNotFound:
@@ -75,11 +47,21 @@ def set_on_message(bot: commands.Bot):
             except Exception:
                 await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
                 print(traceback.format_exc())
+        if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
+            response = ''
+            async with message.channel.typing():
+                response = chat.response(message.content)
+            await message.channel.send(response)
+            return 0
+        elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
+            msgs = await message.channel.history(limit=2).flatten()
+            await chat.save(message.content, msgs[1])
+        # save changes
+        json.dump(settings, open(SETFILE, 'w'))
+        json.dump(lastword, open(LASTWRDFILE, 'w'))
         await special.post_on_message(message) # run post-cmd hooks
-    return on_message
 
 
-def set_on_cmd_err(bot: commands.Bot):
     async def on_command_error(ctx, error):
         settings = json.load(open(SETFILE, 'r'))
         stringTable = json.load(open(STRFILE, 'r'))
@@ -150,11 +132,6 @@ def set_on_cmd_err(bot: commands.Bot):
                 return await ctx.send(str(error))
 
             # All other Errors not returned come here. And we can just print the default TraceBack.
-            await log(f'Ignoring exception in command {ctx.message.content}:' + '\n\n```' + str(traceback.format_exc()) + '\n```', guild=ctx.guild)
+            print(f"{style.red2}Ignoring exception in command {ctx.message.content}:\n{style.red}{traceback.format_exc()}{style.reset}", file=sys.stderr)
+            await log(f'Ignoring exception in command `{ctx.message.content}`:\n\n```{str(traceback.format_exc())}\n```', guild=ctx.guild)
             return 1
-    return on_command_error
-
-
-def setup(bot: commands.Bot):
-    bot.loop.create_task(task_update())
-    bot.event(set_on_cmd_err(bot))

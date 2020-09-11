@@ -1,7 +1,7 @@
 #!/bin/python3
 # bot.py
-# python libs
 import ext.startup
+# python libs
 import sys
 import os
 import traceback
@@ -15,7 +15,9 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from discord.utils import find
 # python external files
-from ext.const import log, bot, get_prefix
+import special
+from modules.chat import chat
+from ext.const import log, bot, get_prefix, fix_settings
 from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
 from ext import excepts
 # initlize runtime variables
@@ -38,14 +40,6 @@ except json.JSONDecodeError:
     f.write("{}")
     f.close()
     stringTable = json.load(open('ext/wrds.json', 'r'))
-
-
-async def update():
-    global settings, stringTable, lastword
-    lastword, stringTable = json.load(
-        open(LASTWRDFILE, 'r')), json.load(open(STRFILE, 'r'))
-    settings.update(json.load(open(SETFILE, 'r')))
-    json.dump(settings, open(SETFILE, 'w'))
 
 slog("Adding bot commands...")
 
@@ -80,12 +74,6 @@ async def cmd_shutdown(ctx):
     await bot.logout()
 
 
-@bot.command(name='update', hidden=True)
-@commands.is_owner()
-async def cmd_update(ctx):
-    await update()
-
-
 @bot.event
 async def on_ready():
     nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
@@ -94,11 +82,11 @@ async def on_ready():
         print(end=f' >> Loading {extension}...\r')
         try:
             bot.load_extension(extension)
-            print(" >> " + style.green2 + f"Loaded: {extension}" + style.reset + "   ")
+            slog(style.green2 + f"Loaded: {extension}" + style.reset + "   ")
         except commands.errors.ExtensionAlreadyLoaded:
             return nlog("Loaded tasks already, continue execution.")
         except Exception:
-            print(" >> " + style.red2 + f"FAILED: {extension}" + style.reset + "   ")
+            slog(style.red2 + f"FAILED: {extension}" + style.reset + "   ")
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))

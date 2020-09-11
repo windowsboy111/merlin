@@ -3,7 +3,7 @@ from discord.ext import commands
 from datetime import datetime
 import traceback
 import psutil
-import os
+import os, sys
 SANDBOX_TRACEBACK = 'samples/traceback.sndbx'
 
 
@@ -102,7 +102,8 @@ class Debug(commands.Cog):
         proc.memory_full_info()
         embed.add_field(name=f'{psutil.cpu_count()} CPUs', value=f'```{cpu.syscalls} Syscalls | {round(cpu.ctx_switches // 1000000)}M Switches```')
         embed.add_field(name=f'CPU Interrupts', value=f"```{round(cpu.interrupts // 1000000)}M ({round(cpu.soft_interrupts // 1000000)}M soft)```")
-        embed.add_field(name=f'CPU Frequency', value=f"```Currently {round(freq.current)}Mhz | Max {round(freq.max)}Mhz | Mix {round(freq.min)}Mhz```")
+        embed.add_field(name=f'CPU Frequency', value=f"```Currently {round(freq.current)}Mhz | Max {round(freq.max)}Mhz | Min {round(freq.min)}Mhz```")
+        embed.add_field(name=f'Operating System', value=sys.platform)
         await ctx.send(embed=embed)
 
 
