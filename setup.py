@@ -1,7 +1,7 @@
 from setuptools import setup
 import json
 long_description = ''
-cfg = json.load(open('ext/bot_settings.json', 'r'))
+cfg = json.load(open('src/ext/bot_settings.json', 'r'))
 with open("docs/README.md", "r") as fh:
     long_description = fh.read()
 stage = None
