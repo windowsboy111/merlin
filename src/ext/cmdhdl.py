@@ -55,7 +55,7 @@ def setup(bot: commands.Bot):
             return 0
         elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
             msgs = await message.channel.history(limit=2).flatten()
-            await chat.save(message.content, msgs[1])
+            await chat.save(message.content, msgs[1].content)
         # save changes
         json.dump(settings, open(SETFILE, 'w'))
         json.dump(lastword, open(LASTWRDFILE, 'w'))

@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Fixed
 - will now fill settings for missing guild
+- chat system couldn't learn prev msg correctly
 
 ## [3.0-a]
 ### Optimized
