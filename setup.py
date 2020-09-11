@@ -2,7 +2,7 @@ from setuptools import setup
 import json
 long_description = ''
 cfg = json.load(open('src/ext/bot_settings.json', 'r'))
-with open("docs/README.md", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 stage = None
 if cfg["stage"] == "stable":
@@ -21,8 +21,8 @@ setup(
     long_description=long_description,
     author=cfg['author name'],
     author_email='cyruschan0111@gmail.com',
-    url='https://github.com/windowsboy111/Merlin-bot/',
-    download_url=f'https://github.com/windowsboy111/Merlin-bot/archive/{cfg["version"]}.tar.gz',
+    url='https://github.com/windowsboy111/Merlin-py/',
+    download_url=f'https://github.com/windowsboy111/Merlin-py/archive/{cfg["version"]}.tar.gz',
     keywords=['discord', 'bot', 'discord.py'],
     install_requires=['pytablemaker', 'discord.py', 'chatterbot==0.8.7', 'mcstatus', 'flask', 'python-dotenv', 'numpy', 'psutil', 'duckduckgo3'],
     classifiers=[
