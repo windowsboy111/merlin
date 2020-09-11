@@ -2,7 +2,7 @@
 This file is a discord extension. Load it on startup (both pre and post is okay).
 Contains command handling
 """
-import discord
+import discord, sys
 import asyncio
 from discord.ext import commands
 from modules.chat import chat
@@ -55,10 +55,9 @@ def set_on_message(bot: commands.Bot):
             msgs = await message.channel.history(limit=2).flatten()
             await chat.save(message.content, msgs[1])
         await update()
-        print("test")
         if message.content.startswith(get_prefix(bot, message)):
             msgtoSend = f'{message.author} has issued command: '
-            print(msgtoSend + style.green + message.content + style.reset)
+            print(msgtoSend + style.green + message.content + style.reset, file=sys.stdout)
             cmdHdlLogger.info(msgtoSend + message.content)
             try:
                 await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
