@@ -161,6 +161,7 @@ DEFAULT_SETTINGS = {
 
 
 def fix_settings(guild: discord.Guild):
+    settings = json.load(open(SETFILE, 'r'))
     try:
         settings[f"g{guild.id}"]['cmdHdl']
     except KeyError:
@@ -168,7 +169,6 @@ def fix_settings(guild: discord.Guild):
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
         return
-    settings = json.load(open(SETFILE, 'r'))
     # fix cmdHdl
     cmdHdl = DEFAULT_SETTINGS['cmdHdl'].copy()          # the following code will leave entrys already
     cmdHdl.update(settings[f'g{guild.id}']['cmdHdl'])   # exists and add the missing entrys so that
