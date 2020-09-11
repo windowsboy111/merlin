@@ -46,7 +46,7 @@ def main():
     try:
         import ext
     except ImportError:
-        print("cannot import ext. be sure you run the script in the root directory of the repository.")
+        print("cannot import ext. be sure you run the script in the src/ directory of the repository.")
     try:
         import easteregg
     except ImportError:
@@ -56,7 +56,7 @@ def main():
         import duckduckgo
         import psutil
         import dotenv
-        import pytablemaker
+        import pyTableMaker
         import chatterbot
         import chatterbot_corpus
         import mcstatus

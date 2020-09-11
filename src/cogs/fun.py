@@ -3,7 +3,7 @@ import discord
 import random
 import json
 lolpwd = 'samples/'
-LASTWRDFILE = "data/lastword.json"
+from ext.const import LASTWRDFILE
 
 
 class Fun(commands.Cog):

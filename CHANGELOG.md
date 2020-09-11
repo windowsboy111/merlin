@@ -3,11 +3,28 @@
 
 
 ## [Unreleased]
+
+## [3.0-a]
+### Optimized
+- fs organization
 ### Added
+- chatterbot-corpus is a requirement
+- setup script
+- added customization for on_message
+- error messages when user is not a mod and the user runs commands that requires being a mod
 - warnings are now stored for each server
 - added choice for enabling deleting issue cmd `/settings cmdhdl delIssue`
+### Changed
+- `/reload` now requires full path and can access `ext`
+- when add moderators embed will now be outputed instead
+### Removed
+- update command
 ### Fixed
+- core cog settings not updated (might fix a bug where running `/settings` will keep "fixing" it)
+- can force terminate now
+- settings didn't work when there are no prefix except mentioning
 - `/settings cmdhdl` now works
+- typos
 
 ## [2.2.1] - 2020-09-01
 ### Optimized
@@ -254,7 +271,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/2.2.1...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/3.0-a...HEAD
+[3.0-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.1...3.0-a
 [2.2.1]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.0...2.2.1
 [2.2.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...2.2.0
 [2.2-b1]:       https://github.com/windowsboy111/Merlin-py/compare/2.2-b...2.2-b1

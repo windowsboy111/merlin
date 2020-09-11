@@ -25,7 +25,8 @@
         ],
         "cmdHdl": {
             "cmdNotFound": 0,
-            "delIssue": 0
+            "delIssue": 0,
+            "improveExp": 1
         }
     },
     "g449943131190984725": {

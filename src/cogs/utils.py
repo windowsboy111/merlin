@@ -4,8 +4,8 @@ import typing
 from datetime import datetime
 import discord
 from discord.ext import commands
-import botmc  # pylint: disable=import-error
-from ext import base_encoding  # pylint: disable=import-error
+from modules import minecraft
+from modules import base_encoding
 from ext.const import STRFILE
 import json
 import duckduckgo

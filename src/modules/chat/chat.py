@@ -8,13 +8,14 @@ import time
 import multiprocessing as mp
 doTrain = False
 reTrain = False
+from chatterbot.conversation import Statement
 # more_label = None
 # more_data = None
 # if an error occurred try this: https://blog.csdn.net/qq_41185868/article/details/83758376
 
 
 def make_bot():
-    return ChatBot(
+    bot = ChatBot(
         'Merlin',
         storage_adapter='chatterbot.storage.SQLStorageAdapter',
         logic_adapters=[
@@ -40,6 +41,7 @@ def make_bot():
         # read_only=True,
         database_uri=f'sqlite:///{os.path.dirname(__file__)}/chats.sqlite3'
     )
+    return bot
 
 
 def train(bot: ChatBot):
@@ -72,6 +74,17 @@ def response(msg: str):
     if res != 'I am sorry, but I do not understand.':
         bot.learn_response(res, None)
     return res
+
+
+async def save(msg: str, prev: str):
+    global saveBot
+    msg = Statement(msg)
+    prev = Statement(prev)
+    try:
+        saveBot.learn_response(msg, prev)
+    except:
+        saveBot = make_bot()
+        saveBot.learn_response(msg, prev)
 
 
 def init_train(bot: ChatBot):

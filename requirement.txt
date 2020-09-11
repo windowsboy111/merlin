@@ -1,6 +1,7 @@
-pytablemaker
+pyTableMaker
 discord.py
 chatterbot==0.8.7
+chatterbot-corpus
 mcstatus
 flask
 python-dotenv
