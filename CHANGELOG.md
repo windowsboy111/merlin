@@ -15,6 +15,7 @@
 - `/reload` now requires full path and can access `ext`
 - when add moderators embed will now be outputed instead
 ### Fixed
+- core cog settings not updated (might fix a bug where running `/settings` will keep "fixing" it)
 - can force terminate now
 - settings didn't work when there are no prefix except mentioning
 - `/settings cmdhdl` now works

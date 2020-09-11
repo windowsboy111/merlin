@@ -18,19 +18,21 @@ from discord.utils import find
 from ext.const import log, bot, get_prefix
 from ext.const import statusLs, LASTWRDFILE, STRFILE, SETFILE, slog, nlog, hint, logging, cmdHdlLogger, eventLogger, style
 from ext import excepts
-exitType = 0
+# initlize runtime variables
 load_dotenv()
-cogs = []
+exitType, exts, TOKEN, MODE = 0, ['ext.tasks', 'ext.cmdhdl'], os.getenv('DISCORD_TOKEN'), os.getenv('MODE')
+lastword = stringTable = None
+setattr(logging.Logger, 'hint', hint)
+settings = json.load(open(SETFILE))
+# scan the cogs folder
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
-        cogs.append(cog[:-3])
-# token is stored inside ".env"
-TOKEN = os.getenv('DISCORD_TOKEN')
-lastword = stringTable = None
+        exts.append("cogs." + cog[:-3])
 try:
     lastword = json.load(open(LASTWRDFILE, 'r'))
     stringTable = json.load(open(STRFILE, 'r'))
 except json.JSONDecodeError:
+    # "format" / initlize the json files
     lastword = {}
     f = open(LASTWRDFILE, 'w')
     f.write("{}")
@@ -38,25 +40,12 @@ except json.JSONDecodeError:
     stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
-# configs (post startup)
-MODE = os.getenv('MODE')
-setattr(logging.Logger, 'hint', hint)
-settings = json.load(open(SETFILE))
-
 async def update():
     global settings, stringTable, lastword
     lastword, stringTable = json.load(
         open(LASTWRDFILE, 'r')), json.load(open(STRFILE, 'r'))
     settings.update(json.load(open(SETFILE, 'r')))
     json.dump(settings, open(SETFILE, 'w'))
-# ---------
-# background tasks
-
-async def task_update():
-    await update()
-    await asyncio.sleep(60)
-
-bot.loop.create_task(task_update())
 
 slog("Adding bot commands...")
 
@@ -101,18 +90,15 @@ async def cmd_update(ctx):
 async def on_ready():
     nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
     nlog('Loading Extensions...')
-    slog('Loading ext.tasks...')
-    bot.load_extension("ext.tasks")
-    slog('Loading ext.cmdhdl...')
-    bot.load_extension("ext.cmdhdl")
-    try:
-        for cog in cogs:
-            slog(f'Loading cogs.{cog}...')
-            bot.load_extension('cogs.' + cog)
-    except Exception:
-        nlog("An error occurred during loading extension, treat bot start as a reconnect")
-        nlog("Reconnected!")
-        return 2
+    for extension in exts:
+        print(end=f' >> Loading {extension}...\r')
+        try:
+            bot.load_extension(extension)
+            print(" >> " + style.green2 + f"Loaded: {extension}" + style.reset + "   ")
+        except commands.errors.ExtensionAlreadyLoaded:
+            return nlog("Loaded tasks already, continue execution.")
+        except Exception:
+            print(" >> " + style.red2 + f"FAILED: {extension}" + style.reset + "   ")
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
@@ -123,7 +109,7 @@ async def on_ready():
     elif MODE == 'FIX':
         await bot.change_presence(status=discord.Status.dnd)
         await log('*RUNNING IN EMERGENCY **FIX** MODE!')
-    nlog("Ready!")
+    nlog(style.bold + style.blue + "Ready!" + style.reset)
     return 0
 
 

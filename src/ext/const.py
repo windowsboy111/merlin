@@ -162,8 +162,12 @@ DEFAULT_SETTINGS = {
 
 def fix_settings(guild: discord.Guild):
     settings = json.load(open(SETFILE, 'r'))
+    # fix cmdHdl
+    cmdHdl = DEFAULT_SETTINGS['cmdHdl'].copy()          # the following code will leave entrys already
+    cmdHdl.update(settings[f'g{guild.id}']['cmdHdl'])   # exists and add the missing entrys so that
+    settings[f'g{guild.id}']['cmdHdl'] = cmdHdl         # overwriting can be prevented
     default = DEFAULT_SETTINGS.copy()
-    default.update(settings[f"g{guild.id}"])
-    settings[f'g{guild.id}'] = default
+    default.update(settings[f'g{guild.id}'])            # we can also do the same thing for the whole settings
+    settings[f'g{guild.id}'].update(default)
     with open(SETFILE, 'w') as outfile:
         json.dump(settings, outfile)

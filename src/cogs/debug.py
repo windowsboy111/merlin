@@ -66,9 +66,9 @@ class Debug(commands.Cog):
                     errorCode = str(ret)
                 except Exception:
                     errorCode = str("return value cannot be converted to string")
-            e.add_field(name='Return value', value=errorCode)
-            e.add_field(name='Error type', value=type(err).__name__)
-            e.add_field(name='Error message', value=str(err))
+            e.add_field(name='Return value', value=errorCode or "<None>")
+            e.add_field(name='Error type', value=type(err).__name__ or "<None>")
+            e.add_field(name='Error message', value=str(err) or "<None>")
             e.timestamp = datetime.utcnow()
             with open(SANDBOX_TRACEBACK, 'w') as f:
                 f.write(traceback.format_exc())
