@@ -2,7 +2,7 @@ from setuptools import setup
 import json
 long_description = ''
 cfg = json.load(open('src/ext/bot_settings.json', 'r'))
-with open("docs/README.md", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 stage = None
 if cfg["stage"] == "stable":
