@@ -3,18 +3,22 @@
 
 
 ## [Unreleased]
+### Added
+- when generating responses from chat, a new process will be opened
+- when processing messages in `on_message()`, different parts will run in parallel
 ### Changed
 - `/res` now looks much better
+### Removed
+- `log()` no longer supports `guild_id` param
 ### Fixed
 - will now fill settings for missing guild
 - chat system couldn't learn prev msg correctly
 - `/info channel` wouldn't work when there are invites
 
 ## [3.0-a]
-### Optimized
+### Added
 - better chat system by allowing the bot to read other chats from other channels when `/settings cmdhdl improveExp` is 1
 - fs organization
-### Added
 - chatterbot-corpus is a requirement
 - setup script
 - added customization for `on_message`
@@ -34,9 +38,8 @@
 - typos
 
 ## [2.2.1] - 2020-09-01
-### Optimized
-- code organization
 ### Added
+- code organization
 - games
 - diagnose script in ext/init
 - emoji command to peek emojis from other servers

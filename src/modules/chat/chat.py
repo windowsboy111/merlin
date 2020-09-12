@@ -6,6 +6,8 @@ import os
 import threading
 import time
 import multiprocessing as mp
+import asyncio
+import discord
 doTrain = False
 reTrain = False
 from chatterbot.conversation import Statement
@@ -14,7 +16,7 @@ from chatterbot.conversation import Statement
 # if an error occurred try this: https://blog.csdn.net/qq_41185868/article/details/83758376
 
 
-def make_bot():
+def make_bot(read_only: bool = False):
     bot = ChatBot(
         'Merlin',
         storage_adapter='chatterbot.storage.SQLStorageAdapter',
@@ -38,7 +40,7 @@ def make_bot():
             'chatterbot.preprocessors.clean_whitespace'
         ],
         # multi_threading=True,
-        # read_only=True,
+        read_only=read_only,
         database_uri=f'sqlite:///{os.path.dirname(__file__)}/chats.sqlite3'
     )
     return bot
@@ -53,31 +55,37 @@ def train(bot: ChatBot):
     bot.train('chatterbot.corpus.english')
     return 0
 
+
+pool = mp.Pool()
+bot = make_bot(True)
 try:
     open(f'{os.path.dirname(__file__)}/chats.sqlite3').close()
-    bot = make_bot()
 except Exception:
-    bot = make_bot()
     train(bot)
 
-def response(msg: str):
-    global doTrain, reTrain
-    if msg.startswith('merlin::'):
-        if msg == 'merlin::train':
+
+def proc_res(msg: discord.Message):
+    result = bot.get_response(msg.content)
+    return asyncio.run(msg.channel.send(result))
+
+
+async def response(msg: discord.Message):
+    global doTrain, reTrain, pool
+    res = ''
+    if msg.content.startswith('merlin::'):
+        if msg.content == 'merlin::train':
             doTrain = True
-            return "bot is training, please wait for around a minute."
-        if msg.startswith('merlin::retrain'):
+            res = "bot is training, please wait for around a minute."
+        if msg.content.startswith('merlin::retrain'):
             reTrain = True
-            return "Please wait..."
-        return "`merlin::`?"
-    res = bot.get_response(msg)
-    if res != 'I am sorry, but I do not understand.':
-        bot.learn_response(res, None)
-    return res
+            res = "Please wait..."
+        res = "`merlin::`?"
+    if res:
+        return asyncio.run(msg.channel.send(res))
+    return pool.apply_async(bot.get_response, args=(msg, ))
 
 
-async def save(msg: str, prev: str):
-    global saveBot
+def proc_save(saveBot, msg: str, prev: str):
     msg = Statement(msg)
     prev = Statement(prev)
     try:
@@ -85,6 +93,15 @@ async def save(msg: str, prev: str):
     except:
         saveBot = make_bot()
         saveBot.learn_response(msg, prev)
+
+
+async def save(msg: str, prev: str):
+    global saveBot
+    try:
+        saveBot
+    except NameError:
+        saveBot = make_bot() 
+    return pool.apply_async(bot.get_response, args=(saveBot, msg, prev))
 
 
 def init_train(bot: ChatBot):

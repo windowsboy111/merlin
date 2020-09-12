@@ -1,5 +1,5 @@
 import discord
-import json
+import json, asyncio
 from datetime import datetime
 from discord.ext import commands
 from ext import excepts
@@ -93,25 +93,22 @@ bot = discord.ext.commands.Bot(
     owner_id=653086042752286730,
     case_insensitive=True
 )
+asyncio
 
-
-async def log(message: str, *, guild: discord.Guild = None, guild_id: int = None):
+async def log(message: str, *, guild: discord.Guild = None):
     if not guild:
+        channels = []
         for guild in bot.guilds:
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
-                    await channel.send(f"[{datetime.now()}] {message}")
-        return
+                    channels.append(channel)
+                    break
+        return await asyncio.gather(channel.send(f"[{datetime.now()}] {message}") for channel in channels)
     else:
-        if not guild and guild_id:
-            try:
-                guild = await bot.fetch_guild(guild_id)
-            except Exception:
-                return 1
         for channel in guild.channels:
             if channel.name == 'merlin-py':
                 await channel.send(f"[{datetime.now()}] {message}")
-    return
+                break
 
 
 def is_sudoers(member: discord.Member):

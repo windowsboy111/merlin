@@ -21,7 +21,7 @@ async def proc_cmd(bot: commands.Bot, message: discord.Message):
     settings = json.load(open(SETFILE, 'r'))
     if message.content.startswith(get_prefix(bot, message)) and message.channel.name != 'merlin-chat':
         msgtoSend = f'{message.author} has issued command: '
-        print(msgtoSend + style.green + message.content + style.reset, file=sys.stdout)
+        print(msgtoSend + style.green + message.content + style.reset)
         cmdHdlLogger.info(msgtoSend + message.content)
         try:
             await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
@@ -53,10 +53,7 @@ async def save_quote(bot: commands.Bot, message: discord.Message):
 async def chat_hdl(bot: commands.Bot, message: discord.Message):
     settings = json.load(open(SETFILE, 'r'))
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
-        response = ''
-        async with message.channel.typing():
-            response = chat.response(message.content)
-        await message.channel.send(response)
+        await chat.response(message)
         return 0
     elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
         msgs = await message.channel.history(limit=2).flatten()
