@@ -30,16 +30,15 @@ settings = json.load(open(SETFILE))
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         exts.append("cogs." + cog[:-3])
+stringTable = json.load(open(STRFILE, 'r'))
 try:
     lastword = json.load(open(LASTWRDFILE, 'r'))
-    stringTable = json.load(open(STRFILE, 'r'))
 except json.JSONDecodeError:
     # "format" / initlize the json files
     lastword = {}
     f = open(LASTWRDFILE, 'w')
     f.write("{}")
     f.close()
-    stringTable = json.load(open('ext/wrds.json', 'r'))
 
 slog("Adding bot commands...")
 
@@ -76,7 +75,7 @@ async def cmd_shutdown(ctx):
 
 @bot.event
 async def on_ready():
-    nlog(f'Logged in as {bot.user.name} - {bot.user.id} in {MODE} mode')
+    nlog(f'Logged in as {style.cyan}{bot.user.name}{style.reset} - {style.italic}{bot.user.id}{style.reset} in {style.magenta}{MODE}{style.reset} mode')
     nlog('Loading Extensions...')
     for extension in exts:
         print(end=f' >> Loading {extension}...\r')
@@ -85,8 +84,8 @@ async def on_ready():
             slog(style.green2 + f"Loaded: {extension}" + style.reset + "   ")
         except commands.errors.ExtensionAlreadyLoaded:
             return nlog("Loaded tasks already, continue execution.")
-        except Exception:
-            slog(style.red2 + f"FAILED: {extension}" + style.reset + "   ")
+        except Exception as err:
+            slog(style.red2 + f"FAILED: {extension}{style.grey} - {style.yellow}{traceback.format_exception_only(err.__class__, err)}{style.reset}")
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))
@@ -110,7 +109,7 @@ def start(token=None, **kwargs):
         bot.run(token, **kwargs)
         if exitType == 0:
             nlog("Force terminating...")
-            os._exit(sys.exit(1))
+            os._exit(1)
         nlog('Logged out')
         break
     slog('Writing changes and saving data...')

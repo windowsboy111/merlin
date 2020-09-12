@@ -1,4 +1,4 @@
-import discord, json, traceback, sys
+import discord, json, traceback, sys, asyncio
 from discord.ext import commands
 from ext.const import SETFILE, LASTWRDFILE, STRFILE, fix_settings, get_prefix, cmdHdlLogger, log
 import special
@@ -8,60 +8,73 @@ from datetime import datetime
 from modules.consolemod import style
 
 
+async def fix_set(bot: commands.Bot, message: discord.Message):
+    settings = json.load(open(SETFILE, 'r'))
+    try:
+        # test if entry presents
+        settings["cmdHdl"]['improveExp']
+    except Exception:
+        fix_settings(message.guild)  # fix guild settings
+
+
+async def proc_cmd(bot: commands.Bot, message: discord.Message):
+    settings = json.load(open(SETFILE, 'r'))
+    if message.content.startswith(get_prefix(bot, message)) and message.channel.name != 'merlin-chat':
+        msgtoSend = f'{message.author} has issued command: '
+        print(msgtoSend + style.green + message.content + style.reset, file=sys.stdout)
+        cmdHdlLogger.info(msgtoSend + message.content)
+        try:
+            await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
+        except AttributeError:
+            pass
+        try:
+            await bot.process_commands(message)
+            if settings[f'g{message.guild.id}']["cmdHdl"]["delIssue"]:
+                await message.delete()
+            return 0
+        except discord.ext.commands.errors.CommandNotFound:
+            pass
+        except discord.errors.NotFound:
+            pass
+        except Exception:
+            await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
+            print(traceback.format_exc())
+
+
+async def save_quote(bot: commands.Bot, message: discord.Message):
+    lastword = json.load(open(LASTWRDFILE, 'r'))
+    try:
+        lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
+    except Exception:
+        lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
+    json.dump(lastword, open(LASTWRDFILE, 'w'))
+
+
+async def chat_hdl(bot: commands.Bot, message: discord.Message):
+    settings = json.load(open(SETFILE, 'r'))
+    if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
+        response = ''
+        async with message.channel.typing():
+            response = chat.response(message.content)
+        await message.channel.send(response)
+        return 0
+    elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
+        msgs = await message.channel.history(limit=2).flatten()
+        await chat.save(message.content, msgs[1].content)
+
+
 def setup(bot: commands.Bot):
     @bot.event
     async def on_message(message: discord.Message):
-        # pre: load
-        settings = json.load(open(SETFILE, 'r'))
-        lastword = json.load(open(LASTWRDFILE, 'r'))
         # run pre-cmd hooks
         if await special.pre_on_message(message):
             return 0
-        try:
-            # test if entry presents
-            settings["cmdHdl"]['improveExp']
-        except Exception:
-            fix_settings(message.guild)  # fix guild settings
-            settings = json.load(open(SETFILE, 'r'))  # reload settings again
-        try:
-            lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-        except Exception:
-            lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
-        if message.content.startswith(get_prefix(bot, message)) and message.channel.name != 'merlin-chat':
-            msgtoSend = f'{message.author} has issued command: '
-            print(msgtoSend + style.green + message.content + style.reset, file=sys.stdout)
-            cmdHdlLogger.info(msgtoSend + message.content)
-            try:
-                await log(message.channel.mention + ' ' + msgtoSend + '`' + message.content + '`', guild=message.channel.guild)
-            except AttributeError:
-                pass
-            try:
-                await bot.process_commands(message)
-                if settings[f'g{message.guild.id}']["cmdHdl"]["delIssue"]:
-                    await message.delete()
-                return 0
-            except discord.ext.commands.errors.CommandNotFound:
-                pass
-            except discord.errors.NotFound:
-                pass
-            except Exception:
-                await message.channel.send(f'{message.author.mention}, there was an error trying to execute that command! :(')
-                print(traceback.format_exc())
-        if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
-            response = ''
-            async with message.channel.typing():
-                response = chat.response(message.content)
-            await message.channel.send(response)
-            return 0
-        elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
-            msgs = await message.channel.history(limit=2).flatten()
-            await chat.save(message.content, msgs[1].content)
-        # save changes
-        json.dump(settings, open(SETFILE, 'w'))
-        json.dump(lastword, open(LASTWRDFILE, 'w'))
+        await fix_set(bot, message)
+        await asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
         await special.post_on_message(message) # run post-cmd hooks
 
 
+    @bot.event
     async def on_command_error(ctx, error):
         settings = json.load(open(SETFILE, 'r'))
         stringTable = json.load(open(STRFILE, 'r'))

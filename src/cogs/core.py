@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, traceback
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
@@ -246,7 +246,7 @@ class Core(commands.Cog):
         embed.add_field(name='Category', value="<GLOBAL>" if channel.category is None else channel.category.name)
         embed.add_field(name='Mention', value=f"{channel.mention} / `{channel.mention}`")
         if any(await channel.invites()):
-            embed.add_field(name='Invites', value=", ".join(f"[{invite.id}]({invite.url})" for invite in channel.invites()))
+            embed.add_field(name='Invites', value=", ".join(f"[{invite.id}]({invite.url})" async for invite in channel.invites()))
         embed.add_field(name='Pinned messages', value=len(await channel.pins()))
         embed.set_footer(text="Channel created")
         embed.timestamp = channel.created_at
@@ -263,7 +263,7 @@ class Core(commands.Cog):
         embed.add_field(name='Roles count', value=len(ctx.guild.roles))
         embed.add_field(name='Channels count', value=f"{len(ctx.guild.text_channels)} text / {len(ctx.guild.voice_channels)} voice - total {len(ctx.guild.channels)}")
         embed.add_field(name='Categories count', value=len(ctx.guild.categories))
-        embed.add_field(name='Sudoers', value=", ".join([discord.utils.get(ctx.guild.roles, name=r).mention for r in settings[f'g{ctx.guild.id}']["sudoers"]]))
+        embed.add_field(name='Sudoers', value=", ".join([discord.utils.get(ctx.guild.roles, name=r).mention for r in settings[f'g{ctx.guild.id}']["sudoers"]]) or "<None>")
         embed.add_field(name='Rules channel', value=ctx.guild.rules_channel.mention if ctx.guild.rules_channel else "Not set")
         embed.add_field(name='System channel', value=ctx.guild.system_channel.mention if ctx.guild.system_channel else "Not set")
         embed.add_field(name='Region', value=str(ctx.guild.region) if ctx.guild.region else "Not set / found")
@@ -271,7 +271,7 @@ class Core(commands.Cog):
         embed.add_field(name='Public updates channel', value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
         None if not ctx.guild.icon_url else embed.set_image(url=ctx.guild.icon_url)
         embed.add_field(name='Owner', value=ctx.guild.owner.mention)
-        embed.set_footer(text="Created on")
+        embed.set_footer(text="Created at")
         embed.timestamp = ctx.guild.created_at
         await ctx.send(embed=embed)
         return
@@ -292,10 +292,8 @@ class Core(commands.Cog):
         try: await ctx.send(eval(code))
         except Exception:
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
-            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
-            return 'no-rm'
-        await ctx.message.add_reaction('✅')
-        return 'no-rm'
+            return await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
+        return await ctx.message.add_reaction('✅')
     
     @commands.command(name='exec', help='Execute python', hidden=True)
     @commands.is_owner()
@@ -304,10 +302,8 @@ class Core(commands.Cog):
             exec(code, globals(), locals())
         except Exception:
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
-            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
-            return 'no-rm'
+            return await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
         await ctx.message.add_reaction("✅")
-        return 'no-rm'
 
     @commands.command(name='reload', help='reload a cog', hidden=True)
     @commands.is_owner()
@@ -315,27 +311,39 @@ class Core(commands.Cog):
         cmd = self.bot.get_command(module)
         if cmd is not None:
             module = "cogs." + cmd.cog.name.lower()
-        self.bot.reload_extension(module)
+        try:
+            self.bot.reload_extension(module)
+        except Exception as err:
+            await ctx.message.add_reaction("❌")
+            return await ctx.send(f"```{traceback.format_exception_only(err.__class__, err)[0]}```")
         await ctx.message.add_reaction("✅")
 
     @commands.command(name='unload', help='unload a cog', hidden=True)
     @commands.is_owner()
     async def _unload(self, ctx, module: str):
         cmd = self.bot.get_command(module)
-        if cmd is None:
-            self.bot.unload_extension(module)
-        else:
-            self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
+        try:
+            if cmd is None:
+                self.bot.unload_extension(module)
+            else:
+                self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
+        except Exception as err:
+            await ctx.message.add_reaction("❌")
+            return await ctx.send(f"```{traceback.format_exception_only(err.__class__, err)[0]}```")
         await ctx.message.add_reaction("✅")
 
     @commands.command(name='load', help='load a cog', hidden=True)
     @commands.is_owner()
     async def _load(self, ctx, module: str):
         cmd = self.bot.get_command(module)
-        if cmd is None:
-            self.bot.load_extension(module)
-        else:
-            self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
+        try:
+            if cmd is None:
+                self.bot.load_extension(module)
+            else:
+                self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
+        except Exception as err:
+            await ctx.message.add_reaction("❌")
+            return await ctx.send(f"```{traceback.format_exception_only(err.__class__, err)[0]}```")
         await ctx.message.add_reaction("✅")
 
 

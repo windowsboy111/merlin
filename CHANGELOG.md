@@ -3,9 +3,12 @@
 
 
 ## [Unreleased]
+### Changed
+- `/res` now looks much better
 ### Fixed
 - will now fill settings for missing guild
 - chat system couldn't learn prev msg correctly
+- `/info channel` wouldn't work when there are invites
 
 ## [3.0-a]
 ### Optimized

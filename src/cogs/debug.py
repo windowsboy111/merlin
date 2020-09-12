@@ -22,7 +22,7 @@ class Debug(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, help='Tells you the ping from discord to the bot', name='ping')
+    @commands.command(pass_context=True, help='Tells you the ping from discord to the bot')
     async def ping(self, ctx: commands.Context):
         t = datetime.now()
         msg = await ctx.send('`Ping!`')
@@ -41,19 +41,17 @@ class Debug(commands.Cog):
             .add_field(name="Del Message", value=f"{delTime.total_seconds() * 1000}ms")
         )
 
-    @commands.command(name='sandbox', help='check if a command runs properly')
+    @commands.command(help='check if a command runs properly')
     async def sandbox(self, ctx, *, commandName: str):
+        """check if a command runs properly"""
         command = None
         ret = None
         startTime = None
         errorCode = int()
         try:
-            command = self.bot.get_command(commandName)
-            if command is None:
-                await ctx.send(f"msh: command not found: `{commandName}`")
-                return 3
+            msg = await ctx.send(self.bot.user.mention + commandName)
             startTime = datetime.now()  
-            ret = await ctx.invoke(command)
+            ret = await self.bot.invoke(await self.bot.get_context(msg))
         except Exception as err:
             timeElapsed = datetime.now() - startTime
             e = discord.Embed(title='Task Failed Succefully', description=f":x: `{ctx.message.content.split()[0][:-7]}{commandName}`", color=0xff0000)
@@ -74,6 +72,7 @@ class Debug(commands.Cog):
                 f.write(traceback.format_exc())
             await ctx.send(embed=e, file=discord.File(open(SANDBOX_TRACEBACK, 'r'), 'traceback.txt'))
             return 0
+        await msg.delete()
         timeElapsed = datetime.now() - startTime
         e = discord.Embed(title='the command runs without any error!', description=f":white_check_mark: `{ctx.message.content.split()[0][:-7]}{commandName}`", color=0x00ff00)
         e.add_field(name='command name', value=command.qualified_name)
@@ -93,16 +92,16 @@ class Debug(commands.Cog):
     async def res(self, ctx):
         proc = psutil.Process(os.getpid())
         embed = discord.Embed(title='Bot Resources usage', color=0xff8700)
-        embed.add_field(name='CPU Usage', value=f"```{proc.cpu_percent()}%```")
-        embed.add_field(name='Used RAM', value=f"```{round(psutil.virtual_memory().used // 1048576)} MiB / "
-                                               f"{round(psutil.virtual_memory().total // 1048576)} MiB ║ "
-                                               f"proc {proc.memory_percent()}%```")
+        embed.add_field(name='CPU Usage', value=f"```{psutil.cpu_percent()}%```")
+        embed.add_field(name='Used RAM', value=f"```{round(psutil.virtual_memory().used // 1048576)} out of "
+                                               f"{round(psutil.virtual_memory().total // 1048576)} MiB\n"
+                                               f"proc {round(proc.memory_percent())}%```")
         cpu = psutil.cpu_stats()
         freq = psutil.cpu_freq()
         proc.memory_full_info()
-        embed.add_field(name=f'{psutil.cpu_count()} CPUs', value=f'```{cpu.syscalls} Syscalls | {round(cpu.ctx_switches // 1000000)}M Switches```')
+        embed.add_field(name=f'{psutil.cpu_count()} CPUs', value=f'```{cpu.syscalls} Syscalls\n{round(cpu.ctx_switches // 1000000)}M Switches```')
         embed.add_field(name=f'CPU Interrupts', value=f"```{round(cpu.interrupts // 1000000)}M ({round(cpu.soft_interrupts // 1000000)}M soft)```")
-        embed.add_field(name=f'CPU Frequency', value=f"```Currently {round(freq.current)}Mhz | Max {round(freq.max)}Mhz | Min {round(freq.min)}Mhz```")
+        embed.add_field(name=f'CPU Frequency', value=f"```Currently {round(freq.current)}Mhz\nMax {round(freq.max)}Mhz\nMin {round(freq.min)}Mhz```")
         embed.add_field(name=f'Operating System', value=sys.platform)
         await ctx.send(embed=embed)
 
