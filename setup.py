@@ -24,7 +24,7 @@ setup(
     url='https://github.com/windowsboy111/Merlin-py/',
     download_url=f'https://github.com/windowsboy111/Merlin-py/archive/{cfg["version"]}.tar.gz',
     keywords=['discord', 'bot', 'discord.py'],
-    install_requires=['pytablemaker', 'discord.py', 'chatterbot==0.8.7', 'mcstatus', 'flask', 'python-dotenv', 'numpy', 'psutil', 'duckduckgo3'],
+    install_requires=['pytablemaker', 'discord.py', 'chatterbot==0.8.7', 'mcstatus', 'flask', 'python-dotenv', 'psutil', 'duckduckgo3', 'asynchronizer'],
     classifiers=[
         stage,
         'Intended Audience :: Developers',

@@ -93,21 +93,37 @@ bot = discord.ext.commands.Bot(
     owner_id=653086042752286730,
     case_insensitive=True
 )
-asyncio
+
+
+async def worker_log(name, queue):
+    slept = 0
+    while True:
+        if slept >= 10:
+            return  # timeout
+        if queue.empty():
+            slept += 0.1
+            await asyncio.sleep(0.1)  # come back and check later
+            continue
+        channel, msg = await queue.get()
+        await channel.send(f"[{datetime.utcnow().time()}] {msg}")
+        queue.task_done()
+        slept = 0  # reset timeout
+
 
 async def log(message: str, *, guild: discord.Guild = None):
-    if not guild:
-        channels = []
-        for guild in bot.guilds:
-            for channel in guild.channels:
-                if channel.name == 'merlin-py':
-                    channels.append(channel)
-                    break
-        return await asyncio.gather(channel.send(f"[{datetime.now()}] {message}") for channel in channels)
-    else:
+    if guild:
         for channel in guild.channels:
             if channel.name == 'merlin-py':
                 await channel.send(f"[{datetime.now()}] {message}")
+                return
+    queue = asyncio.Queue()
+    tasks = []
+    for i in range(5):
+        tasks.append(asyncio.create_task(worker_log(f'worker-log-{i}', queue)))
+    for guild in bot.guilds:
+        for channel in guild.channels:
+            if channel.name == 'merlin-py':
+                queue.put_nowait((channel, message))
                 break
 
 

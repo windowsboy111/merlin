@@ -60,10 +60,9 @@ def main():
         import chatterbot
         import chatterbot_corpus
         import mcstatus
-        import numpy
         import flask
     except:
-        print("Please run the following command and try again: pip install --requirement requirement.txt")
+        print("Please run the following command and try again: python3 -m pip install --requirement ../requirement.txt")
     print("no errors found.")
 
 if __name__ == '__main__':

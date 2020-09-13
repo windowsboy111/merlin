@@ -4,8 +4,10 @@
 
 ## [Unreleased]
 ### Added
-- when generating responses from chat, a new process will be opened
-- when processing messages in `on_message()`, different parts will run in parallel
+- optimized response generating for the chat module (multiprocessing)
+- optimized messages processing in `on_message()` (async parallel)
+- optimized merlin-py logging (async parallel)
+- optimized cmderrhdl (async nowait / tasks)
 ### Changed
 - `/res` now looks much better
 ### Removed

@@ -5,6 +5,6 @@ chatterbot-corpus
 mcstatus
 flask
 python-dotenv
-numpy
 psutil
 duckduckgo3
+asynchronizer

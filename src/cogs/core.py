@@ -1,7 +1,11 @@
-import asyncio, traceback
+import asyncio
+import traceback
 from discord.ext import commands
 from discord.utils import get
-import discord, traceback, json, datetime
+import discord
+import traceback
+import json
+import datetime
 from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, fix_settings, chk_sudo
 stringTable = json.load(open('ext/wrds.json', 'r'))
 
@@ -29,15 +33,19 @@ class Core(commands.Cog):
     @commands.group(name='settings', help='settings about everything', aliases=['set'])
     async def cmd_settings(self, ctx):
         settings = json.load(open(SETFILE, 'r'))
-        assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(DEFAULT_SETTINGS['cmdHdl'])
+        assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(
+            DEFAULT_SETTINGS['cmdHdl'])
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
         tmp = cmdHdl['cmdNotFound']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
-            e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
-            e.add_field(name='Prefix', value=(', '.join(prefix) if any(prefix) else "<No prefixes>"))
-            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
+            e = discord.Embed(
+                title='Settings', description='ayy what settings do you wanna edit?')
+            e.add_field(name='Prefix', value=(', '.join(prefix)
+                                              if any(prefix) else "<No prefixes>"))
+            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(
+                ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
     @cmd_settings.command(name='cmdhdl', help='Change settings about error handling', aliases=['cmdctl'])
@@ -119,7 +127,7 @@ class Core(commands.Cog):
     @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
     async def help(self, ctx, *, cmdName: str = None):
         settings = json.load(open(SETFILE, 'r'))
-        prefix = None
+        prefix = e = None
         prefixes = settings[f"g{ctx.guild.id}"]["prefix"]
         for p in prefixes:
             if ctx.message.content.startswith(p):
@@ -128,37 +136,40 @@ class Core(commands.Cog):
         if cmdName:
             command = self.bot.get_command(cmdName)
             if not command or command.hidden: return await ctx.send(':mag: Command not found, please try again.')
-            path = "/" + (command.cog.qualified_name if command.cog else "None") + "/" + "/".join(command.full_parent_name.split(" "))
-            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(path + '\n' + command.description or "<no description>"),color=0x0000ff)
+            path = "/" + (command.cog.qualified_name if command.cog else "<GLOBAL>") + "/" + command.full_parent_name.replace(" ", "/")
+            eTitle = "Group" if hasattr(command, "commands") else "Command"
+            eTitle += f' `{prefix}{command.qualified_name}`'
+            eDesc = "wd: `" + path + '`\n' + command.description or "<no description>"
+            e = discord.Embed(title=eTitle, description=eDesc, color=0x0000ff)
             usage = prefix + command.qualified_name + ' '
             for key, val in command.clean_params.items():
-                if val.default:
-                    usage += f'<{val.name}>'
-                else:
-                    usage += f'<[{val.name}]>'
-                usage += ' '
-            e.add_field(name='Objective',   value=command.help)
+                usage += f'<{val.name}> ' if val.default else f'<[{val.name}]> '
+            e.add_field(name='Objective',   value=command.help or "<no help messages>")
             e.add_field(name='Usage',       value=usage)
-            e.add_field(name='Cog',         value="<No cog>" if not command.cog else command.cog.qualified_name)
+            e.add_field(name='Cog',         value="<GLOBAL>" if not command.cog else command.cog.qualified_name)
             e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
             if hasattr(command, 'commands'):    # it is a group
-                e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}\n" for cmd in command.commands]))
-            await ctx.send(embed=e)
-            return
-        e = discord.Embed(title='Command list', description='wd: `/`', color=0x0000ff)
-        for cmd in self.bot.commands:
-            if cmd.hidden:
-                continue
-            e.add_field(name=cmd.name, value=cmd.short_doc or "<no help>")
+                e.add_field(name='Sub-Commands', value='\n'.join(
+                    [f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}" for cmd in command.commands]))
+        else:
+            e = discord.Embed(title='Command list',
+                            description='wd: `/`', color=0x0000ff)
+            for cmd in self.bot.commands:
+                if cmd.hidden:
+                    continue
+                e.add_field(name=cmd.name, value=cmd.short_doc or "<no help>")
         await ctx.send(embed=e)
 
     @commands.group(name='info', help='info about everything')
-    async def info(self, ctx):
+    async def info(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             botinfo = json.load(open(BOTSETFILE))
-            embed = discord.Embed(title="Info", description='you can add subcommand after this command so that it will show specific info!')
-            embed.add_field(name="Server", value=f"{ctx.guild.id} / `{ctx.guild.name}`")
-            embed.add_field(name=self.bot.user, value=f"ver `{botinfo['version']}`")
+            embed = discord.Embed(
+                title="Info", description='you can add subcommand after this command so that it will show specific info!')
+            embed.add_field(
+                name="Server", value=f"{ctx.guild.id} / `{ctx.guild.name}`")
+            embed.add_field(name=self.bot.user,
+                            value=f"ver `{botinfo['version']}`")
             embed.add_field(name='Member count', value=len(ctx.guild.members))
             embed.timestamp = datetime.datetime.utcnow()
             await ctx.send(embed=embed)
@@ -170,8 +181,10 @@ class Core(commands.Cog):
         other_desc = ""
         if user.discriminator:
             other_desc += f":warning: username has conflict: {user.discriminator}\n"
-        embed = discord.Embed(title=f'user {user.display_name}', description=f'```{user.id}{" | BOT" if user.bot else ""}```')
-        embed.add_field(name='Mention', value=f"{user.mention} / `{user.mention}`")
+        embed = discord.Embed(
+            title=f'user {user.display_name}', description=f'```{user.id}{" | BOT" if user.bot else ""}```')
+        embed.add_field(
+            name='Mention', value=f"{user.mention} / `{user.mention}`")
 
         embed.set_author(name=user, icon_url=user.avatar_url)
         embed.set_footer(text='Created')
@@ -186,8 +199,10 @@ class Core(commands.Cog):
         other_desc = ""
         if member.discriminator:
             other_desc += f":warning: username has conflict: {member.discriminator}\n"
-        embed = discord.Embed(title=f'Member {member.display_name}', description=f'```{member.status} | {member.id}{" | BOT" if member.bot else ""}```')
-        embed.add_field(name='Mention', value=f"{member.mention} / `{member.mention}`")
+        embed = discord.Embed(title=f'Member {member.display_name}',
+                              description=f'```{member.status} | {member.id}{" | BOT" if member.bot else ""}```')
+        embed.add_field(
+            name='Mention', value=f"{member.mention} / `{member.mention}`")
         if member.is_on_mobile():
             embed.add_field(name='Device', value='Mobile')
             if member.mobile_status == discord.Status.online:
@@ -197,7 +212,8 @@ class Core(commands.Cog):
             elif member.mobile_status == discord.Status.dnd:
                 embed.add_field(name='Mobile Status', value='do not disturb')
             else:
-                embed.add_field(name='Mobile Status', value='offline / invisible')
+                embed.add_field(name='Mobile Status',
+                                value='offline / invisible')
         else:
             embed.add_field(name='Device', value='Desktop / Web App')
 
@@ -220,8 +236,10 @@ class Core(commands.Cog):
             embed.add_field(name='Web App Status', value='offline / invisible')
 
         embed.set_author(name=member, icon_url=member.avatar_url)
-        embed.add_field(name='Nickname', value=member.nick or f"<{member.mention} have no nickname>")
-        embed.add_field(name='Roles', value=', '.join([r.mention for r in member.roles[1:]]))
+        embed.add_field(
+            name='Nickname', value=member.nick or f"<{member.mention} have no nickname>")
+        embed.add_field(name='Roles', value=', '.join(
+            [r.mention for r in member.roles[1:]]))
         embed.set_footer(text='Joined', icon_url=ctx.guild.icon_url)
         embed.timestamp = member.joined_at
         await ctx.send(embed=embed)
@@ -241,12 +259,17 @@ class Core(commands.Cog):
                 other_desc += ":arrows_counterclockwise: :white_check_mark: Permission synced"
             else:
                 other_desc += ":arrows_counterclockwise: :negative_squared_cross_mark: Permission outdated"
-        embed = discord.Embed(title=f'Text Channel {channel.name}', description=f"```{channel.id}```{other_desc}")
-        embed.add_field(name="Category Position", value=channel.position or "<No position>")
-        embed.add_field(name='Category', value="<GLOBAL>" if channel.category is None else channel.category.name)
-        embed.add_field(name='Mention', value=f"{channel.mention} / `{channel.mention}`")
+        embed = discord.Embed(
+            title=f'Text Channel {channel.name}', description=f"```{channel.id}```{other_desc}")
+        embed.add_field(name="Category Position",
+                        value=channel.position or "<No position>")
+        embed.add_field(
+            name='Category', value="<GLOBAL>" if channel.category is None else channel.category.name)
+        embed.add_field(
+            name='Mention', value=f"{channel.mention} / `{channel.mention}`")
         if any(await channel.invites()):
-            embed.add_field(name='Invites', value=", ".join(f"[{invite.id}]({invite.url})" async for invite in channel.invites()))
+            embed.add_field(name='Invites', value=", ".join(
+                f"[{invite.id}]({invite.url})" async for invite in channel.invites()))
         embed.add_field(name='Pinned messages', value=len(await channel.pins()))
         embed.set_footer(text="Channel created")
         embed.timestamp = channel.created_at
@@ -257,19 +280,30 @@ class Core(commands.Cog):
     @commands.guild_only()
     async def info_server(self, ctx):
         settings = json.load(open(SETFILE, 'r'))
-        embed = discord.Embed(title='Server info', description=ctx.guild.description or "<description not set>")
-        embed.add_field(name="Server", value=f"{ctx.guild.name} - {ctx.guild.id}")
+        embed = discord.Embed(
+            title='Server info', description=ctx.guild.description or "<description not set>")
+        embed.add_field(
+            name="Server", value=f"{ctx.guild.name} - {ctx.guild.id}")
         embed.add_field(name='Members count', value=ctx.guild.member_count)
         embed.add_field(name='Roles count', value=len(ctx.guild.roles))
-        embed.add_field(name='Channels count', value=f"{len(ctx.guild.text_channels)} text / {len(ctx.guild.voice_channels)} voice - total {len(ctx.guild.channels)}")
-        embed.add_field(name='Categories count', value=len(ctx.guild.categories))
-        embed.add_field(name='Sudoers', value=", ".join([discord.utils.get(ctx.guild.roles, name=r).mention for r in settings[f'g{ctx.guild.id}']["sudoers"]]) or "<None>")
-        embed.add_field(name='Rules channel', value=ctx.guild.rules_channel.mention if ctx.guild.rules_channel else "Not set")
-        embed.add_field(name='System channel', value=ctx.guild.system_channel.mention if ctx.guild.system_channel else "Not set")
-        embed.add_field(name='Region', value=str(ctx.guild.region) if ctx.guild.region else "Not set / found")
-        embed.add_field(name='afk', value=f"{ctx.guild.afk_timeout or '<no afk timeout>'} sec / {ctx.guild.afk_channel.name if ctx.guild.afk_channel else '<no afk channel>'}")
-        embed.add_field(name='Public updates channel', value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
-        None if not ctx.guild.icon_url else embed.set_image(url=ctx.guild.icon_url)
+        embed.add_field(name='Channels count',
+                        value=f"{len(ctx.guild.text_channels)} text / {len(ctx.guild.voice_channels)} voice - total {len(ctx.guild.channels)}")
+        embed.add_field(name='Categories count',
+                        value=len(ctx.guild.categories))
+        embed.add_field(name='Sudoers', value=", ".join([discord.utils.get(
+            ctx.guild.roles, name=r).mention for r in settings[f'g{ctx.guild.id}']["sudoers"]]) or "<None>")
+        embed.add_field(name='Rules channel',
+                        value=ctx.guild.rules_channel.mention if ctx.guild.rules_channel else "Not set")
+        embed.add_field(name='System channel',
+                        value=ctx.guild.system_channel.mention if ctx.guild.system_channel else "Not set")
+        embed.add_field(name='Region', value=str(
+            ctx.guild.region) or "Not set / found")
+        embed.add_field(
+            name='afk', value=f"{ctx.guild.afk_timeout or '<no afk timeout>'} sec / {ctx.guild.afk_channel.name if ctx.guild.afk_channel else '<no afk channel>'}")
+        embed.add_field(name='Public updates channel',
+                        value=ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else "Not a public server / not set")
+        None if not ctx.guild.icon_url else embed.set_image(
+            url=ctx.guild.icon_url)
         embed.add_field(name='Owner', value=ctx.guild.owner.mention)
         embed.set_footer(text="Created at")
         embed.timestamp = ctx.guild.created_at
@@ -279,7 +313,8 @@ class Core(commands.Cog):
     @info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
     async def info_bot(self, ctx):
         settings = json.load(open(BOTSETFILE, 'r'))
-        embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
+        embed = discord.Embed(title='Merlin info',
+                              description='an open-source discord.py bot')
         for key in settings.keys():
             embed.add_field(name=key, value=settings[key])
         embed.timestamp = datetime.datetime.utcnow()
@@ -289,12 +324,13 @@ class Core(commands.Cog):
     @commands.command(name='eval', help='it is eval', hidden=True)
     @commands.is_owner()
     async def _eval(self, ctx: commands.Context, *, code='"bruh wat to eval"'):
-        try: await ctx.send(eval(code))
+        try:
+            await ctx.send(eval(code))
         except Exception:
             await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
             return await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
         return await ctx.message.add_reaction('✅')
-    
+
     @commands.command(name='exec', help='Execute python', hidden=True)
     @commands.is_owner()
     async def _exec(self, ctx: commands.Context, *, code='return "???????"'):

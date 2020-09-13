@@ -1,4 +1,8 @@
-import discord, json, traceback, sys, asyncio
+import discord
+import json
+import traceback
+import sys
+import asyncio
 from discord.ext import commands
 from ext.const import SETFILE, LASTWRDFILE, STRFILE, fix_settings, get_prefix, cmdHdlLogger, log
 import special
@@ -68,8 +72,8 @@ def setup(bot: commands.Bot):
             return 0
         await fix_set(bot, message)
         await asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
-        await special.post_on_message(message) # run post-cmd hooks
-
+        bot.loop.create_task(special.post_on_message(
+            message))  # run post-cmd hooks
 
     @bot.event
     async def on_command_error(ctx, error):
@@ -81,7 +85,7 @@ def setup(bot: commands.Bot):
             # This tells the issuer that the command cannot be used in DM
             if isinstance(error, commands.errors.NoPrivateMessage):
                 try:
-                    await ctx.author.send(f':x::lock: {ctx.command} cannot be used in Private Messages.')
+                    bot.loop.create_task(ctx.author.send(f':x::lock: {ctx.command} cannot be used in Private Messages.'))
                     return 3
                 except discord.HTTPException:
                     return 3
@@ -95,53 +99,58 @@ def setup(bot: commands.Bot):
             if isinstance(error, commands.errors.CommandNotFound):
                 try:
                     if settings[f'g{ctx.guild.id}']['cmdHdl']['cmdNotFound']:
-                        await ctx.send(":interrobang: Welp, I've no idea. Command not found!")
+                        bot.loop.create_task(
+                            ctx.send(":interrobang: Welp, I've no idea. Command not found!"))
                 except KeyError:
-                    await ctx.send(":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n<:warn:739838316374917171> something went wrong, please run `/settings`")
+                    bot.loop.create_task(ctx.send(
+                        ":interrobang: :two: :x:\n<:err:740034702743830549> Command not found!\n"
+                        "<:warn:739838316374917171> something went wrong, please run `/settings`"
+                    ))
                 return 2
             if isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument):
-                return await ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name)
+                return bot.loop.create_task(ctx.invoke(bot.get_command('help'), cmdName=ctx.command.qualified_name))
 
             if isinstance(error, commands.errors.DisabledCommand):
-                return await ctx.send(embed=discord.Embed(
+                return bot.loop.create_task(ctx.send(embed=discord.Embed(
                     title=f':no_entry: {ctx.command} has been disabled.',
                     description=f':x: `{ctx.message.content}`',
                     color=0xff0000
-                ))
+                )))
 
             if isinstance(error, excepts.NotMod):
-                await ctx.send(f"`{ctx.author} is not in the sudoers file.  This incident will be reported.`")
+                bot.loop.create_task(ctx.send(
+                    f"`{ctx.author} is not in the sudoers file.  This incident will be reported.`"))
 
             if hasattr(ctx.command, 'on_error'):
                 return
 
             if isinstance(error, commands.errors.CommandInvokeError):
-                await ctx.send(embed=discord.Embed(
+                bot.loop.create_task(ctx.send(embed=discord.Embed(
                     title='<:err:740034702743830549> uh oh. An exception has occurred during the execution of the command',
                     description=stringTable['CommandInvokeError'].format(
                         content=ctx.message.content),
                     timestamp=datetime.utcnow(),
                     color=0xff0000
-                ))
+                )))
 
             if isinstance(error, commands.errors.NotOwner):
-                await ctx.send(stringTable['notOwner'])
+                bot.loop.create_task(ctx.send(stringTable['notOwner']))
                 return 6
             if isinstance(error, commands.errors.ConversionError):
-                await ctx.send(
+                bot.loop.create_task(ctx.send(
                     ':bangbang: Hey bud, seems like you tried to input some invalid type of arguments to the command call!\n'
-                    'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!')
+                    'Either CoNsUlT a PsYcHiAtRiSt or check the usage. Please!'))
                 return 4
 
             if isinstance(error, commands.errors.BadArgument):
-                await ctx.send(
+                bot.loop.create_task(ctx.send(
                     ':grey_question: Whoops. The discord special expression you have specified when issuing that command is invalid.'
-                    ':mag: This error occurrs usually because of the bot fails to find the object.')
+                    ':mag: This error occurrs usually because of the bot fails to find the object.'))
                 return 4
             if isinstance(error, excepts.NotMod):
                 return await ctx.send(str(error))
 
             # All other Errors not returned come here. And we can just print the default TraceBack.
-            print(f"{style.red2}Ignoring exception in command {ctx.message.content}:\n{style.red}{traceback.format_exc()}{style.reset}", file=sys.stderr)
+            print(f"{style.red2}Ignoring exception in command {ctx.message.content}:\n{style.grey}{traceback.format_exc()}{style.reset}", file=sys.stderr)
             await log(f'Ignoring exception in command `{ctx.message.content}`:\n\n```{str(traceback.format_exc())}\n```', guild=ctx.guild)
             return 1

@@ -126,8 +126,3 @@ def loop():
 
 t = threading.Thread(target=loop)
 t.start()
-
-
-if __name__ == '__main__':
-    while True:
-        print(response(input('> ')))
