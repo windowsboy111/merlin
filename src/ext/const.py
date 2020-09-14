@@ -1,3 +1,7 @@
+"""
+This script contains constant paths and objects,
+and also global functions
+"""
 import discord
 import json, asyncio
 from datetime import datetime
@@ -13,8 +17,8 @@ statusLs = [
     'Hello, world!', 'Oracle Virtualbox VMs', 'VMware', 'Quick EMUlator (QEMU)', 'Global Information Tracker', 'Goddamn Idiotic Truckload of sh*t',
     'Arch Linux', 'Manjaro Linux', 'Microsoft Windows 10', 'Canonical Ubuntu', 'Kubuntu and Xubuntu', 'Linux Mint', 'Pop!_OS', 'OpenSUSE', 'Elementry OS', 'MX Linux', 'Debian', 'BSD',
     'Nothing', 'Status', 'what Merlin is playing', 'Twitter', 'StackOverflow', 'Mozilla Firefox', 'Visual Studio Code', 'zsh', 'fish', 'dash', 'mc (Midnight Commander)',
-    'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal'
-]
+    'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal']
+
 
 # path for file storing data
 BOTSETFILE  = "ext/bot_settings.json"
@@ -44,28 +48,23 @@ def slog(message: str):
     print(' >> ' + message)
     logger.hint(message)
 
-
 def nlog(message: str):
     """new line long"""
     print('\n==> ' + message)
     logger.info(message)
-
 
 def cmd_handle_log(message: str):
     """logging function for command handling"""
     print('[CMDHDL]\t' + message)
     cmdHdlLogger.info(message)
 
-
 def event_log(message: str):
     print('[EVENT]\t' + message)
     eventLogger.info(message)
 
-
 def cmd_handle_warn(message: str):
     print(style.orange + message + style.reset)
     cmdHdlLogger.warning(message)
-
 
 
 def get_prefix(bot: commands.Bot, message: discord.Message):
@@ -91,41 +90,42 @@ bot = discord.ext.commands.Bot(
     command_prefix=get_prefix,
     description="an awesome discord bot coded in discord.py",
     owner_id=653086042752286730,
-    case_insensitive=True
-)
+    case_insensitive=True)
 
 
-async def worker_log(name, queue):
-    slept = 0
-    while True:
-        if slept >= 10:
-            return  # timeout
-        if queue.empty():
-            slept += 0.1
-            await asyncio.sleep(0.1)  # come back and check later
-            continue
-        channel, msg = await queue.get()
-        await channel.send(f"[{datetime.utcnow().time()}] {msg}")
-        queue.task_done()
-        slept = 0  # reset timeout
+class Log:
+    @staticmethod
+    async def worker_log(name, queue):
+        slept = 0
+        while True:
+            if slept >= 10:
+                return  # timeout
+            if queue.empty():
+                slept += 0.1
+                await asyncio.sleep(0.1)  # come back and check later
+                continue
+            channel, msg = await queue.get()
+            await channel.send(f"[{datetime.utcnow().time()}] {msg}")
+            queue.task_done()
+            slept = 0  # reset timeout
 
-
-async def log(message: str, *, guild: discord.Guild = None):
-    if guild:
-        for channel in guild.channels:
-            if channel.name == 'merlin-py':
-                await channel.send(f"[{datetime.now()}] {message}")
-                return
-    queue = asyncio.Queue()
-    tasks = []
-    for i in range(5):
-        tasks.append(asyncio.create_task(worker_log(f'worker-log-{i}', queue)))
-    for guild in bot.guilds:
-        for channel in guild.channels:
-            if channel.name == 'merlin-py':
-                queue.put_nowait((channel, message))
-                break
-
+    @classmethod
+    async def __call__(cls, message: str, *, guild: discord.Guild = None):
+        if guild:
+            for channel in guild.channels:
+                if channel.name == 'merlin-py':
+                    await channel.send(f"[{datetime.now()}] {message}")
+                    return
+        queue = asyncio.Queue()
+        tasks = []
+        for i in range(5):
+            tasks.append(asyncio.create_task(cls.worker_log(f'worker-log-{i}', queue)))
+        for guild in bot.guilds:
+            for channel in guild.channels:
+                if channel.name == 'merlin-py':
+                    queue.put_nowait((channel, message))
+                    break
+log = Log()
 
 def is_sudoers(member: discord.Member):
     """\
@@ -148,7 +148,6 @@ def is_sudoers(member: discord.Member):
                 json.dump(settings, outfile)
     return False
 
-
 def chk_sudo():
     """\
     Type: decorator  
@@ -168,13 +167,18 @@ DEFAULT_SETTINGS = {
     "cmdHdl": {
         "cmdNotFound": 0,
         "delIssue": 0,
-        "improveExp": 0
-    }
-}
+        "improveExp": 0}}
 
 
 def fix_settings(guild: discord.Guild):
-    settings = json.load(open(SETFILE, 'r'))
+
+
+    settings = None
+    try:
+        settings = json.load(open(SETFILE, 'r'))
+    except Exception:
+        settings = {}
+        open(SETFILE, 'w').write("{}")
     try:
         settings[f"g{guild.id}"]['cmdHdl']
     except KeyError:

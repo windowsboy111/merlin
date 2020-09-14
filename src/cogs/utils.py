@@ -7,9 +7,31 @@ from discord.ext import commands
 from modules import minecraft
 from modules import base_encoding
 from ext.const import STRFILE
+from modules import tools
 import json
 import duckduckgo
 stringTable = json.load(open(STRFILE, 'r'))
+
+
+class PollingCTL:
+    @staticmethod
+    async def cvt_valid_name(msg: discord.Message, name: str):
+        if len(msg.mentions) > 0:
+            for mention in msg.mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "@" + mention.display_name + name[(index+len(mention.mention)):]
+        if len(msg.channel_mentions) > 0:
+            for mention in msg.channel_mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "#" + mention.name + name[(index+len(mention.mention)):]
+        if len(msg.role_mentions) > 0:
+            for mention in msg.role_mentions:
+                if mention.mention in name:
+                    index = name.index(mention.mention)
+                    name = name[0:index] + "@" + mention.name + name[(index+len(mention.mention)):]
+        return name
 
 
 class Utils(commands.Cog):
@@ -42,31 +64,21 @@ class Utils(commands.Cog):
         Add your choice by reacting to the message
         end a poll with /poll end <id>
         """
-        msg = ctx.message
-        if len(msg.mentions) > 0:
-            for mention in msg.mentions:
-                if mention.mention in name:
-                    index = name.index(mention.mention)
-                    name = name[0:index] + "@" + mention.display_name + name[(index+len(mention.mention)):]
-        if len(msg.channel_mentions) > 0:
-            for mention in msg.channel_mentions:
-                if mention.mention in name:
-                    index = name.index(mention.mention)
-                    name = name[0:index] + "#" + mention.name + name[(index+len(mention.mention)):]
-        if len(msg.role_mentions) > 0:
-            for mention in msg.role_mentions:
-                if mention.mention in name:
-                    index = name.index(mention.mention)
-                    name = name[0:index] + "@" + mention.name + name[(index+len(mention.mention)):]
+        p = tools.AsyncPool()
+        @p.set_worker()
+        def react(msg, emoji):
+           await msg.add_reaction(emoji)
+
+        name = PollingCTL.cvt_valid_name(ctx.message, name)
         if name == '':
             await ctx.send('Bruh, wuts da title of the poll?')
             return 2
-        msg = await ctx.send('Once apon a time, there was a poll, that YOU SHOULDN\'T SEE DIS MESSAGE! OR ELSE DISCORD IS LAGGY!')
         if len(options) <= 1:
             options = ('yes', 'no')
         if len(options) > 26:
-            await msg.edit(content='You cannot make a poll for more than 26 things!')
+            await ctx.send('You cannot make a poll for more than 26 things!')
             return 3
+        msg = await ctx.send("Once apon a time, there was a poll, that YOU SHOULDN'T SEE DIS MESSAGE! OR ELSE DISCORD IS LAGGY!")
 
         if len(options) == 2 and options[0].lower() == 'yes' and options[1].lower() == 'no':
             reactions = ['✅', '❌']
@@ -77,23 +89,23 @@ class Utils(commands.Cog):
         description = []
         # form the output embed
         for x, option in enumerate(options):
-            description += '\n {} {}'.format(reactions[x], option)
+            description += f'\n {reactions[x]} {option}'
         embed = discord.Embed(title=name, description=''.join(description), color=0x00FFBB)
         embed.set_author(name=ctx.message.author, icon_url=ctx.message.author.avatar_url)
         await msg.edit(embed=embed)
-        i = 0
         # add reactions
-        for reaction in reactions[:len(options)]:
+        for i, reaction in enumerate(reactions[:len(options)]):
             if i == 20: msg = await ctx.send('And more reactions...')
-            await msg.add_reaction(reaction)
-            i += 1
+            await p.add_task_nowait(msg, reaction)
+        p.start(2)
         # change footer
         text = f'Poll ID: {base_encoding.IntEncoder.encode_base64(msg.id)}'
-        if i > 10:
-            text = "Can't tally this poll :("
+        if i > 19:
+            text = "Not tally-able"
         embed.set_footer(text=text)
         embed.timestamp = datetime.utcnow()
         await msg.edit(embed=embed, content='')
+        p.join()
         return 0
 
     @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
@@ -219,12 +231,12 @@ class Utils(commands.Cog):
         await msg.add_reaction(self.bot.get_emoji(687495401661661324))
         rtc = 0
         try:
-            embed = botmc.mcsrv(embed, args)
-        except botmc.InvalidArgument as e:
+            embed = minecraft.mcsrv(embed, args)
+        except minecraft.InvalidArgument as e:
             rtrn = "<:err:740034702743830549> Panic 2: InvalidArgument. Send gud args!!!!!!!?\n""Details:  " + str(e) + "\n"
             rtrn += "2 get da usage, invoke da \"help\" cmd, aka `/help mc`"
             rtc = 2
-        except botmc.OfflineServer as e:
+        except minecraft.OfflineServer as e:
             rtrn = "<:err:740034702743830549> Panic 4: OfflineServer.  Details: {}\n".format(str(e))
             rtc = 3
         except Exception as e:

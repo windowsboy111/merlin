@@ -1,5 +1,5 @@
 from flask import Flask
-from threading import Thread
+import asyncio
 app = Flask('')
 
 
@@ -11,8 +11,7 @@ def main():
 def run(port=8080, host="0.0.0.0"):
     app.run(host=host, port=port)
 
-
-def keep_alive(port=8080, host="0.0.0.0"):
-    server = Thread(target=run, args=(port, host))
-    server.start()
-    return server
+def async_run(port=8080, host="0.0.0.0"):
+    async def run(port, host):
+        app.run(host=host, port=port)
+    return asyncio.create_task(run(port, host))

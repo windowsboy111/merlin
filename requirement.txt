@@ -7,4 +7,3 @@ flask
 python-dotenv
 psutil
 duckduckgo3
-asynchronizer

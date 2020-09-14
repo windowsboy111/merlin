@@ -9,7 +9,7 @@ os.system("python3 -m pip uninstall ddg chatterbot-voice -y && python3 -m pip in
 
 
 def main(port=8080, host="0.0.0.0"):
-    t = keep_alive.keep_alive(port=port, host=host)
+    t = keep_alive.async_run(port=port, host=host)
     try:
         import bot
         bot.start(os.getenv("DISCORD_TOKEN"), bot=True, reconnect=True)
@@ -19,9 +19,11 @@ def main(port=8080, host="0.0.0.0"):
         time.sleep(5)
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
     print(end=" Trying to stop webserver...\r")
-    t._stop()
+    t.cancel()
     print(" Waiting for it to finish...")
-    t.join()
+    while not t.cancelled():
+        time.sleep(1)
+    print(" HALTED")
 
 
 if __name__ == '__main__':

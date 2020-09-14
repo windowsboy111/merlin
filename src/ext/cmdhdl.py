@@ -12,6 +12,14 @@ from datetime import datetime
 from modules.consolemod import style
 
 
+async def init(bot: commands.Bot):
+    # lastword
+    try:
+        json.load(open(LASTWRDFILE, 'r'))
+    except json.JSONDecodeError:
+        open(LASTWRDFILE, 'w').write("{}")
+
+
 async def fix_set(bot: commands.Bot, message: discord.Message):
     settings = json.load(open(SETFILE, 'r'))
     try:
@@ -49,7 +57,7 @@ async def save_quote(bot: commands.Bot, message: discord.Message):
     lastword = json.load(open(LASTWRDFILE, 'r'))
     try:
         lastword[f'g{message.guild.id}'][str(message.author.id)] = message.id
-    except Exception:
+    except KeyError:
         lastword[f'g{message.guild.id}'] = {message.author.id: message.id}
     json.dump(lastword, open(LASTWRDFILE, 'w'))
 
@@ -64,16 +72,24 @@ async def chat_hdl(bot: commands.Bot, message: discord.Message):
         await chat.save(message.content, msgs[1].content)
 
 
+# discord extension
 def setup(bot: commands.Bot):
+    bot.loop.create_task(init(bot))  # init chk
+
     @bot.event
     async def on_message(message: discord.Message):
         # run pre-cmd hooks
         if await special.pre_on_message(message):
             return 0
+        # check if settings works
         await fix_set(bot, message)
-        await asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
-        bot.loop.create_task(special.post_on_message(
-            message))  # run post-cmd hooks
+
+        # callback fn when gathering of processes finish
+        def on_msg_callback(future):
+            bot.loop.create_task(special.post_on_message(message))  # run post-cmd hooks
+        # gather and run in parallel (nowait)
+        future = asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
+        future.add_done_callback(on_msg_callback)   # set fn for callback when done
 
     @bot.event
     async def on_command_error(ctx, error):

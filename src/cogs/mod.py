@@ -245,26 +245,28 @@ class Mod(commands.Cog):
         if isinstance(error, NoMutedRole):
             await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
 
-    async def warn_error(self, ctx, error):
-        conn = sqlite3.connect(WARNFILE)
-        curs = conn.cursor()
-        curs.execute(
-            f"""
-            CREATE TABLE g{ctx.guild.id} (
-                ID int,
-                Person int,
-                Reason varchar(255),
-                Moderator varchar(255),
-                WarnedDate DATE
-            );
-            """
-        )
-        close_cursor(curs)
-        close_connection(conn)
-        await ctx.send("something went wrong, please try again")
-    warn.error(warn_error)
-    rmwn.error(warn_error)
-    chkwrn.error(warn_error)
+    @classmethod
+    async def set_warn_error(cls):
+        async def warn_error(self, ctx, error):
+            conn = sqlite3.connect(WARNFILE)
+            curs = conn.cursor()
+            curs.execute(
+                f"""
+                CREATE TABLE g{ctx.guild.id} (
+                    ID int,
+                    Person int,
+                    Reason varchar(255),
+                    Moderator varchar(255),
+                    WarnedDate DATE
+                );
+                """
+            )
+            await self.bot.invoke(ctx)
+        cls.warn.error(warn_error)
+        cls.rmwn.error(warn_error)
+        cls.chkwrn.error(warn_error)
 
-def setup(bot):
-    bot.add_cog(Mod(bot))
+def setup(bot: commands.Bot):
+    cog = Mod(bot)
+    bot.loop.create_task(cog.set_warn_error())
+    bot.add_cog(cog)
