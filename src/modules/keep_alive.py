@@ -1,5 +1,5 @@
 from flask import Flask
-import asyncio
+import multiprocessing
 app = Flask('')
 
 
@@ -11,7 +11,7 @@ def main():
 def run(port=8080, host="0.0.0.0"):
     app.run(host=host, port=port)
 
-def async_run(port=8080, host="0.0.0.0"):
-    async def run(port, host):
-        app.run(host=host, port=port)
-    return asyncio.create_task(run(port, host))
+def start(port=8080, host="0.0.0.0"):
+    p = multiprocessing.Process(target=run, args=(port, host))
+    p.start()
+    return p
