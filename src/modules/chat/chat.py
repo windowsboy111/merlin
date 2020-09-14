@@ -71,18 +71,19 @@ def proc_res(msg: discord.Message):
 
 async def response(msg: discord.Message):
     global doTrain, reTrain, pool
-    res = ''
-    if msg.content.startswith('merlin::'):
-        if msg.content == 'merlin::train':
-            doTrain = True
-            res = "bot is training, please wait for around a minute."
-        if msg.content.startswith('merlin::retrain'):
-            reTrain = True
-            res = "Please wait..."
-        res = "`merlin::`?"
-    if res:
-        return asyncio.run(msg.channel.send(res))
-    return pool.apply_async(bot.get_response, args=(msg, ))
+    async with msg.channel.typing():
+        res = ''
+        if msg.content.startswith('merlin::'):
+            if msg.content == 'merlin::train':
+                doTrain = True
+                res = "bot is training, please wait for around a minute."
+            if msg.content.startswith('merlin::retrain'):
+                reTrain = True
+                res = "Please wait..."
+            res = "`merlin::`?"
+        if res:
+            return asyncio.run(msg.channel.send(res))
+    return pool.apply_async(proc_res, args=(msg, ))
 
 
 def proc_save(saveBot, msg: str, prev: str):

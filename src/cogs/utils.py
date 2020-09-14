@@ -110,14 +110,14 @@ class Utils(commands.Cog):
 
     @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
     async def check(self, ctx, *, num='0'):
-        num = 0xffffff if num == '0' else num
-        result, messages = '', None; result2 = pollID = list()
+        try:
+            num = 0xffffff if num == '0' else int(num)
+        except TypeError:
+            return await ctx.send("`num` has to be an integer!")
+        result = []; result2 = pollID = list()
         msg = await ctx.send('You have forgotten something...')
-        if not num:
-            messages = await ctx.message.channel.history(limit=0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).flatten()
-        else:
-            messages = await ctx.message.channel.history(limit=int(num)).flatten()
-        for message in messages:
+        # loop through messages
+        async for message in ctx.message.channel.history(limit=num):
             if message.author != ctx.message.guild.me or not message.embeds:
                 continue
             embed = message.embeds[0]
@@ -127,16 +127,15 @@ class Utils(commands.Cog):
             except Exception:
                 continue
             if embed.description != 'Poll ended':
-                link = f'[{message.created_at}]({message.jump_url})\n'
-                result += link
+                link = f'[{message.created_at}]({message.jump_url})'
+                result.append(link)
                 result2.append(embed.title)
                 pollID.append(message.id)
         if result == '':
             await msg.edit(content='No unended polls detected.')
             return
-        rs = result.split('\n')
         embed = discord.Embed(title='Running polls')
-        for loop, r in enumerate(rs):
+        for loop, r in enumerate(result):
             if loop == len(result2):
                 break
             embed.add_field(name=result2[loop], value=r)
@@ -166,8 +165,8 @@ class Utils(commands.Cog):
                     await self.end(ctx=ctx, pollID=msgid)
                 except discord.NotFound: continue
             return 0
+        if pollID == '0':       return await ctx.send('bruh i need da poll id')
         msg = await ctx.send('deleting `system32`...')
-        if pollID == '0':       return await msg.edit(content='bruh i need da poll id')
 
         # get the message
         try: poll_message = await discord.TextChannel.fetch_message(ctx.message.channel, int(pollID))
