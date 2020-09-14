@@ -64,13 +64,13 @@ except Exception:
     train(bot)
 
 
-def proc_res(msg: discord.Message):
+def proc_res(bot: ChatBot, msg: discord.Message):
     result = bot.get_response(msg.content)
-    return asyncio.run(msg.channel.send(result))
+    return await msg.channel.send(result)
 
 
 async def response(msg: discord.Message):
-    global doTrain, reTrain, pool
+    global doTrain, reTrain, pool, bot
     async with msg.channel.typing():
         res = ''
         if msg.content.startswith('merlin::'):
@@ -82,8 +82,8 @@ async def response(msg: discord.Message):
                 res = "Please wait..."
             res = "`merlin::`?"
         if res:
-            return asyncio.run(msg.channel.send(res))
-    return pool.apply_async(proc_res, args=(msg, ))
+            return await msg.channel.send(res)
+    return pool.apply_async(proc_res, args=(bot, msg))
 
 
 def proc_save(saveBot, msg: str, prev: str):

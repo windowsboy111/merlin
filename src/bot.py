@@ -2,10 +2,7 @@
 # bot.py
 import ext.startup
 # python libs
-import sys
-import os
-import json
-import asyncio
+import sys, os, json, asyncio, traceback, random
 from datetime import datetime
 # additional libs
 import discord
@@ -71,7 +68,7 @@ async def on_ready():
         except commands.errors.ExtensionAlreadyLoaded:
             return nlog("Loaded tasks already, continue execution.")
         except Exception as err:
-            slog(style.red2 + f"FAILED: {extension}{style.grey} - {style.yellow}{3`Zcvn,./.format_exception_only(err.__class__, err)}{style.reset}")
+            slog(style.red2 + f"FAILED: {extension}{style.grey} - {style.yellow}{traceback.format_exception_only(err.__class__, err)[0]}{style.reset}")
     slog('Telling guilds...')
     if not MODE or MODE == 'NORMAL':
         await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=random.choice(statusLs)))

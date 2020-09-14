@@ -66,7 +66,6 @@ async def chat_hdl(bot: commands.Bot, message: discord.Message):
     settings = json.load(open(SETFILE, 'r'))
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
         await chat.response(message)
-        return 0
     elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
         msgs = await message.channel.history(limit=2).flatten()
         await chat.save(message.content, msgs[1].content)
@@ -83,13 +82,9 @@ def setup(bot: commands.Bot):
             return 0
         # check if settings works
         await fix_set(bot, message)
-
-        # callback fn when gathering of processes finish
-        def on_msg_callback(future):
-            bot.loop.create_task(special.post_on_message(message))  # run post-cmd hooks
         # gather and run in parallel (nowait)
-        future = asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
-        future.add_done_callback(on_msg_callback)   # set fn for callback when done
+        await asyncio.gather(save_quote(bot, message), proc_cmd(bot, message), chat_hdl(bot, message))
+        await special.post_on_message(message)   # set fn for callback when done
 
     @bot.event
     async def on_command_error(ctx, error):

@@ -185,9 +185,8 @@ class Core(commands.Cog):
             title=f'user {user.display_name}', description=f'```{user.id}{" | BOT" if user.bot else ""}```')
         embed.add_field(
             name='Mention', value=f"{user.mention} / `{user.mention}`")
-
         embed.set_author(name=user, icon_url=user.avatar_url)
-        embed.set_footer(text='Created')
+        embed.set_footer(text='Account created at')
         embed.timestamp = user.created_at
         await ctx.send(embed=embed)
         return 0
@@ -239,8 +238,8 @@ class Core(commands.Cog):
         embed.add_field(
             name='Nickname', value=member.nick or f"<{member.mention} have no nickname>")
         embed.add_field(name='Roles', value=', '.join(
-            [r.mention for r in member.roles[1:]]))
-        embed.set_footer(text='Joined', icon_url=ctx.guild.icon_url)
+            [r.mention for r in member.roles[1:]]) or "<None>")
+        embed.set_footer(text='Member joined at', icon_url=ctx.guild.icon_url)
         embed.timestamp = member.joined_at
         await ctx.send(embed=embed)
         return 0

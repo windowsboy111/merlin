@@ -13,6 +13,7 @@
 ### Removed
 - `log()` no longer supports `guild_id` param
 ### Fixed
+- `/info member` fails when member has no roles
 - chat system doesn't work
 - broken `/mc srv`
 - polls with less than 20 options can now also be tallied

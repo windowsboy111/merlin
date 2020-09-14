@@ -65,8 +65,8 @@ class Utils(commands.Cog):
         end a poll with /poll end <id>
         """
         p = tools.AsyncPool()
-        @p.set_worker()
-        def react(msg, emoji):
+        @p.make_worker()
+        async def react(msg, emoji):
            await msg.add_reaction(emoji)
 
         name = PollingCTL.cvt_valid_name(ctx.message, name)
