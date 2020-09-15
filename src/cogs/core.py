@@ -36,7 +36,7 @@ class Core(commands.Cog):
         assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(
             DEFAULT_SETTINGS['cmdHdl'])
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
-        tmp = cmdHdl['cmdNotFound']
+        cmdHdl['cmdNotFound']
         prefix = settings[f'g{ctx.guild.id}']['prefix']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
         if ctx.invoked_subcommand is None:
@@ -126,6 +126,9 @@ class Core(commands.Cog):
 
     @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
     async def help(self, ctx, *, cmdName: str = None):
+        """
+        The Merlin help command
+        """
         settings = json.load(open(SETFILE, 'r'))
         prefix = e = None
         prefixes = settings[f"g{ctx.guild.id}"]["prefix"]
@@ -135,8 +138,10 @@ class Core(commands.Cog):
                 break
         if cmdName:
             command = self.bot.get_command(cmdName)
-            if not command or command.hidden: return await ctx.send(':mag: Command not found, please try again.')
-            path = "/" + (command.cog.qualified_name if command.cog else "<GLOBAL>") + "/" + command.full_parent_name.replace(" ", "/")
+            if not command or command.hidden:
+                return await ctx.send(':mag: Command not found, please try again.')
+            path = "/" + (command.cog.qualified_name if command.cog else "<GLOBAL>")
+            path += "/" + command.full_parent_name.replace(" ", "/")
             eTitle = "Group" if hasattr(command, "commands") else "Command"
             eTitle += f' `{prefix}{command.qualified_name}`'
             eDesc = "wd: `" + path + '`\n' + command.description or "<no description>"
@@ -144,20 +149,23 @@ class Core(commands.Cog):
             usage = prefix + command.qualified_name + ' '
             for key, val in command.clean_params.items():
                 usage += f'<{val.name}> ' if val.default else f'<[{val.name}]> '
-            e.add_field(name='Objective',   value=command.help or "<no help messages>")
+            e.add_field(name='Objective',
+                        value=command.help or "<no help messages>")
             e.add_field(name='Usage',       value=usage)
-            e.add_field(name='Cog',         value="<GLOBAL>" if not command.cog else command.cog.qualified_name)
-            e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
+            e.add_field(
+                name='Cog',         value="<GLOBAL>" if not command.cog else command.cog.qualified_name)
+            e.add_field(name='Aliases',     value=', '.join(
+                command.aliases) or "<No aliases>")
             if hasattr(command, 'commands'):    # it is a group
                 e.add_field(name='Sub-Commands', value='\n'.join(
                     [f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}" for cmd in command.commands]))
         else:
             e = discord.Embed(title='Command list',
-                            description='wd: `/`', color=0x0000ff)
+                              description='wd: `/`', color=0x0000ff)
             for cmd in self.bot.commands:
-                if cmd.hidden:
-                    continue
-                e.add_field(name=cmd.name, value=cmd.short_doc or "<no help>")
+                if not cmd.hidden:
+                    e.add_field(name=cmd.name,
+                                value=f'{cmd.short_doc or "<no help>"}\n')
         await ctx.send(embed=e)
 
     @commands.group(name='info', help='info about everything')

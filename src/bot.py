@@ -12,7 +12,7 @@ from discord.utils import find
 # python external files
 from ext.const import statusLs, SETFILE, slog, nlog, logging, eventLogger, style, log, bot, hint
 from ext import excepts
-# initlize runtime variables
+# initialize runtime variables
 load_dotenv()
 exitType, exts, TOKEN, MODE = 0, ['ext.tasks', 'ext.cmdhdl'], os.getenv('DISCORD_TOKEN'), os.getenv('MODE')
 lastword = None
@@ -22,38 +22,6 @@ settings = json.load(open(SETFILE))
 for cog in os.listdir('cogs/'):
     if cog.endswith('.py'):
         exts.append("cogs." + cog[:-3])
-
-slog("Adding bot commands...")
-
-
-@bot.command(name='reboot', aliases=['restart'], hidden=True)
-@commands.is_owner()
-async def cmd_reboot(ctx):
-    global exitType
-    print('Bot going to log out in 10 seconds [owner disc rq] type: reboot')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will restart in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    print('Logging out...')
-    exitType = 1
-    await bot.logout()
-
-
-@bot.command(name='shutdown', aliases=['stop', 'sdwn', 'kthxbai', 'halt'], hidden=True)
-@commands.is_owner()
-async def cmd_shutdown(ctx):
-    global exitType
-    nlog('Bot going to log out in 10 seconds [owner disc rq] type: shutdown')
-    await log('***__WARNING! BOT WILL RESTART IN 10 SECONDS!__***')
-    await ctx.send('Bot will shutdown in 10 seconds.')
-    await asyncio.sleep(10)
-    await ctx.send('Logging out...')
-    await log('Logging out...')
-    nlog('Logging out...')
-    exitType = 2
-    await bot.logout()
 
 
 @bot.event
@@ -98,11 +66,11 @@ def start(token=None, **kwargs):
     if exitType == 2:
         print("\nExiting...")
         sys.exit(0)
-    print('==> Restarting script...\n\n')
+    nlog('Restarting script...\n\n')
     try:
         os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
     except PermissionError as e:
-        print(f"OPERATION FAILED: {str(e)}")
+        print(f"OPERATION FAILED: {str(e)}", file=sys.stdout)
         sys.exit(3)
 
 
