@@ -8,3 +8,4 @@ python-dotenv
 numpy
 psutil
 duckduckgo3
+aiosqlite

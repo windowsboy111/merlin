@@ -116,7 +116,8 @@ class Log:
             queue.task_done()
             slept = 0  # reset timeout
 
-    async def __call__(self, message: str, *, guild: discord.Guild = None):
+    @classmethod
+    async def __call__(cls, message: str, *, guild: discord.Guild = None):
         if guild:
             for channel in guild.channels:
                 if channel.name == 'merlin-py':

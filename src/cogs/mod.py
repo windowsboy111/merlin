@@ -2,7 +2,7 @@ from discord.ext import commands
 from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
-from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
+import aiosqlite
 from ext.excepts import NoMutedRole
 from ext.const import WARNFILE, SETFILE, STRFILE, log, chk_sudo
 muted = dict()
