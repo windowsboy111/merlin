@@ -34,6 +34,7 @@ class Games(commands.Cog):
     ## Commands
     - rps (rock paper scissors)
     """
+    description = "it is what it is."
     def __init__(self, bot):
         self.bot = bot
 

@@ -1,14 +1,19 @@
 import csv
 import random
 import typing
+import asyncio
+import contextlib
 from datetime import datetime
 import discord
 from discord.ext import commands
-from modules import minecraft
+from modules import minecraft as botmc
 from modules import base_encoding
-from ext.const import STRFILE
+from ext.const import STRFILE, chk_sudo
 import json
+from ext import excepts
+import aiosqlite
 import duckduckgo
+from ext.logcfg import gLogr
 stringTable = json.load(open(STRFILE, 'r'))
 
 
@@ -26,6 +31,7 @@ class Utils(commands.Cog):
     - avatar
     - search
     """
+    description = "Utilities command"
     def __init__(self, bot):
         self.bot = bot
 
@@ -390,5 +396,168 @@ class Utils(commands.Cog):
         return 0
 
 
+class Ranking(commands.Cog):
+    """\
+    Type: discord.ext.commands.Cog  
+    A ranking system just like MEE6  
+    Load this extension as an external file with `client.load_extension('cogs.utils')`
+    ---
+    This cog contains:  
+    ## Commands  
+    - rank
+    """
+    description = "Ranking system ;)"
+    cooldown = {}
+    bar = (' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█')
+    logger = gLogr('Merlin.ranking')
+    def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        await self.init_member(member)
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: discord.Guild):
+        return await self.init_table(guild)
+
+    @commands.Cog.listener()
+    async def on_guild_leave(self, guild: discord.Guild):
+        return await self.deinit_table(guild)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+        with contextlib.suppress(KeyError):
+            if message.author.id in self.cooldown[message.guild.id]:
+                return 
+        await self.addxp(message.author, 1)
+        try:
+            self.cooldown[message.guild.id].append(message.author.id)
+        except KeyError:
+            self.cooldown[message.guild.id] = [message.author.id]
+        await asyncio.sleep(20)
+        self.cooldown[message.guild.id].remove(message.author.id)
+
+
+    async def addxp(self, member: discord.Member, count):
+        lvl, xp = await self.getlvl(member)
+        xp += count
+        total = (2 ** (lvl))
+        if xp > total:
+            lvl += 1
+            xp -= total
+            channel = await self.get_announcement_channel(member.guild)
+            await channel.send(f"Hurray, {member}! You are now level {lvl+1}!")
+        await self.setlvl(member, lvl, xp)
+        return
+        
+    async def init_member(self, member: discord.Member):
+        self.logger.info(f"Adding m{member.id} to g{member.guild.id}")
+        cur = await self.bot.db['ranks'].execute(f"INSERT INTO g{member.guild.id} (ID, LVL, XP) VALUES (?, ?, ?);", (member.id, 1, 0))
+        await cur.close()
+
+    async def init_table(self, guild: discord.Guild):
+        self.logger.info(f"Creating table g{guild.id} ({guild.name})")
+        cur = await self.bot.db['ranks'].execute(
+            f"""CREATE TABLE IF NOT EXISTS g{guild.id} (
+                ID int,
+                LVL int,
+                XP int
+            );""")
+        await cur.close()
+
+    async def deinit_table(self, guild: discord.Guild):
+        self.logger.info(f"Dropping table IF EXISTS g{guild.id} ({guild.name})")
+        cur = await self.bot.db['ranks'].execute(f"DROP TABLE g{guild.id};")
+        await cur.commit()
+        await cur.close()
+
+    async def setlvl(self, member: discord.Member, lvl, xp):
+        db = self.bot.db['ranks']
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(f"""
+            UPDATE g{member.guild.id}
+            SET XP=?, LVL=?
+            WHERE ID=?;""", (xp, lvl, member.id))
+        await cur.close()
+
+    async def getlvl(self, member: discord.Member):
+        db = self.bot.db['ranks']
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(f"SELECT LVL, XP FROM g{member.guild.id} WHERE ID={member.id};")
+        row = await cur.fetchone()
+        if row is None:
+            await self.init_member(member)
+            return 1, 0
+        lvl = row['LVL']
+        xp = row['XP']
+        await cur.close()
+        return lvl, xp
+
+    @commands.command()
+    @commands.guild_only()
+    async def rank(self, ctx, member: discord.Member = None):
+        """Show your xp and level."""
+        member = member or ctx.author
+        # self.logger.info(f"Loading rank for {member}")
+        member = member or ctx.author
+        lvl, xp = await self.getlvl(member)
+
+        # format them, beautiful bar lol
+        msgstr = f"Level **{lvl}** -- |`"
+        fraction = xp / (2 ** (lvl))  # cur xp / full xp to lvl up
+        fullToShow = int(30 * fraction)
+        msgstr += self.bar[-1] * fullToShow
+        msgstr += self.bar[int(len(self.bar) * (fraction - int(fraction)))]
+        msgstr += self.bar[0] * (30 - fullToShow)
+        msgstr += f"`| **{xp}**/{(2 ** (lvl))} xp {100*fraction:0.2f}%"
+        await ctx.send(f"Rank for *{member}* in __{ctx.message.guild.name}__:\n{msgstr}")
+        return
+    
+    @rank.error
+    async def rank_error(self, ctx: commands.Context, error):
+        if isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, aiosqlite.OperationalError):
+                self.logger.warn("Caught OperationalError")
+                if " no such table: g" in str(error):
+                    await self.init_table(ctx.guild)
+                    return await ctx.reinvoke()
+        return await self.bot.errhdl_g(ctx, error)
+
+    async def get_announcement_channel(self, guild: discord.Guild):
+        try:
+            channel_id = self.bot.db['sets'][f'g{guild.id}']['announcementChannel']
+            assert channel_id is not None
+            return guild.get_channel(channel_id)
+        except (ValueError, AssertionError):
+            await self.bot.netLogger("**Announcement Channel not set!!!**\nTo set the announcement channel, do `/id #TheChannelToSet`, then copy the id to `/settings set announcementChannel 123456789`")
+            raise excepts.HaltInvoke()
+    
+    @commands.command(name='setlvl')
+    @commands.guild_only()
+    @chk_sudo()
+    async def cmd_setlvl(self, ctx, member: typing.Optional[discord.Member], lvl: int, xp: int = 0):
+        """
+        Manually set the lvl / xp of a member.
+        
+        Set your own level to 1:
+        `/setlvl 1`
+        Set @Bob's own level to 5:
+        `/setlvl @Bob 5`
+        Set your own level and xp to 99, 51:
+        `/setlvl 99 51`
+        Set @Bob's own level to 23, 12:
+        `/setlvl @Bob 23 12`
+        """
+        member = member or ctx.author
+        await self.setlvl(member, lvl, xp)
+        await ctx.message.add_reaction("✅")
+        return
+
+
 def setup(bot):
     bot.add_cog(Utils(bot))
+    bot.add_cog(Ranking(bot))

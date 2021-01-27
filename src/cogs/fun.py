@@ -22,6 +22,7 @@ class Fun(commands.Cog):
     - say
     - send
     """
+    description = "Funny and old commands I guess."
     def __init__(self, bot):
         self.bot = bot
 
@@ -144,7 +145,8 @@ class Fun(commands.Cog):
     @quote.error
     async def quote_error(self, ctx, error):
         if isinstance(error, AssertionError) and str(error) == "no result":
-            await ctx.send("ｃｈｅｃｋ　ｔｈｅ　ｕｓａｇｅ！！！")
+            return await ctx.send("ｃｈｅｃｋ　ｔｈｅ　ｕｓａｇｅ！！！")
+        await self.bot.errhdl_g(ctx, error)
 
 
 def setup(bot):

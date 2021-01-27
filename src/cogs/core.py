@@ -2,7 +2,7 @@ import asyncio
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
-from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, fix_settings, chk_sudo
+from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, chk_sudo
 stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
@@ -22,13 +22,38 @@ class Core(commands.Cog):
     - reload
     - load
     """
-
+    description = "The important / basic commands."
     def __init__(self, bot):
         self.bot = bot
 
+    async def init_sets(self, guild: discord.Guild):
+        settings = self.bot.db['sets']
+        try:
+            settings[f"g{guild.id}"]['cmdHdl']
+        except KeyError:
+            settings[f"g{guild.id}"] = DEFAULT_SETTINGS.copy()
+            with open(SETFILE, 'w') as outfile:
+                json.dump(settings, outfile)
+            return
+        # fix cmdHdl
+        cmdHdl = DEFAULT_SETTINGS['cmdHdl'].copy()          # the following code will leave entrys already
+        cmdHdl.update(settings[f'g{guild.id}']['cmdHdl'])   # exists and add the missing entrys so that
+        settings[f'g{guild.id}']['cmdHdl'] = cmdHdl         # overwriting can be prevented
+        default = DEFAULT_SETTINGS.copy()
+        default.update(settings[f'g{guild.id}'])            # we can also do the same thing for the whole settings
+        settings[f'g{guild.id}'].update(default)
+
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: discord.Guild):
+        await self.init_sets(guild)
+        for role in guild.roles:
+            if role.permissions.administrator:
+                self.bot.db['sets'][f'g{guild.id}']['sudoers'].append()
+
     @commands.group(name='settings', help='settings about everything', aliases=['set'])
     async def cmd_settings(self, ctx):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(DEFAULT_SETTINGS['cmdHdl'])
         cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
         tmp = cmdHdl['cmdNotFound']
@@ -37,12 +62,28 @@ class Core(commands.Cog):
         if ctx.invoked_subcommand is None:
             e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
             e.add_field(name='Prefix', value=(', '.join(prefix) if any(prefix) else "<No prefixes>"))
-            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(name=s).mention if get(ctx.guild.roles, name=s) is None else get(ctx.guild.roles, name=s).mention for s in sudoers])) or '<None>')
+            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(id=s).mention if get(ctx.guild.roles, id=s) is None else get(ctx.guild.roles, id=s).mention for s in sudoers])) or '<None>')
             await ctx.send(embed=e)
 
-    @cmd_settings.command(name='cmdhdl', help='Change settings about error handling', aliases=['cmdctl'])
+    @cmd_settings.command(name="raw")
+    async def settings_raw(self, ctx, entry=None, val=None):
+        """Raw stuff"""
+        sets = self.bot.db['sets']
+        print(entry)
+        if entry is None:
+            return await ctx.send("```json\n" + json.dumps(sets[f'g{ctx.guild.id}']) + "\n```")
+        if val is None:
+            return await ctx.send(sets[f'g{ctx.guild.id}'][entry])
+        try:
+            sets[f'g{ctx.guild.id}'][entry] = int(val)
+            await ctx.send(f'"{entry}": {val}')
+        except ValueError:
+            sets[f'g{ctx.guild.id}'][entry] = val
+            await ctx.send(f'"{entry}": "{val}"')
+
+    @cmd_settings.command(name='cmdhdl', help='Change settings about command handling', aliases=['cmdctl'])
     async def settings_cmdhdl(self, ctx, toggle=None):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         if toggle is None:
             res = ''
             for k, v in settings[f'g{ctx.guild.id}']['cmdHdl'].items():
@@ -64,7 +105,7 @@ class Core(commands.Cog):
 
     @settings_prefix.command(name='add', help='add a prefix for this server')
     async def settings_prefix_add(self, ctx, prefix: str):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix in prefixes:
             return ctx.send(':octagonal_sign: That prefix already exists!')
@@ -75,7 +116,7 @@ class Core(commands.Cog):
 
     @settings_prefix.command(name='remove', help='remove a prefix for this server', aliases=['del', 'delete', 'rm'])
     async def settings_prefix_remove(self, ctx, prefix: str):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         prefixes = settings[f'g{ctx.guild.id}']['prefix']
         if prefix not in prefixes:
             return await ctx.send(':octagonal_sign: The specified prefix does not exist in the list!')
@@ -92,65 +133,28 @@ class Core(commands.Cog):
 
     @settings_mods.command(name='add', help='add a moderating role')
     async def settings_mods_add(self, ctx, role: discord.Role):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
-        sudoers.append(str(role))
+        sudoers.append(role.id)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, id=s).mention for s in sudoers])))
 
     @settings_mods.command(name='remove', help='remove a moderating role', aliases=['del', 'rm', 'delete'])
     async def setings_mod_remove(self, ctx, role: discord.Role):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         sudoers = settings[f'g{ctx.guild.id}']['sudoers']
-        sudoers.remove(str(role))
+        sudoers.remove(role.id)
         with open(SETFILE, 'w') as outfile:
             json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, name=s).mention for s in sudoers])))
+        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, id=s).mention for s in sudoers])))
 
     @cmd_settings.error
     async def settings_error(self, ctx, error):
         if "AssertionError" in str(error) or "KeyError" in str(error):
-            fix_settings(ctx.guild)
-            await ctx.send("Fixed corrupted settings")
-            return 0
-        await ctx.send(f"<:err:740034702743830549> Something went wrong: {str(error)}")
-
-    @commands.command(name='help', help='Shows this message', aliases=['?', 'cmd', 'cmds', 'commands', 'command'])
-    async def help(self, ctx, *, cmdName: str = None):
-        settings = json.load(open(SETFILE, 'r'))
-        prefix = None
-        prefixes = settings[f"g{ctx.guild.id}"]["prefix"]
-        for p in prefixes:
-            if ctx.message.content.startswith(p):
-                prefix = p
-                break
-        if cmdName:
-            command = self.bot.get_command(cmdName)
-            if not command or command.hidden: return await ctx.send(':mag: Command not found, please try again.')
-            path = "/" + (command.cog.qualified_name if command.cog else "None") + "/" + "/".join(command.full_parent_name.split(" "))
-            e = discord.Embed(title=f'Command `{prefix}' + command.qualified_name + '`', description=(path + '\n' + command.description or "<no description>"),color=0x0000ff)
-            usage = prefix + command.qualified_name + ' '
-            for key, val in command.clean_params.items():
-                if val.default:
-                    usage += f'<{val.name}>'
-                else:
-                    usage += f'<[{val.name}]>'
-                usage += ' '
-            e.add_field(name='Objective',   value=command.help)
-            e.add_field(name='Usage',       value=usage)
-            e.add_field(name='Cog',         value="<No cog>" if not command.cog else command.cog.qualified_name)
-            e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
-            if hasattr(command, 'commands'):    # it is a group
-                e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}\n" for cmd in command.commands]))
-            await ctx.send(embed=e)
-            return
-        e = discord.Embed(title='Command list', description='wd: `/`', color=0x0000ff)
-        for cmd in self.bot.commands:
-            if cmd.hidden:
-                continue
-            e.add_field(name=cmd.name, value=cmd.short_doc or "<no help>")
-        await ctx.send(embed=e)
+            await self.init_sets(ctx.guild)
+            return await ctx.reinvoke()
+        await self.bot.errhdl_g(ctx, error)
 
     @commands.group(name='info', help='info about everything')
     async def info(self, ctx):
@@ -162,7 +166,7 @@ class Core(commands.Cog):
             embed.add_field(name='Member count', value=len(ctx.guild.members))
             embed.timestamp = datetime.datetime.utcnow()
             await ctx.send(embed=embed)
-            return
+            
 
     @info.command(name='user', help='info about a user (can be outside of this server!)')
     async def info_user(self, ctx: commands.Context, user: discord.User = None):
@@ -256,7 +260,7 @@ class Core(commands.Cog):
     @info.command(name='server', help='info about the current server', aliases=['guild', 'srv', 'g'])
     @commands.guild_only()
     async def info_server(self, ctx):
-        settings = json.load(open(SETFILE, 'r'))
+        settings = self.bot.db['sets']
         embed = discord.Embed(title='Server info', description=ctx.guild.description or "<description not set>")
         embed.add_field(name="Server", value=f"{ctx.guild.name} - {ctx.guild.id}")
         embed.add_field(name='Members count', value=ctx.guild.member_count)
@@ -278,7 +282,7 @@ class Core(commands.Cog):
 
     @info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
     async def info_bot(self, ctx):
-        settings = json.load(open(BOTSETFILE, 'r'))
+        settings = self.bot.db['sets']
         embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
         for key in settings.keys():
             embed.add_field(name=key, value=settings[key])
@@ -286,59 +290,6 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @commands.command(name='eval', help='it is eval', hidden=True)
-    @commands.is_owner()
-    async def _eval(self, ctx: commands.Context, *, code='"bruh wat to eval"'):
-        try: await ctx.send(eval(code))
-        except Exception:
-            await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
-            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
-            return 'no-rm'
-        await ctx.message.add_reaction('✅')
-        return 'no-rm'
-    
-    @commands.command(name='exec', help='Execute python', hidden=True)
-    @commands.is_owner()
-    async def _exec(self, ctx: commands.Context, *, code='return "???????"'):
-        try:
-            exec(code, globals(), locals())
-        except Exception:
-            await ctx.message.add_reaction(self.bot.get_emoji(740034702743830549))
-            await ctx.send(':x: uh oh. there\'s an error in your code:\n```\n' + traceback.format_exc() + '\n```')
-            return 'no-rm'
-        await ctx.message.add_reaction("✅")
-        return 'no-rm'
-
-    @commands.command(name='reload', help='reload a cog', hidden=True)
-    @commands.is_owner()
-    async def _reload(self, ctx, module: str):
-        cmd = self.bot.get_command(module)
-        if cmd is not None:
-            module = "cogs." + cmd.cog.name.lower()
-        self.bot.reload_extension(module)
-        await ctx.message.add_reaction("✅")
-
-    @commands.command(name='unload', help='unload a cog', hidden=True)
-    @commands.is_owner()
-    async def _unload(self, ctx, module: str):
-        cmd = self.bot.get_command(module)
-        if cmd is None:
-            self.bot.unload_extension(module)
-        else:
-            self.bot.unload_extension(f"cogs.{cmd.cog.name.lower()}")
-        await ctx.message.add_reaction("✅")
-
-    @commands.command(name='load', help='load a cog', hidden=True)
-    @commands.is_owner()
-    async def _load(self, ctx, module: str):
-        cmd = self.bot.get_command(module)
-        if cmd is None:
-            self.bot.load_extension(module)
-        else:
-            self.bot.load_extension(f"cogs.{cmd.cog.name.lower()}")
-        await ctx.message.add_reaction("✅")
-
 
 def setup(bot: discord.ext.commands.Bot):
-    bot.remove_command('help')
     bot.add_cog(Core(bot))

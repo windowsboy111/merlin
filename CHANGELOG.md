@@ -3,6 +3,15 @@
 
 
 ## [Unreleased]
+### Added
+- SAP (smart abbreviating prompt)
+### Removed
+- startup script
+### Modified
+- using aiosqlite
+- better logging system
+- better help commands
+- moved some core stuff to GLOBAL
 
 ## [3.0-a]
 ### Optimized

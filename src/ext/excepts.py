@@ -1,3 +1,4 @@
+import warnings
 class NoMutedRole(Exception):
     """Muted role not found in the guild"""
     def __init__(self, msg):
@@ -23,3 +24,16 @@ class NotMod(Exception):
 
     def __repr__(self):
         return {'error': NotMod, 'msg': self.msg}
+
+class CmdSearchWarning(Warning):
+    """Base class for warnings in command searching."""
+    pass
+class AmbiguousSearchQuery(CmdSearchWarning):
+    """Search is ambiguous."""
+    pass
+class BadSubcommand(CmdSearchWarning):
+    """Cannot find the corresponding subcommand for the query."""
+    pass
+
+class HaltInvoke(Exception):
+    """Stop a command from invoking. No error messages will be displayed."""
