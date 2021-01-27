@@ -8,10 +8,17 @@
 - optimized messages processing in `on_message()` (async parallel)
 - optimized merlin-py logging (async parallel)
 - optimized cmderrhdl (async nowait / tasks)
+- SAP (smart abbreviating prompt)
 ### Changed
 - `/res` now looks much better
 ### Removed
 - `log()` no longer supports `guild_id` param
+- startup script
+### Modified
+- using aiosqlite
+- better logging system
+- better help commands
+- moved some core stuff to GLOBAL
 ### Fixed
 - `/info member` fails when member has no roles
 - chat system doesn't work

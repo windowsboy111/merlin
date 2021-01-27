@@ -1,9 +1,10 @@
+import os, sys
+import typing
+import traceback
 import discord
 from discord.ext import commands
 from datetime import datetime
-import traceback
 import psutil
-import os, sys
 SANDBOX_TRACEBACK = 'samples/traceback.sndbx'
 
 
@@ -19,6 +20,7 @@ class Debug(commands.Cog):
     - msgstats
     - sandbox
     """
+    description = "Commands for debugging or dev."
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -104,6 +106,10 @@ class Debug(commands.Cog):
         embed.add_field(name=f'CPU Frequency', value=f"```Currently {round(freq.current)}Mhz\nMax {round(freq.max)}Mhz\nMin {round(freq.min)}Mhz```")
         embed.add_field(name=f'Operating System', value=sys.platform)
         await ctx.send(embed=embed)
+
+    @commands.command(name='id')
+    async def cmd_id(self, ctx, val: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.User, discord.Guild, discord.Message]):
+        return await ctx.send(val.id)
 
 
 def setup(bot):

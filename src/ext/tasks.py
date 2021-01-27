@@ -7,7 +7,7 @@ import discord
 import random
 import asyncio
 import os
-from ext.const import SETFILE, statusLs, eventLogger
+from ext.const import SETFILE, STATUSES, eventLogger
 MODE = os.getenv('MODE')
 settings = json.load(open(SETFILE))
 
@@ -17,7 +17,7 @@ async def status(bot: discord.ext.commands.Bot):
     while True:
         try:
             if not MODE or MODE == 'NORMAL':
-                activity = discord.Game(name=random.choice(statusLs))
+                activity = discord.Game(name=random.choice(STATUSES))
                 await bot.change_presence(status=discord.Status.online, activity=activity)
             elif MODE == 'DEBUG':
                 activity = discord.Activity(type=discord.ActivityType(

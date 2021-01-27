@@ -2,15 +2,16 @@ from discord.ext import commands
 from discord.utils import get
 from datetime import datetime
 import discord, pyTableMaker, random, sqlite3, asyncio, json
-from ext.dbctrl import close_connection, close_cursor  # pylint: disable=import-error
+import aiosqlite
 from ext.excepts import NoMutedRole
-from ext.const import WARNFILE, SETFILE, STRFILE, log, chk_sudo
+from ext.const import WARNFILE, SETFILE, STRFILE, chk_sudo
 muted = dict()
 stringTable = json.load(open(STRFILE, 'r'))
 settings = json.load(open(SETFILE, 'r'))
 
 
 class Mod(commands.Cog):
+    description = "Commands for moderation."
     def __init__(self, bot):
         self.bot = bot
 
@@ -76,10 +77,8 @@ class Mod(commands.Cog):
             return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened '
                                   '(no modification has been made to the db, which is unintended...)')
         cursor.execute("COMMIT;")
-        close_cursor(cursor)
-        close_connection(connection)
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
-        await log(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.guild)
+        await self.bot.netLogger(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
     @chk_sudo()
@@ -244,6 +243,7 @@ class Mod(commands.Cog):
     async def mute_error(self, ctx, error):
         if isinstance(error, NoMutedRole):
             await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+        await self.bot.errhdl_g(ctx, error)
 
     @classmethod
     async def set_warn_error(cls):

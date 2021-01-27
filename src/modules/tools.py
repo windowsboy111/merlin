@@ -86,3 +86,5 @@ def exec_async(c):
             c.send(None)
         except StopIteration as e:
             return e.value
+
+wrdssep = lambda string, count: [string[i:i+count] for i in range(0, len(string), count)]

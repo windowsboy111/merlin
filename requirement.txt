@@ -7,3 +7,4 @@ flask
 python-dotenv
 psutil
 duckduckgo3
+aiosqlite

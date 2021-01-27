@@ -2,17 +2,22 @@
 This script contains constant paths and objects,
 and also global functions
 """
-import discord
-import json, asyncio
+import json
+import asyncio
 from datetime import datetime
+import discord
 from discord.ext import commands
 from ext import excepts
-from ext.logcfg import get_logger, logging
+from ext.logcfg import gLogr
 from modules.consolemod import style
+__all__ = [
+    "fix_settings", "DEFAULT_SETTINGS", "chk_sudo", "log", "bot", "get_prefix",
+    "STATUSES", "BOTSETFILE", "LASTWRDFILE", "SETFILE", "WARNFILE", "STRFILE", "TAGFILE"
+]
 
 
-statusLs = [
-    '2020 Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
+STATUSES = [
+    'Best discord bot: Merlin', 'PyPI', 'Github', 'Repl.it', 'Minecraft', 'Windows Whistler OOBE', 'GitLab', 'readthedocs.io', 'NoCopyrightSounds', 'Discord',
     'Recursion', 'F0rk B0mbs', 'Different 𝗞𝗶𝗻𝗱𝘀 𝘖𝘧 𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛𝚜', 'sudo rm -rf / --no-preserve-root', 'rd/s/q %windir%', 'typing "exit" in linux init=/bin/bash',
     'Hello, world!', 'Oracle Virtualbox VMs', 'VMware', 'Quick EMUlator (QEMU)', 'Global Information Tracker', 'Goddamn Idiotic Truckload of sh*t',
     'Arch Linux', 'Manjaro Linux', 'Microsoft Windows 10', 'Canonical Ubuntu', 'Kubuntu and Xubuntu', 'Linux Mint', 'Pop!_OS', 'OpenSUSE', 'Elementry OS', 'MX Linux', 'Debian', 'BSD',
@@ -20,16 +25,20 @@ statusLs = [
     'Ruby On Rails', 'Python', 'JavaScript', 'Node.js', 'Angular', 'Assembly', 'C++ (see ga ga)', 'C', 'Docker', 'Java', 'ps1', 'Nim', 'Markdown', 'HTML', 'CSS', 'Perl', 'C#', 'R', 'Pascal']
 
 
+
 # path for file storing data
-BOTSETFILE  = "ext/bot_settings.json"
+BOTSETFILE = "ext/bot_settings.json"
 LASTWRDFILE = "data/lastword.json"
-SETFILE     = "data/settings.json"
-WARNFILE    = "data/warnings.db"
-STRFILE     = "ext/wrds.json"
+SETFILE = "data/settings.json"
+WARNFILE = "data/warnings.db"
+STRFILE = "ext/wrds.json"
 BOTSETFILE = "ext/bot_settings.json"
 SETFILE = "data/settings.json"
+TAGFILE = "data/tags.db"
+RANKFILE = "data/rank.db"
 
 
+<<<<<<< HEAD
 logger, eventLogger, cmdHdlLogger = get_logger(
     'Merlin'), get_logger('EVENT'), get_logger('CMDHDL')
 logging.basicConfig(filename='discordbot.log', level=15,
@@ -66,6 +75,9 @@ def cmd_handle_warn(message: str):
     print(style.orange + message + style.reset)
     cmdHdlLogger.warning(message)
 
+=======
+logger, eventLogger, cmdHdlLogger = gLogr('Merlin.root', 'Merlin.event', 'Merlin.cmdHdl')
+>>>>>>> master
 
 def get_prefix(bot: commands.Bot, message: discord.Message):
     """Get prefix for guild"""
@@ -86,6 +98,7 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
         return tuple(prefixes)
 
 
+<<<<<<< HEAD
 bot = discord.ext.commands.Bot(
     command_prefix=get_prefix,
     description="an awesome discord bot coded in discord.py",
@@ -94,6 +107,11 @@ bot = discord.ext.commands.Bot(
 
 
 class Log:
+=======
+class Log:
+    def __init__(self, bot):
+        self.bot = bot
+>>>>>>> master
     @staticmethod
     async def worker_log(name, queue):
         slept = 0
@@ -109,8 +127,12 @@ class Log:
             queue.task_done()
             slept = 0  # reset timeout
 
+<<<<<<< HEAD
     @classmethod
     async def __call__(cls, message: str, *, guild: discord.Guild = None):
+=======
+    async def __call__(self, message: str, guild: discord.Guild = None):
+>>>>>>> master
         if guild:
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
@@ -119,19 +141,28 @@ class Log:
         queue = asyncio.Queue()
         tasks = []
         for i in range(5):
+<<<<<<< HEAD
             tasks.append(asyncio.create_task(cls.worker_log(f'worker-log-{i}', queue)))
         for guild in bot.guilds:
+=======
+            tasks.append(asyncio.create_task(self.worker_log(f'worker-log-{i}', queue)))
+        for guild in self.bot.guilds:
+>>>>>>> master
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
                     queue.put_nowait((channel, message))
                     break
+<<<<<<< HEAD
 log = Log()
+=======
+
+>>>>>>> master
 
 def is_sudoers(member: discord.Member):
     """\
-    Type: function  
-    Checks if the provided member has admin roles (has moderating priviledges)  
-    This function fetches the Admin roles list from the settings `dict()`  
+    Type: function
+    Checks if the provided member has admin roles (has moderating priviledges)
+    This function fetches the Admin roles list from the settings `dict()`
     ---
     return: bool
     """
@@ -150,14 +181,14 @@ def is_sudoers(member: discord.Member):
 
 def chk_sudo():
     """\
-    Type: decorator  
-    The command will only be able to be executed by the author if the author is owner or have permissions  
+    Type: decorator
+    The command will only be able to be executed by the author if the author is owner or have permissions
     """
     async def predicate(ctx):
         if is_sudoers(ctx.author):
             return True
-        else:
-            raise excepts.NotMod(f"{ctx.author} is not a moderator / administrator in the given guild")
+        await ctx.message.add_reaction("🛑")
+        return False
     return commands.check(predicate)
 
 
@@ -170,6 +201,7 @@ DEFAULT_SETTINGS = {
         "improveExp": 0}}
 
 
+<<<<<<< HEAD
 def fix_settings(guild: discord.Guild):
 
 
@@ -195,3 +227,5 @@ def fix_settings(guild: discord.Guild):
     settings[f'g{guild.id}'].update(default)
     with open(SETFILE, 'w') as outfile:
         json.dump(settings, outfile)
+=======
+>>>>>>> master
