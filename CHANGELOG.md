@@ -4,11 +4,15 @@
 
 ## [Unreleased]
 ### Added
+- subcls bot
+- ranking system
+- `/id` command
 - optimized response generating for the chat module (multiprocessing)
 - optimized messages processing in `on_message()` (async parallel)
 - optimized merlin-py logging (async parallel)
 - optimized cmderrhdl (async nowait / tasks)
 - SAP (smart abbreviating prompt)
+- optimized db accessing (async and auto commit)
 ### Changed
 - `/res` now looks much better
 ### Removed

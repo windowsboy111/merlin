@@ -38,46 +38,7 @@ TAGFILE = "data/tags.db"
 RANKFILE = "data/rank.db"
 
 
-<<<<<<< HEAD
-logger, eventLogger, cmdHdlLogger = get_logger(
-    'Merlin'), get_logger('EVENT'), get_logger('CMDHDL')
-logging.basicConfig(filename='discordbot.log', level=15,
-                    format='[%(asctime)s]%(levelname)s - %(name)s: %(message)s')
-HINT_LEVEL_NUM = 17
-logging.addLevelName(HINT_LEVEL_NUM, "HINT")
-
-def hint(self, message, *args, **kws):
-    """hint logging level"""
-    if self.isEnabledFor(HINT_LEVEL_NUM):
-        # Yes, logger takes its '*args' as 'args'.
-        self._log(HINT_LEVEL_NUM, message, args, **kws)
-
-def slog(message: str):
-    """sub log"""
-    print(' >> ' + message)
-    logger.hint(message)
-
-def nlog(message: str):
-    """new line long"""
-    print('\n==> ' + message)
-    logger.info(message)
-
-def cmd_handle_log(message: str):
-    """logging function for command handling"""
-    print('[CMDHDL]\t' + message)
-    cmdHdlLogger.info(message)
-
-def event_log(message: str):
-    print('[EVENT]\t' + message)
-    eventLogger.info(message)
-
-def cmd_handle_warn(message: str):
-    print(style.orange + message + style.reset)
-    cmdHdlLogger.warning(message)
-
-=======
 logger, eventLogger, cmdHdlLogger = gLogr('Merlin.root', 'Merlin.event', 'Merlin.cmdHdl')
->>>>>>> master
 
 def get_prefix(bot: commands.Bot, message: discord.Message):
     """Get prefix for guild"""
@@ -98,20 +59,9 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
         return tuple(prefixes)
 
 
-<<<<<<< HEAD
-bot = discord.ext.commands.Bot(
-    command_prefix=get_prefix,
-    description="an awesome discord bot coded in discord.py",
-    owner_id=653086042752286730,
-    case_insensitive=True)
-
-
-class Log:
-=======
 class Log:
     def __init__(self, bot):
         self.bot = bot
->>>>>>> master
     @staticmethod
     async def worker_log(name, queue):
         slept = 0
@@ -127,12 +77,7 @@ class Log:
             queue.task_done()
             slept = 0  # reset timeout
 
-<<<<<<< HEAD
-    @classmethod
-    async def __call__(cls, message: str, *, guild: discord.Guild = None):
-=======
     async def __call__(self, message: str, guild: discord.Guild = None):
->>>>>>> master
         if guild:
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
@@ -141,22 +86,13 @@ class Log:
         queue = asyncio.Queue()
         tasks = []
         for i in range(5):
-<<<<<<< HEAD
-            tasks.append(asyncio.create_task(cls.worker_log(f'worker-log-{i}', queue)))
-        for guild in bot.guilds:
-=======
             tasks.append(asyncio.create_task(self.worker_log(f'worker-log-{i}', queue)))
         for guild in self.bot.guilds:
->>>>>>> master
             for channel in guild.channels:
                 if channel.name == 'merlin-py':
                     queue.put_nowait((channel, message))
-                    break
-<<<<<<< HEAD
-log = Log()
-=======
-
->>>>>>> master
+        while not queue.empty():
+            await asyncio.sleep(0.2)
 
 def is_sudoers(member: discord.Member):
     """\
@@ -201,31 +137,3 @@ DEFAULT_SETTINGS = {
         "improveExp": 0}}
 
 
-<<<<<<< HEAD
-def fix_settings(guild: discord.Guild):
-
-
-    settings = None
-    try:
-        settings = json.load(open(SETFILE, 'r'))
-    except Exception:
-        settings = {}
-        open(SETFILE, 'w').write("{}")
-    try:
-        settings[f"g{guild.id}"]['cmdHdl']
-    except KeyError:
-        settings[f"g{guild.id}"] = DEFAULT_SETTINGS.copy()
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-        return
-    # fix cmdHdl
-    cmdHdl = DEFAULT_SETTINGS['cmdHdl'].copy()          # the following code will leave entrys already
-    cmdHdl.update(settings[f'g{guild.id}']['cmdHdl'])   # exists and add the missing entrys so that
-    settings[f'g{guild.id}']['cmdHdl'] = cmdHdl         # overwriting can be prevented
-    default = DEFAULT_SETTINGS.copy()
-    default.update(settings[f'g{guild.id}'])            # we can also do the same thing for the whole settings
-    settings[f'g{guild.id}'].update(default)
-    with open(SETFILE, 'w') as outfile:
-        json.dump(settings, outfile)
-=======
->>>>>>> master

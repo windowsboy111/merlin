@@ -108,7 +108,7 @@ class Debug(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name='id')
-    async def cmd_id(self, ctx, val: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.User, discord.Guild, discord.Message]):
+    async def cmd_id(self, ctx, val: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.User, discord.Guild, discord.Message, discord.Role]):
         return await ctx.send(val.id)
 
 

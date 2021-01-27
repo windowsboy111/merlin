@@ -19,7 +19,7 @@ import aiosqlite
 from ext.const import STATUSES, eventLogger, style, Log, get_prefix, BOTSETFILE, LASTWRDFILE, SETFILE, WARNFILE, STRFILE, TAGFILE, RANKFILE
 from ext.logcfg import gLogr
 from ext import excepts
-exts = ['ext.tasks', 'ext.cmdhdl', 'ext.errhdl']
+exts = ['ext.tasks', 'ext.cmdhdl', 'ext.errhdl', 'ext.console']
 root_logger = gLogr('Merlin.root')
 get_exc = lambda err: "".join(traceback.format_exception(err.__class__, err, sys.exc_info()[2]))
 # scan the cogs folder
@@ -153,7 +153,10 @@ class BotMixin(commands.Bot, metaclass=BotMeta):
             return obj
         
         for name in names[1:]:
-            obj = self.get_cmd_patch(name, obj.all_commands)
+            try:
+                obj = self.get_cmd_patch(name, obj.all_commands)
+            except AttributeError:
+                return obj
             if obj is None:
                 if not last_gud:
                     warnings.warn(f"{name} is not in {obj.name}.", excepts.BadSubcommand)
@@ -260,7 +263,7 @@ class Bot(BotMixin, command_prefix=get_prefix, description="an awesome open sour
                     json.dump(self.db[name], open(file, 'w'))
                 if file.endswith(".db"):
                     asyncio.get_event_loop().create_task(self.db[name].close())
-        return
+        return sys.exit(0)
 
     @commands.command(name='eval', help='it is eval', hidden=True)
     @commands.is_owner()

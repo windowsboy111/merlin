@@ -88,3 +88,17 @@ def exec_async(c):
             return e.value
 
 wrdssep = lambda string, count: [string[i:i+count] for i in range(0, len(string), count)]
+
+def msgsep(msg: str):
+    results = []
+    result = ""
+    lines = msg.split("\n")
+    for line in lines:
+        if len(line) + len(result) > 1999:
+            results.append(result)
+            result = line + "\n"
+            continue
+        result += line + "\n"
+    if result != "":
+        results.append(result)
+    return results

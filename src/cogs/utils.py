@@ -2,6 +2,7 @@ import csv
 import random
 import typing
 import asyncio
+from modules import tools
 import contextlib
 from datetime import datetime
 import discord
@@ -13,6 +14,7 @@ import json
 from ext import excepts
 import aiosqlite
 import duckduckgo
+import pyTableMaker
 from ext.logcfg import gLogr
 stringTable = json.load(open(STRFILE, 'r'))
 
@@ -442,8 +444,8 @@ class Ranking(commands.Cog):
             return
         with contextlib.suppress(KeyError):
             if message.author.id in self.cooldown[message.guild.id]:
-                return 
-        await self.addxp(message.author, 1)
+                return
+        await self.addxp(message.author, random.randint(2, 7))
         try:
             self.cooldown[message.guild.id].append(message.author.id)
         except KeyError:
@@ -456,11 +458,11 @@ class Ranking(commands.Cog):
         lvl, xp = await self.getlvl(member)
         xp += count
         total = (2 ** (lvl))
-        if xp > total:
+        if xp >= total:
             lvl += 1
             xp -= total
             channel = await self.get_announcement_channel(member.guild)
-            await channel.send(f"Hurray, {member}! You are now level {lvl+1}!")
+            await channel.send(f"Hurray, {member}! You are now level {lvl}!")
         await self.setlvl(member, lvl, xp)
         return
         
@@ -566,6 +568,24 @@ class Ranking(commands.Cog):
         await self.setlvl(member, lvl, xp)
         await ctx.message.add_reaction("✅")
         return
+
+    @commands.command()
+    async def levels(self, ctx):
+        """List the ranks."""
+        db = ctx.bot.db['ranks']
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(f'SELECT ID, LVL, XP FROM g{ctx.guild.id} ORDER BY LVL DESC, XP DESC;')
+        rows = await cur.fetchall()
+        table = pyTableMaker.onelineTable()
+        col_rank = table.new_column("Rank")
+        col_member = table.new_column("Member")
+        col_lvl = table.new_column("Level")
+        col_xp = table.new_column("XP/Total")
+        for i, row in enumerate(rows):
+            table.insert(i+1, ctx.guild.get_member(row['ID']), row['LVL'], f"{row['XP']}/{2 ** row['LVL']}")
+        tosend = tools.msgsep(table.get())
+        for m in tosend:
+            ctx.bot.loop.create_task(ctx.send(f"```css\n{m}\n```"))
 
 
 def setup(bot):

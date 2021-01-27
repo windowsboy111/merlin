@@ -32,7 +32,7 @@ class cFormatter(logging.Formatter):
             colour = style.orange
         elif record.levelno is logging.CRITICAL:
             colour = style.red2
-        startchar = "==> " if record.levelno is logging.INFO else " >> " if record.levelno is HINT else None
+        startchar = "\r==> " if record.levelno is logging.INFO else " >> " if record.levelno is HINT else None
         s = f"{style.cyan}{startchar or record.levelname.replace('CRITICAL', 'FATAL')}\t{style.white}{record.name}: {colour}{record.message}"
         if record.exc_info:
             # Cache the traceback text to avoid converting it multiple times
