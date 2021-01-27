@@ -4,7 +4,6 @@
 ==info/warning/disclamer==
 
 This bot is coded for the discord server [KCCS Official](https://discord.io/kccs) originally.  
-For members in kccs official, please request features and report issues!  
 
 Invite using [this link](https://discord.com/api/oauth2/authorize?client_id=690839099648638977&permissions=8&scope=bot).
 
