@@ -48,7 +48,7 @@ class AsyncPool:
 
     async def add_task_nowait(self, *args):
         """same as add_task() but not blocking"""
-        self.queue.put_nowait(*args)
+        self.queue.put_nowait(args)
 
     async def join(self, timeout: int = 0):
         """

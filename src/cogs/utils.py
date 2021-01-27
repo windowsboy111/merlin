@@ -7,7 +7,7 @@ import contextlib
 from datetime import datetime
 import discord
 from discord.ext import commands
-from modules import minecraft as botmc
+from modules import minecraft
 from modules import base_encoding, tools
 from ext.const import STRFILE, chk_sudo
 import json
@@ -76,7 +76,7 @@ class Utils(commands.Cog):
         async def react(msg, emoji):
            await msg.add_reaction(emoji)
 
-        name = PollingCTL.cvt_valid_name(ctx.message, name)
+        name = await PollingCTL.cvt_valid_name(ctx.message, name)
         if name == '':
             await ctx.send('Bruh, wuts da title of the poll?')
             return 2
@@ -117,38 +117,48 @@ class Utils(commands.Cog):
 
     @vote.command(name='check', help='Check polls that has not ended', aliases=['chk'])
     async def check(self, ctx, *, num='0'):
-        try:
-            num = 0xffffff if num == '0' else int(num)
-        except TypeError:
-            return await ctx.send("`num` has to be an integer!")
-        result = []; result2 = pollID = list()
+        if num == '0':
+            num = 0xFFFFFF
+        result = ''
+        result2 = list()
+        pollID = list()
         msg = await ctx.send('You have forgotten something...')
-        # loop through messages
-        async for message in ctx.message.channel.history(limit=num):
-            if message.author != ctx.message.guild.me or not message.embeds:
+        messages = None
+        if not num:
+            messages = await ctx.message.channel.history(limit=0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).flatten()
+        else:
+            messages = await ctx.message.channel.history(limit=int(num)).flatten()
+        for message in messages:
+            if message.author != ctx.message.guild.me:
+                continue
+            if not message.embeds:
                 continue
             embed = message.embeds[0]
             try:
-                if 'Poll ID: ' not in embed.footer.text or embed.title.startswith('Results of the poll for "'):
+                if 'Poll ID: ' not in embed.footer.text:
                     continue
             except Exception:
                 continue
+            if embed.title.startswith('Results of the poll for "'): continue
             if embed.description != 'Poll ended':
-                link = f'[{message.created_at}]({message.jump_url})'
-                result.append(link)
+                link = f'[{message.created_at}]({message.jump_url})\n'
+                result += link
                 result2.append(embed.title)
                 pollID.append(message.id)
         if result == '':
             await msg.edit(content='No unended polls detected.')
             return
+        rs = result.split('\n')
         embed = discord.Embed(title='Running polls')
-        for loop, r in enumerate(result):
-            if loop == len(result2):
+        loopCount = 0
+        for r in rs:
+            if loopCount == len(result2):
                 break
-            embed.add_field(name=result2[loop], value=r)
-        embed.timestamp = datetime.utcnow()
+            embed.add_field(name=result2[loopCount], value=r)
+            loopCount += 1
         await msg.edit(content='Results: ' + str(len(result2)), embed=embed)
         return pollID
+
 
     @vote.command(name='end')
     async def end(self, ctx, *, pollID='0'):
@@ -484,7 +494,6 @@ class Ranking(commands.Cog):
     async def deinit_table(self, guild: discord.Guild):
         self.logger.info(f"Dropping table IF EXISTS g{guild.id} ({guild.name})")
         cur = await self.bot.db['ranks'].execute(f"DROP TABLE g{guild.id};")
-        await cur.commit()
         await cur.close()
 
     async def setlvl(self, member: discord.Member, lvl, xp):
