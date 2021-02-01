@@ -6,6 +6,8 @@
 ### Fixed
 - failed to load cogs/utils
 - failed netLogger
+- settings sometimes does not update after modification
+
 ## [3.0-b] - 2020-02-01
 ### Added
 - subcls bot

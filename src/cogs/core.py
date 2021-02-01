@@ -100,7 +100,7 @@ class Core(commands.Cog):
         gset = sets[f'g{ctx.guild.id}']
         if entry.startswith("{"):
             content = entry + ' ' + val
-            gset = json.loads(content)
+            sets[f'g{ctx.guild.id}'] = json.loads(content)
         if entry == "" or entry not in list(gset.keys()):
             return await ctx.send("```json\n" + json.dumps(gset, sort_keys=True, indent=2) + "\n```")
         await self.sett_proc(ctx, gset, entry, val)
