@@ -1,3 +1,4 @@
+"""Extension with commands for development use."""
 import os, sys
 import typing
 import traceback
@@ -9,17 +10,20 @@ SANDBOX_TRACEBACK = 'samples/traceback.sndbx'
 
 
 class Debug(commands.Cog):
-    """\
-    Type: discord.ext.commands.Cog  
+    """
+    Type: discord.ext.commands.Cog
+
     Most of the debug commands are stored in this cog  
     Load this extension as an external file with `client.load_extension('cogs.debug')`
     ---
     This cog contains:  
     ## Commands
     - ping
-    - msgstats
     - sandbox
+    - id
+    - res
     """
+
     description = "Commands for debugging or dev."
     def __init__(self, bot: commands.Bot):
         self.bot = bot

@@ -214,16 +214,19 @@ class Mod(commands.Cog):
                 await ctx.send(":octagonal_sign: time should ends with `m`, `h`, `d`, `w`, or no postfix.")
                 return 2
 
-        role = discord.utils.get(ctx.guild.roles, name="Muted")
+        role = ctx.guild.get_role(ctx.bot.db['sets'][f'g{ctx.guild.id}']["mutedRole"])
         if role is None:
             raise NoMutedRole
         await member.add_roles(role)
         await ctx.send(f'**Muted** {member.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}')
 
-        embed = discord.Embed(color=discord.Color.green())
-        embed.add_field(name=f"You've been **Muted** in {ctx.guild.name}.", value=f"**Action By: **{ctx.author.mention}\n"
-                                                                                  f"**Reason: **{reason}\n**Duration:** {mute_time}")
-        await member.send(embed=embed)
+        await member.send(embed=
+            discord.Embed(color=discord.Color.orange())
+                .add_field(
+                    name=f"You've been **Muted** in {ctx.guild.name}.", 
+                    value=f"**Action By: **{ctx.author.mention}\n**Reason: **{reason}\n**Duration:** {mute_time}"
+                )
+        )
         try:
             muted[str(member.id)] += 1
         except KeyError:
@@ -249,6 +252,7 @@ class Mod(commands.Cog):
                 role = await ctx.guild.create_role(reason="For muting", name="Muted", colour=discord.Colour.darker_grey(), permissions=perm)
                 for channel in ctx.guild.channels:
                     await channel.set_permissions(role, reason="For muting")
+                ctx.bot.db['sets'][f'g{ctx.guild.id}']['mutedRole'] = role.id
                 return await ctx.reinvoke()
             except (discord.Forbidden, discord.HTTPException, discord.NotFound, discord.InvalidArgument):
                 return await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")

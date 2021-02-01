@@ -13,6 +13,7 @@
 - optimized cmderrhdl (async nowait / tasks)
 - SAP (smart abbreviating prompt)
 - optimized db accessing (async and auto commit)
+- settings for chat channel, muted role, announcement channel, ranking toggle, sudoers are in snowflake (some are new)
 ### Changed
 - `/res` now looks much better
 - using aiosqlite

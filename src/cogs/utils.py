@@ -1,3 +1,4 @@
+"""Extension storing utilities commands."""
 import csv
 import random
 import typing
@@ -17,7 +18,7 @@ import duckduckgo
 import pyTableMaker
 from ext.logcfg import gLogr
 stringTable = json.load(open(STRFILE, 'r'))
-
+BOT: commands.Bot
 
 class PollingCTL:
     @staticmethod
@@ -53,6 +54,7 @@ class Utils(commands.Cog):
     - invite
     - avatar
     - search
+    - emoji
     """
     description = "Utilities command"
     def __init__(self, bot):
@@ -417,6 +419,13 @@ class Utils(commands.Cog):
         await ctx.send(stringTable['tut']['embed'])
         return 0
 
+async def ranking_enabled(guild):
+    global BOT
+    gset = BOT.db['sets'][f'g{guild.id}']
+    with contextlib.suppress(KeyError):
+        if not gset['ranking']:
+            return False
+    return True
 
 class Ranking(commands.Cog):
     """\
@@ -427,6 +436,8 @@ class Ranking(commands.Cog):
     This cog contains:  
     ## Commands  
     - rank
+    - levels
+    - setlvl
     """
     description = "Ranking system ;)"
     cooldown = {}
@@ -436,19 +447,29 @@ class Ranking(commands.Cog):
         self.bot = bot
 
 
+    @staticmethod
+    def cEnabled():
+        async def predicate(ctx):
+            return ranking_enabled(ctx.guild)
+        return commands.check(predicate)
+
     @commands.Cog.listener()
+    @cEnabled()
     async def on_member_join(self, member: discord.Member):
         await self.init_member(member)
 
     @commands.Cog.listener()
+    @cEnabled()
     async def on_guild_join(self, guild: discord.Guild):
         return await self.init_table(guild)
 
     @commands.Cog.listener()
+    @cEnabled()
     async def on_guild_leave(self, guild: discord.Guild):
         return await self.deinit_table(guild)
 
     @commands.Cog.listener()
+    @cEnabled()
     async def on_message(self, message):
         if message.author.bot:
             return
@@ -520,6 +541,7 @@ class Ranking(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
+    @cEnabled()
     async def rank(self, ctx, member: discord.Member = None):
         """Show your xp and level."""
         member = member or ctx.author
@@ -559,6 +581,7 @@ class Ranking(commands.Cog):
     
     @commands.command(name='setlvl')
     @commands.guild_only()
+    @cEnabled()
     @chk_sudo()
     async def cmd_setlvl(self, ctx, member: typing.Optional[discord.Member], lvl: int, xp: int = 0):
         """
@@ -579,6 +602,7 @@ class Ranking(commands.Cog):
         return
 
     @commands.command()
+    @cEnabled()
     async def levels(self, ctx):
         """List the ranks."""
         db = ctx.bot.db['ranks']
@@ -598,5 +622,7 @@ class Ranking(commands.Cog):
 
 
 def setup(bot):
+    global BOT
     bot.add_cog(Utils(bot))
     bot.add_cog(Ranking(bot))
+    BOT = bot

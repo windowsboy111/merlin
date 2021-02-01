@@ -12,7 +12,8 @@ async def errhdl_g(self, ctx, error):
     settings = self.db['sets']
     stringTable = self.db['strs']
     if isinstance(error, commands.errors.CommandInvokeError) and isinstance(error.original, excepts.HaltInvoke):
-        await ctx.send(error.original.msg)
+        if error.original.msg:
+            await ctx.send(error.original.msg)
         return 0  # well it is totally fine after all
 
     # This tells the issuer that the command cannot be used in DM

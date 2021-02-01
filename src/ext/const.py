@@ -1,7 +1,4 @@
-"""
-This script contains constant paths and objects,
-and also global functions
-"""
+"""This script contains constant paths and objects and also global functions."""
 import json
 import asyncio
 from datetime import datetime
@@ -41,7 +38,7 @@ RANKFILE = "data/rank.db"
 logger, eventLogger, cmdHdlLogger = gLogr('Merlin.root', 'Merlin.event', 'Merlin.cmdHdl')
 
 def get_prefix(bot: commands.Bot, message: discord.Message):
-    """Get prefix for guild"""
+    """Get prefix for guild."""
     if isinstance(message.channel, discord.channel.DMChannel):
         return (f'{bot.user.mention} ', '/')
     with open(SETFILE, 'r') as f:
@@ -93,7 +90,7 @@ class Log:
 
 def is_sudoers(member: discord.Member):
     """\
-    Type: function
+    Type: function.
     Checks if the provided member has admin roles (has moderating priviledges)
     This function fetches the Admin roles list from the settings `dict()`
     ---
@@ -114,8 +111,8 @@ def is_sudoers(member: discord.Member):
 
 def chk_sudo():
     """\
-    Type: decorator
-    The command will only be able to be executed by the author if the author is owner or have permissions
+    Type: decorator.
+    The command will only be able to be executed by the author if the author is owner or have permissions.
     """
     async def predicate(ctx):
         if is_sudoers(ctx.author):
@@ -131,6 +128,5 @@ DEFAULT_SETTINGS = {
     "cmdHdl": {
         "cmdNotFound": 0,
         "delIssue": 0,
-        "improveExp": 0}}
-
-
+        "improveExp": 0}
+}
