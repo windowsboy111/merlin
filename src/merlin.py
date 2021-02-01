@@ -212,6 +212,33 @@ class BotMixin(commands.Bot, metaclass=BotMeta):
         ctx.command = self.get_command(invoker, last_gud=True)
         return ctx
 
+
+class Bot(BotMixin, command_prefix=get_prefix, description="an awesome open source discord bot coded in python", owner_id=653086042752286730, case_insensitive=True, intents=discord.Intents.all()):
+    """
+    Class for Merlin Bot client.
+
+    subset of commands.Bot
+    Commands included.
+    """
+
+    async def __aenter__(self):
+        """Basically    `async with bot:`."""
+        root_logger.info("Starting tasks")
+        self.fsyncs.start()  # pylint: disable=no-member
+        self.netLogger = Log(self)
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        with contextlib.suppress(BaseException):
+            print("Merlin is cleaning up...")
+            for file, name in self.FILES.items():
+                if file.endswith(".json"):
+                    db_new = json.load(open(file, 'r'))
+                    self.db[name].update(db_new)
+                    json.dump(self.db[name], open(file, 'w'))
+                if file.endswith(".db"):
+                    asyncio.get_event_loop().create_task(self.db[name].close())
+        return sys.exit(0)
+
     async def on_ready(self):
         """Bot is (back) online."""
         root_logger.info(f'Logged in as {style.cyan}{self.user.name}{style.reset} - {style.italic}{self.user.id}{style.reset} in {style.magenta}{self.MODE} mode')
@@ -239,33 +266,6 @@ class BotMixin(commands.Bot, metaclass=BotMeta):
             await self.netLogger('*RUNNING IN EMERGENCY **FIX** MODE!')
         root_logger.info(style.bold + "Ready!")
         return 0
-
-
-class Bot(BotMixin, command_prefix=get_prefix, description="an awesome open source discord bot coded in python", owner_id=653086042752286730, case_insensitive=True, intents=discord.Intents.all()):
-    """
-    Class for Merlin Bot client.
-
-    subset of commands.Bot
-    Commands included.
-    """
-
-    async def __aenter__(self):
-        """Basically    `async with bot:`."""
-        root_logger.info("Starting tasks")
-        self.fsyncs.start()  # pylint: disable=no-member
-        self.netLogger = Log(self)
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        with contextlib.suppress(BaseException):
-            print("Merlin is cleaning up...")
-            for file, name in self.FILES.items():
-                if file.endswith(".json"):
-                    db_new = json.load(open(file, 'r'))
-                    self.db[name].update(db_new)
-                    json.dump(self.db[name], open(file, 'w'))
-                if file.endswith(".db"):
-                    asyncio.get_event_loop().create_task(self.db[name].close())
-        return sys.exit(0)
 
     @commands.command(name='eval', help='it is eval', hidden=True)
     @commands.is_owner()
