@@ -14,7 +14,9 @@ def main(port=8080, host="0.0.0.0"):
     try:
         import bot
         bot.bot.MODE = os.getenv('MODE')
-        bot.bot.run(os.getenv("DISCORD_TOKEN"), bot=True, reconnect=True)
+        loop = bot.bot.loop
+        task = loop.create_task(bot.main())
+        loop.run_until_complete(task)
     except Exception:
         print(traceback.format_exc())
         print('Retrying in 5 seconds...')
