@@ -3,6 +3,8 @@
 
 
 # [Unreleased]
+### Fixed
+- failed to load cogs/utils
 
 ## [3.0-b] - 2020-02-01
 ### Added

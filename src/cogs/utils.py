@@ -426,7 +426,10 @@ async def ranking_enabled(guild):
         if not gset['ranking']:
             return False
     return True
-
+def cEnabled():
+    async def predicate(ctx):
+        return ranking_enabled(ctx.guild)
+    return commands.check(predicate)
 class Ranking(commands.Cog):
     """\
     Type: discord.ext.commands.Cog  
@@ -445,13 +448,6 @@ class Ranking(commands.Cog):
     logger = gLogr('Merlin.ranking')
     def __init__(self, bot):
         self.bot = bot
-
-
-    @staticmethod
-    def cEnabled():
-        async def predicate(ctx):
-            return ranking_enabled(ctx.guild)
-        return commands.check(predicate)
 
     @commands.Cog.listener()
     @cEnabled()
