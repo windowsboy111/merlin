@@ -2,7 +2,9 @@
 > windowsboy111
 
 
-## [Unreleased]
+# [Unreleased]
+
+## [3.0-b] - 2020-02-01
 ### Added
 - subcls bot
 - ranking system
@@ -300,7 +302,8 @@
 - no more verbose mode :O
 
 
-[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/3.0-a...HEAD
+[Unreleased]:   https://github.com/windowsboy111/Merlin-py/compare/3.0-b...HEAD
+[3.0-b]:        https://github.com/windowsboy111/Merlin-py/compare/3.0-a...3.0-b
 [3.0-a]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.1...3.0-a
 [2.2.1]:        https://github.com/windowsboy111/Merlin-py/compare/2.2.0...2.2.1
 [2.2.0]:        https://github.com/windowsboy111/Merlin-py/compare/2.2-b1...2.2.0
