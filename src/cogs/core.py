@@ -3,7 +3,8 @@ import traceback
 from discord.ext import commands
 from discord.utils import get
 import discord, traceback, json, datetime
-from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, chk_sudo
+from ext import excepts
+from ext.const import chk_sudo, SETFILE, BOTSETFILE, DEFAULT_SETTINGS, is_sudoers
 stringTable = json.load(open('ext/wrds.json', 'r'))
 
 
@@ -50,109 +51,60 @@ class Core(commands.Cog):
         await self.init_sets(guild)
         for role in guild.roles:
             if role.permissions.administrator:
-                self.bot.db['sets'][f'g{guild.id}']['sudoers'].append()
+                self.bot.db['sets'][f'g{guild.id}']['sudoers'].append(role.id)
 
-    @commands.group(name='settings', help='settings about everything', aliases=['set'])
-    async def cmd_settings(self, ctx):
-        settings = self.bot.db['sets']
-        assert len(settings[f'g{ctx.guild.id}']['cmdHdl']) == len(DEFAULT_SETTINGS['cmdHdl'])
-        cmdHdl = settings[f'g{ctx.guild.id}']['cmdHdl']
-        cmdHdl['cmdNotFound']
-        prefix = settings[f'g{ctx.guild.id}']['prefix']
-        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
-        if ctx.invoked_subcommand is None:
-            e = discord.Embed(title='Settings', description='ayy what settings do you wanna edit?')
-            e.add_field(name='Prefix', value=(', '.join(prefix) if any(prefix) else "<No prefixes>"))
-            e.add_field(name='Moderating roles (sudoers)', value=(', '.join([ctx.guild.create_role(id=s).mention if get(ctx.guild.roles, id=s) is None else get(ctx.guild.roles, id=s).mention for s in sudoers])) or '<None>')
-            await ctx.send(embed=e)
-
-    @cmd_settings.command(name="raw")
-    async def settings_raw(self, ctx, entry=None, val=None):
-        """Raw stuff"""
-        sets = self.bot.db['sets']
-        print(entry)
-        if entry is None:
-            return await ctx.send("```json\n" + json.dumps(sets[f'g{ctx.guild.id}']) + "\n```")
-        if val is None:
-            return await ctx.send(sets[f'g{ctx.guild.id}'][entry])
+    async def sett_proc(self, ctx, base, entry: str, val: str):  # process settings assignments
+        # coro, might be overengineered, but whatever
         try:
-            sets[f'g{ctx.guild.id}'][entry] = int(val)
-            await ctx.send(f'"{entry}": {val}')
+            base[entry]
+        except KeyError:  # cannot access
+            raise excepts.HaltInvoke(":x: Entry does not exist!")
+        if not val:  # def'
+            raise excepts.HaltInvoke(base[entry])
+        if isinstance(base[entry], list):  # process the []s
+            if ' ' not in val or not val.startswith(("add", "rm", "remove", "del")):
+                raise excepts.HaltInvoke(base[entry])
+            op = val.split()[0]
+            val = " ".join(val.split()[1:])
+            if op == 'add':
+                if val in base[entry]:
+                    raise excepts.HaltInvoke(":x: Already exists!")
+                try:
+                    return base[entry].append(int(val))
+                except ValueError:
+                    return base[entry].append(val)
+            if op in ('rm', "remove", "delete", "del"):
+                if val not in base[entry]:
+                    raise excepts.HaltInvoke(":x: Does not exists!")
+                try:
+                    return base[entry].remove(int(val))
+                except ValueError:
+                    return base[entry].remove(val)
+        if isinstance(base[entry], dict):  # proess the {}s, feed back into itself
+            if " " not in val:
+                raise excepts.HaltInvoke(base[entry])
+            entry_ = val.split()
+            val_ = " ".join(val.split()[1:])
+            return await self.sett_proc(ctx, base[entry], entry_, val_)  # recursion
+        try:
+            base[entry] = int(val)
         except ValueError:
-            sets[f'g{ctx.guild.id}'][entry] = val
-            await ctx.send(f'"{entry}": "{val}"')
+            base[entry] = val
 
-    @cmd_settings.command(name='cmdhdl', help='Change settings about command handling', aliases=['cmdctl'])
-    async def settings_cmdhdl(self, ctx, toggle=None):
-        settings = self.bot.db['sets']
-        if toggle is None:
-            res = ''
-            for k, v in settings[f'g{ctx.guild.id}']['cmdHdl'].items():
-                res += f'{k}: {v}\n'
-            await ctx.send(res)
-            return 0
-        if toggle in settings[f'g{ctx.guild.id}']['cmdHdl']:
-            newValue = 1 if settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] == 0 else 0
-            settings[f'g{ctx.guild.id}']['cmdHdl'][toggle] = newValue
-            json.dump(settings, open(SETFILE, 'w'))
-            await ctx.send(f"{toggle} has been changed to {newValue}.")
-            return 0
-
-    @cmd_settings.group(name='prefix', help='edit prefix list')
-    @chk_sudo()
-    async def settings_prefix(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.invoke(self.bot.get_command('help'), cmdName='settings prefix')
-
-    @settings_prefix.command(name='add', help='add a prefix for this server')
-    async def settings_prefix_add(self, ctx, prefix: str):
-        settings = self.bot.db['sets']
-        prefixes = settings[f'g{ctx.guild.id}']['prefix']
-        if prefix in prefixes:
-            return ctx.send(':octagonal_sign: That prefix already exists!')
-        settings[f"g{ctx.guild.id}"]['prefix'].append(prefix)
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-        await ctx.send("<:info:739842268881485935> Prefixes now avaliable: " + ', '.join(settings[f'g{ctx.guild.id}']['prefix']))
-
-    @settings_prefix.command(name='remove', help='remove a prefix for this server', aliases=['del', 'delete', 'rm'])
-    async def settings_prefix_remove(self, ctx, prefix: str):
-        settings = self.bot.db['sets']
-        prefixes = settings[f'g{ctx.guild.id}']['prefix']
-        if prefix not in prefixes:
-            return await ctx.send(':octagonal_sign: The specified prefix does not exist in the list!')
-        settings[f'g{ctx.guild.id}']['prefix'].remove(prefix)
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-        return await ctx.send("<:info:739842268881485935> Removed the specified prefix")
-
-    @cmd_settings.group(name='mods', help='set roles that are moderators / admins', aliases=['mod', 'admin', 'admins'])
-    @chk_sudo()
-    async def settings_mods(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.invoke(self.bot.get_command('help'), cmdName='settings mods')
-
-    @settings_mods.command(name='add', help='add a moderating role')
-    async def settings_mods_add(self, ctx, role: discord.Role):
-        settings = self.bot.db['sets']
-        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
-        sudoers.append(role.id)
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, id=s).mention for s in sudoers])))
-
-    @settings_mods.command(name='remove', help='remove a moderating role', aliases=['del', 'rm', 'delete'])
-    async def setings_mod_remove(self, ctx, role: discord.Role):
-        settings = self.bot.db['sets']
-        sudoers = settings[f'g{ctx.guild.id}']['sudoers']
-        sudoers.remove(role.id)
-        with open(SETFILE, 'w') as outfile:
-            json.dump(settings, outfile)
-        return await ctx.send(embed=discord.Embed(title="Moderators roles", description='\n'.join([get(ctx.guild.roles, id=s).mention for s in sudoers])))
+    @commands.guild_only()
+    @commands.group(name='settings', aliases=['configure'])
+    async def cmd_settings(self, ctx: commands.Context, entry:str="", *, val:str=""):
+        """Configure Merlin for this discord server."""
+        sets = self.bot.db['sets']
+        gset = sets[f'g{ctx.guild.id}']
+        if entry == "" or entry not in list(gset.keys()):
+            return await ctx.send("```json\n" + json.dumps(gset, sort_keys=True, indent=2) + "\n```")
+        await self.sett_proc(ctx, gset, entry, val)
+        await ctx.message.add_reaction("✅")
 
     @cmd_settings.error
     async def settings_error(self, ctx, error):
-        if "AssertionError" in str(error) or "KeyError" in str(error):
+        if isinstance(error, (KeyError, AssertionError)):
             await self.init_sets(ctx.guild)
             return await ctx.reinvoke()
         await self.bot.errhdl_g(ctx, error)
@@ -306,7 +258,7 @@ class Core(commands.Cog):
 
     @info.command(name='bot', help='info about this discord bot', aliases=['merlin', 'this', 'self'])
     async def info_bot(self, ctx):
-        settings = self.bot.db['sets']
+        settings = self.bot.db['botsets']
         embed = discord.Embed(title='Merlin info', description='an open-source discord.py bot')
         for key in settings.keys():
             embed.add_field(name=key, value=settings[key])

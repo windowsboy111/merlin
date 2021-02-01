@@ -1,5 +1,6 @@
 from modules import keep_alive
 import traceback
+import asyncio
 import os
 import sys
 import time
@@ -12,7 +13,8 @@ def main(port=8080, host="0.0.0.0"):
     p = keep_alive.start(port=port, host=host)
     try:
         import bot
-        bot.start(os.getenv("DISCORD_TOKEN"), bot=True, reconnect=True)
+        bot.bot.MODE = os.getenv('MODE')
+        bot.bot.run(os.getenv("DISCORD_TOKEN"), bot=True, reconnect=True)
     except Exception:
         print(traceback.format_exc())
         print('Retrying in 5 seconds...')

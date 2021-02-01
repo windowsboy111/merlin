@@ -1,8 +1,13 @@
-from discord.ext import commands
-from discord.utils import get
+"""Moderation stuff."""
+import json
+import random
+import asyncio
 from datetime import datetime
-import discord, pyTableMaker, random, sqlite3, asyncio, json
+import discord
+from discord.utils import get
+from discord.ext import commands
 import aiosqlite
+import pyTableMaker
 from ext.excepts import NoMutedRole
 from ext.const import WARNFILE, SETFILE, STRFILE, chk_sudo
 muted = dict()
@@ -61,53 +66,58 @@ class Mod(commands.Cog):
     @commands.guild_only()
     async def warn(self, ctx, person: discord.Member = None, *, reason: str = 'Not specified'):
         if not person:
-            await ctx.send('No member has been specified.')
-            return
-        connection = sqlite3.connect(WARNFILE)
-        cursor = connection.cursor()
+            return await ctx.send('No member has been specified.')
+        db = ctx.bot.db['warns']
+        db.row_factory = aiosqlite.Row
+        cursor = await db.cursor()
         rc = cursor.rowcount
-        rows = cursor.execute(f"SELECT MAX(ID) AS len FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), )).fetchall()
-        if rows == [] or not rows[0][0]:
-            cursor.execute(f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (1,?,?,?,?);", (
-                           str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
+        cursor = await cursor.execute(f"SELECT MAX(ID) AS len FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), ))
+        rows = await cursor.fetchall()
+        if rows == [] or not rows[0]['len']:
+            await cursor.execute(
+                f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (1,?,?,?,?);",
+                (str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now())
+            )
         else:
-            cursor.execute(f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);", (
-                           str(rows[0][0] + 1), str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now()))
+            await cursor.execute(
+                f"INSERT INTO g{ctx.guild.id} (ID,Person,Reason,Moderator,WarnedDate) VALUES (?,?,?,?,?);",
+                (str(rows[0][0] + 1), str(person.id), reason.replace('\\', '\\\\').replace('"', '\\"'), str(ctx.message.author.id), datetime.now())
+            )
+        await cursor.close()
         if rc == cursor.rowcount:
-            return await ctx.send('Failed to warn that bad guy. Unexpected catched error happened '
-                                  '(no modification has been made to the db, which is unintended...)')
-        cursor.execute("COMMIT;")
+            return await ctx.send(
+                'Failed to warn that bad guy. Unexpected catched error happened '
+                '(no modification has been made to the db, which is unintended...)'
+            )
+        await db.commit()
         await ctx.send(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.')
-        await self.bot.netLogger(f'{ctx.message.author.mention} warned {person.mention}.\nReason: {reason}.', guild=ctx.guild)
+        await self.bot.netLogger(f'{ctx.message.author} warned {person}.\nReason: {reason}.', guild=ctx.guild)
 
     @commands.command(name='rmwn', help='Remove a warning: /rmwn @person warnNumber')
     @chk_sudo()
     @commands.guild_only()
     async def rmwn(self, ctx, person: discord.Member = None, *, num: int = 0):
         if not person:
-            await ctx.send(':octagonal_sign: No member has been specified.')
-            return
-        connection = sqlite3.connect(WARNFILE)
-        cursor = connection.cursor()
+            return await ctx.send(':octagonal_sign: No member has been specified.')
+        db = ctx.bot.db['warns']
+        cur = None
         if num == 0:
-            cursor.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), ))
+            cur = await db.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=?;", (str(person.id), ))
         else:
-            cursor.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=? AND ID=?;", (str(person.id), str(num)))
-        cursor.execute("COMMIT;")
-        close_cursor(cursor)
-        close_connection(connection)
+            cur = await db.execute(f"DELETE FROM g{ctx.guild.id} WHERE Person=? AND ID=?;", (str(person.id), str(num)))
+        await cur.close()
+        await db.commit()
         return await ctx.send(f'Removed warning(s) from {person.mention}.')
 
     @commands.command(name='chkwrn', aliases=['checkwarn', 'checkwarns', 'checkwarnings', 'ckwn', "chkwn"], help='Show warnings of member')
     @commands.guild_only()
     async def chkwrn(self, ctx, member: discord.Member = None, raw=''):
         member = member or ctx.message.author
-        connection = sqlite3.connect(WARNFILE)
-        cursor = connection.cursor()
-        rows = cursor.execute(f"SELECT ID,Moderator,Reason,WarnedDate FROM g{ctx.guild.id} WHERE Person=?;", (str(member.id), )).fetchall()
+        db = ctx.bot.db['warns']
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(f"SELECT ID,Moderator,Reason,WarnedDate FROM g{ctx.guild.id} WHERE Person=?;", (str(member.id), ))
+        rows = await cur.fetchall()
         if rows == []:
-            close_cursor(cursor)
-            close_connection(connection)
             return await ctx.send(f":octagonal_sign: Member {member.mention} does not have any warnings.")
         if raw == 'raw':
             t = pyTableMaker.onelineTable(cellwrap=25)
@@ -134,8 +144,6 @@ class Mod(commands.Cog):
                 embed.add_field(name=user.display_name, value=str(loopCount) + '. ' + warning[2], inline=True)
                 loopCount += 1
             await ctx.send(embed=embed)
-        close_cursor(cursor)
-        return close_connection(connection)
 
     @commands.command(name='kick', help='/kick @someone [reason]', aliases=['sb', 'softban', 'k'])
     @chk_sudo()
@@ -147,13 +155,12 @@ class Mod(commands.Cog):
                 return
             await member.send(f':wave: You have been kicked.\nReason: {reason}')
             await member.kick(reason=reason)
-            await ctx.send(
+            return await ctx.send(
                 f':wave: {ctx.message.author.mention} has kicked {member.mention}.\nReason: {reason}\n'
                 + random.choice([
                     'https://tenor.com/view/kung-fu-panda-karate-kick-gif-15261593',
                     'https://tenor.com/view/strong-kick-hammer-down-fatal-blow-scarlet-johnny-cage-gif-13863296'])
             )
-            return
         except Exception as e:
             await ctx.send(f'Wut happened? {e}')
 
@@ -172,19 +179,16 @@ class Mod(commands.Cog):
             'https://tenor.com/view/thor-banhammer-discord-banned-banned-by-admin-gif-12646581',
             'https://tenor.com/view/cat-red-hammer-bongo-cat-bang-hammer-gif-15733820'
         ]))
-        return
 
     @commands.command(name='unban', help='/unban userID')
     @chk_sudo()
     @commands.guild_only()
     async def unban(self, ctx, userID: int = 0):
+        global oldID
         if userID == 0:
-            global oldID
             if oldID == 0:
-                await ctx.send(f':octagonal_sign: {ctx.message.author.mention} please specify an user id.')
-                return
-            else:
-                userID = oldID
+                return await ctx.send(f':octagonal_sign: {ctx.message.author.mention} please specify an user id.')
+            userID = oldID
         user = await self.bot.fetch_user(userID)
         await ctx.guild.unban(user)
         await ctx.send("Fine. There you go.")
@@ -206,7 +210,7 @@ class Mod(commands.Cog):
         else:
             try:
                 t = int(mute_time)
-            except Exception:
+            except ValueError:
                 await ctx.send(":octagonal_sign: time should ends with `m`, `h`, `d`, `w`, or no postfix.")
                 return 2
 
@@ -222,9 +226,8 @@ class Mod(commands.Cog):
         await member.send(embed=embed)
         try:
             muted[str(member.id)] += 1
-        except Exception:
+        except KeyError:
             muted[str(member.id)] = 1
-        muted[str(member.id)]
         await asyncio.sleep(t)
 
         if muted[str(member.id)] > 1:
@@ -232,36 +235,46 @@ class Mod(commands.Cog):
             return
         try:
             await member.remove_roles(role)
-        except Exception:
+        except discord.HTTPException:  # failed to rm the role (probably doesn't have the role)
             muted[str(member.id)] -= 1
             return
         await ctx.send(f"**Unmuted {member.mention}**")
         muted[str(member.id)] -= 1
-        return
 
     @mute.error
     async def mute_error(self, ctx, error):
         if isinstance(error, NoMutedRole):
-            await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+            try:
+                perm = discord.Permissions(speak=False, stream=False, send_messages=False, add_reactions=False)
+                role = await ctx.guild.create_role(reason="For muting", name="Muted", colour=discord.Colour.darker_grey(), permissions=perm)
+                for channel in ctx.guild.channels:
+                    await channel.set_permissions(role, reason="For muting")
+                return await ctx.reinvoke()
+            except (discord.Forbidden, discord.HTTPException, discord.NotFound, discord.InvalidArgument):
+                return await ctx.send("<:qus:740035076250664982> That command requires creating a @Muted role inside this guild that does not allow members to send messages.")
+        if isinstance(error, discord.Forbidden):
+            return await ctx.send("Uh oh, I do not have permissions to add / remove roles!")
         await self.bot.errhdl_g(ctx, error)
 
     @classmethod
     async def set_warn_error(cls):
         async def warn_error(self, ctx, error):
-            conn = sqlite3.connect(WARNFILE)
-            curs = conn.cursor()
-            curs.execute(
-                f"""
-                CREATE TABLE g{ctx.guild.id} (
-                    ID int,
-                    Person int,
-                    Reason varchar(255),
-                    Moderator varchar(255),
-                    WarnedDate DATE
-                );
-                """
-            )
-            await self.bot.invoke(ctx)
+            if isinstance(error, aiosqlite.OperationalError):
+                db = ctx.bot.db['warns']
+                await db.execute(
+                    f"""
+                    CREATE TABLE g{ctx.guild.id} (
+                        ID int,
+                        Person int,
+                        Reason varchar(255),
+                        Moderator varchar(255),
+                        WarnedDate DATE
+                    );
+                    """
+                )
+                await db.commit()
+                return await self.bot.invoke(ctx)
+            await ctx.bot.errhdl_g(ctx, error)
         cls.warn.error(warn_error)
         cls.rmwn.error(warn_error)
         cls.chkwrn.error(warn_error)

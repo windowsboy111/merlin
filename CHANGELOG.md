@@ -15,14 +15,14 @@
 - optimized db accessing (async and auto commit)
 ### Changed
 - `/res` now looks much better
-### Removed
-- `log()` no longer supports `guild_id` param
-- startup script
-### Modified
 - using aiosqlite
 - better logging system
 - better help commands
 - moved some core stuff to GLOBAL
+- better `/settings` (`/configure`)
+### Removed
+- `log()` no longer supports `guild_id` param
+- startup script
 ### Fixed
 - #30: Broken `/poll check`
 - `/info member` fails when member has no roles

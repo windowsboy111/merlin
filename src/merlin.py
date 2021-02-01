@@ -153,15 +153,17 @@ class BotMixin(commands.Bot, metaclass=BotMeta):
             return obj
         
         for name in names[1:]:
+            new = None
             try:
-                obj = self.get_cmd_patch(name, obj.all_commands)
+                new = self.get_cmd_patch(name, obj.all_commands)
             except AttributeError:
                 return obj
-            if obj is None:
+            if new is None:
                 if not last_gud:
                     warnings.warn(f"{name} is not in {obj.name}.", excepts.BadSubcommand)
                     return None
                 return obj
+            obj = new
         return obj
 
     async def get_context(self, message: discord.Message, *, cls=Context):
@@ -207,7 +209,7 @@ class BotMixin(commands.Bot, metaclass=BotMeta):
         ctx.invoked_with = invoker
         ctx.prefix = invoked_prefix
         # ctx.command = self.get_command(message.content[len(ctx.prefix):], last_gud=True)
-        ctx.command = self.get_command(invoker)
+        ctx.command = self.get_command(invoker, last_gud=True)
         return ctx
 
     async def on_ready(self):

@@ -37,3 +37,6 @@ class BadSubcommand(CmdSearchWarning):
 
 class HaltInvoke(Exception):
     """Stop a command from invoking. No error messages will be displayed."""
+    def __init__(self, msg):
+        super().__init__()
+        self.msg = msg

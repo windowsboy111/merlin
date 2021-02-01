@@ -53,10 +53,7 @@ def get_prefix(bot: commands.Bot, message: discord.Message):
             settings['g' + str(message.guild.id)] = {'prefix': ["/"]}
             json.dump(settings, open(SETFILE, 'w'))
             prefix = ['/']
-        prefixes = prefix.copy()
-        prefixes.append(f'<@!{bot.user.id}> ')
-        prefixes.append(f'<@{bot.user.id}> ')
-        return tuple(prefixes)
+        return commands.when_mentioned_or(*prefix)(bot, message)
 
 
 class Log:

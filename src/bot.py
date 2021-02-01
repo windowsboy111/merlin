@@ -53,7 +53,7 @@ async def cmd_help(ctx, *, cmdName: str = ""):
         e.add_field(name='Usage',       value=usage)
         e.add_field(name='Cog',         value="<No cog>" if not command.cog else command.cog.qualified_name)
         e.add_field(name='Aliases',     value=', '.join(command.aliases) or "<No aliases>")
-        if hasattr(command, 'commands'):    # it is a group
+        if hasattr(command, 'commands') and any(command.commands):    # it is a group
             e.add_field(name='Sub-Commands', value=''.join([f"`{prefix}{cmd.qualified_name}`: {cmd.short_doc}\n" for cmd in command.commands]))
         await ctx.send(embed=e)
         return

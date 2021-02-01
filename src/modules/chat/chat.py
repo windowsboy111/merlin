@@ -12,6 +12,8 @@ from chatterbot.conversation import Statement
 # more_data = None
 # if an error occurred try this: https://blog.csdn.net/qq_41185868/article/details/83758376
 
+manager = mp.Manager()
+queue = mp.Queue()
 
 def make_bot():
     bot = ChatBot(
@@ -56,22 +58,27 @@ except Exception:
     train(bot)
 
 
-def proc_resp(bot, msg):
-    res = bot.get_response(msg.content)
-    asyncio.run(msg.channel.send(res))
+def proc_resp(bot, msg, res:dict):
+    res['response'] = bot.get_response(msg.content)
 
-async def response(msg):
+async def response(discord_bot, msg):
     global doTrain, reTrain
-    if msg.content.startswith('merlin::'):
-        if msg.content == 'merlin::train':
-            doTrain = True
-            return await msg.channel.send("bot is training, please wait for around a minute.")
-        if msg.content.startswith('merlin::retrain'):
-            reTrain = True
-            return await msg.channel.send("Please wait...")
-        return await msg.channel.send("`merlin::`?")
-    p = mp.Process(target=bot.get_response, args=(bot, msg), name='merlin-chat-response')
-    p.start()
+    async with msg.channel.typing():
+        if msg.content.startswith('merlin::'):
+            if msg.content == 'merlin::train':
+                doTrain = True
+                return await msg.channel.send("bot is training, please wait for around a minute.")
+            if msg.content.startswith('merlin::retrain'):
+                reTrain = True
+                return await msg.channel.send("Please wait...")
+            return await msg.channel.send("`merlin::`?")
+        res = manager.dict()
+        p = mp.Process(target=proc_resp, args=(bot, msg, res), name='merlin-chat-response')
+        p.start()
+        while p.is_alive():
+            await asyncio.sleep(0.2)
+        p.join()
+    await msg.channel.send(res['response'])
 
 
 async def save(msg: str, prev: str):

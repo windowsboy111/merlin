@@ -84,8 +84,7 @@ async def save_quote(bot: merlin.Bot, message: discord.Message):
 async def chat_hdl(bot: merlin.Bot, message: discord.Message):
     settings = bot.db['sets']
     if not isinstance(message.channel, discord.DMChannel) and message.channel.name == 'merlin-chat' and not message.author.bot:
-        res, chatbot = await chat.response(message)
-        await message.channel.send(res)
+        await chat.response(bot, message)
     elif not isinstance(message.channel, discord.DMChannel) and not message.author.bot and settings[f'g{message.guild.id}']["cmdHdl"]["improveExp"]:
         msgs = await message.channel.history(limit=2).flatten()
         await asyncio.gather(chat.save(message.content, msgs[1].content))
